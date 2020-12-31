@@ -19,12 +19,11 @@
 // @grant        GM.openInTab
 // @connect      instagram.com
 // @connect      i.instagram.com
-// @website      https://github.com/jomifepe
-// @namespace    https://greasyfork.org/users/192987
-// @homepage     https://greasyfork.org/users/192987
-// @supportURL   https://greasyfork.org/en/scripts/372366-instagram-source-opener/feedback
-// @updateURL    https://greasyfork.org/scripts/372366-instagram-source-opener/code/Instagram%20Source%20Opener.user.js
-// @downloadURL  https://greasyfork.org/scripts/372366-instagram-source-opener/code/Instagram%20Source%20Opener.user.js
+// @namespace    https://jomifepe.github.io/
+// @supportURL   https://github.com/jomifepe/userscripts/issues
+// @homepage     https://github.com/jomifepe/userscripts/main/instagram-source-opener
+// @updateURL    https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
+// @downloadURL  https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
 // ==/UserScript==
 
 /* jshint esversion: 10 */
