@@ -3,11 +3,10 @@
 // @version          1.0.6
 // @description      Sorts eBay™ search results by popularity (number of times sold)
 // @author           jomifepe
-// @license          MIT
+// @license          http://www.apache.org/licenses/#2.0
 // @icon             https://www.ebay.com/favicon.ico
 // @require          http://code.jquery.com/jquery-latest.min.js
 // @include          https://www.ebay.com/sch/*
-// @license          http://www.apache.org/licenses/#2.0
 // @namespace        https://jomifepe.github.io/
 // @supportURL       https://github.com/jomifepe/userscripts/issues
 // @homepage         https://github.com/jomifepe/userscripts/main/ebay-popularity-sort
