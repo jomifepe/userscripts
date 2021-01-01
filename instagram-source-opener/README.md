@@ -50,9 +50,34 @@ _Note: I cannot guarantee compatibility with IG viewers other than the actual we
    -  **EDIT (2020-11-22)** - This was solved by using an external API, so you might see a small delay when getting a (newer) video source.
 -  **<sup>(1)</sup> 2020-11-22** - One of the third party websites that was being use to get profile pictures (izuum.com) has been shutdown. This was the one that was being used lately, so profile pictures may be done for a while until I figure out a way to solve it.
    -  **EDIT ([2020-12-26](#sessionid))** - The new version (1.1.14) discards all the 3rd party websites used to get a user's profile picture in favor of a simpler approach (that requires you to be logged in), but with some caveats. I decided to add a developer(ish) section to the settings, that allows you to specify your current <u>sessionid</u>. This id is crucial because it allows you to get most information (including an HD profile picture) from the <u>official IG user info API</u>. The issue is that it can't be accessed from the script, because it's protected, otherwise I wouldn't be writing this and you would be using it without any extra steps. I also considered developing a public API to make these requests with a sessionid of my own, but proper web hosting costs money and a free version (like AWS and GCP have) would probably be unreliable. That said, with the current solution, by following the <u>instruction image below</u>, even if you're not a developer, you should be able to get it working, just make sure you're logged in before getting the session id.
-   You may encounter some issues, for example if you provide an invalid session id, the request is still executed and it may break you current session and you get logged out. This shouldn't be a big issue because as long as you provide a valid id and stay logged in, everything should work as expected.
-   <hr/>
+      You may encounter some issues, for example if you provide an invalid session id, the request is still executed and it may break you current session and you get logged out. This shouldn't be a big issue because as long as you provide a valid id and stay logged in, everything should work as expected.
 
-#### If you like the script and would like to support me:
+<br/>
+
+#### If you like the script and would like to share your appreciation:
 
 <a href="https://www.buymeacoffee.com/jomifepe" target="_blank"><img src="https://i.imgur.com/H1EfyPW.png" alt="Buy Me A Beer" width="200px"></a>
+
+<hr/>
+
+## Images
+
+### Open source button locations:
+
+![open source button locations](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/instagram-source-opener.jpg?raw=true "open source button locations")
+
+### Tampermonkey settings menu:
+
+![tampermonkey settings menu](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/settings-menu-tampermonkey.png?raw=true "tampermonkey settings menu")
+
+### On-page settings menu:
+
+![on-page settings menu](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/settings-menu-page.png?raw=true "on-page settings menu")
+
+### Getting the sessionid on chrome & opera:
+
+![getting sessionid chrome & opera](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/session-id-chrome-opera.png?raw=true "getting sessionid chrome & opera")
+
+### Getting the sessionid on firefox:
+
+![getting sessionid firefox](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/session-id-firefox.png?raw=true "getting sessionid firefox")
