@@ -1,17 +1,19 @@
 // ==UserScript==
-// @name         eBay™ Popularity Sort
-// @version      1.0.6
-// @description  Sorts eBay™ search results by popularity (number of times sold)
-// @author       jomifepe
-// @icon         https://www.ebay.com/favicon.ico
-// @require      http://code.jquery.com/jquery-latest.min.js
-// @include      https://www.ebay.com/sch/*
-// @license      http://www.apache.org/licenses/#2.0
-// @namespace    https://jomifepe.github.io/
-// @supportURL   https://github.com/jomifepe/userscripts/issues
-// @homepage     https://github.com/jomifepe/userscripts/main/ebay-popularity-sort
-// @updateURL    https://raw.githubusercontent.com/jomifepe/userscripts/main/ebay-popularity-sort/src/ebay-popularity-sort.user.js
-// @downloadURL  https://raw.githubusercontent.com/jomifepe/userscripts/main/ebay-popularity-sort/src/ebay-popularity-sort.user.js
+// @name             eBay™ Popularity Sort
+// @version          1.0.6
+// @description      Sorts eBay™ search results by popularity (number of times sold)
+// @author           jomifepe
+// @license          MIT
+// @icon             https://www.ebay.com/favicon.ico
+// @require          http://code.jquery.com/jquery-latest.min.js
+// @include          https://www.ebay.com/sch/*
+// @license          http://www.apache.org/licenses/#2.0
+// @namespace        https://jomifepe.github.io/
+// @supportURL       https://github.com/jomifepe/userscripts/issues
+// @homepage         https://github.com/jomifepe/userscripts/main/ebay-popularity-sort
+// @updateURL        https://raw.githubusercontent.com/jomifepe/userscripts/main/ebay-popularity-sort/src/ebay-popularity-sort.user.js
+// @downloadURL      https://raw.githubusercontent.com/jomifepe/userscripts/main/ebay-popularity-sort/src/ebay-popularity-sort.user.js
+// @contributionURL  https://www.paypal.com/donate?hosted_button_id=JT2G5E5SM9C88
 // ==/UserScript==
 
 // This is a port from the eBay™ Popularity Sort chrome extension.

@@ -1,29 +1,31 @@
 // ==UserScript==
-// @name         Instagram Source Opener
-// @version      1.1.17
-// @description  Open the original source of an IG post, story or profile picture. No jQuery
-// @author       jomifepe
-// @icon         https://www.instagram.com/favicon.ico
-// @match        https://www.instagram.com/*
-// @grant        GM_xmlhttpRequest
-// @grant        GM.xmlHttpRequest
-// @grant        GM_registerMenuCommand
-// @grant        GM.registerMenuCommand
-// @grant        GM_getValue
-// @grant        GM.getValue
-// @grant        GM_setValue
-// @grant        GM.setValue
-// @grant        GM_deleteValue
-// @grant        GM.deleteValue
-// @grant        GM_openInTab
-// @grant        GM.openInTab
-// @connect      instagram.com
-// @connect      i.instagram.com
-// @namespace    https://jomifepe.github.io/
-// @supportURL   https://github.com/jomifepe/userscripts/issues
-// @homepage     https://github.com/jomifepe/userscripts/main/instagram-source-opener
-// @updateURL    https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
-// @downloadURL  https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
+// @name             Instagram Source Opener
+// @version          1.1.17
+// @description      Open the original source of an IG post, story or profile picture. No jQuery
+// @author           jomifepe
+// @license          MIT
+// @icon             https://www.instagram.com/favicon.ico
+// @match            https://www.instagram.com/*
+// @grant            GM_xmlhttpRequest
+// @grant            GM.xmlHttpRequest
+// @grant            GM_registerMenuCommand
+// @grant            GM.registerMenuCommand
+// @grant            GM_getValue
+// @grant            GM.getValue
+// @grant            GM_setValue
+// @grant            GM.setValue
+// @grant            GM_deleteValue
+// @grant            GM.deleteValue
+// @grant            GM_openInTab
+// @grant            GM.openInTab
+// @connect          instagram.com
+// @connect          i.instagram.com
+// @namespace        https://jomifepe.github.io/
+// @supportURL       https://github.com/jomifepe/userscripts/issues
+// @homepage         https://github.com/jomifepe/userscripts/main/instagram-source-opener
+// @updateURL        https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
+// @downloadURL      https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
+// @contributionURL  https://www.paypal.com/donate?hosted_button_id=JT2G5E5SM9C88
 // ==/UserScript==
 
 /* jshint esversion: 10 */
