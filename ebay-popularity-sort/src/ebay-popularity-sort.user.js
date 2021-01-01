@@ -3,6 +3,7 @@
 // @version          1.0.6
 // @description      Sorts eBay™ search results by popularity (number of times sold)
 // @author           jomifepe
+// @license          MIT
 // @icon             https://www.ebay.com/favicon.ico
 // @require          http://code.jquery.com/jquery-latest.min.js
 // @include          https://www.ebay.com/sch/*

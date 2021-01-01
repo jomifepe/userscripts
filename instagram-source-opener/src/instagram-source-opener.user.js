@@ -3,6 +3,7 @@
 // @version          1.1.17
 // @description      Open the original source of an IG post, story or profile picture. No jQuery
 // @author           jomifepe
+// @license          MIT
 // @icon             https://www.instagram.com/favicon.ico
 // @match            https://www.instagram.com/*
 // @grant            GM_xmlhttpRequest
