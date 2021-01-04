@@ -56,7 +56,7 @@ _Note: I cannot guarantee compatibility with IG viewers other than the actual we
 
 #### If you like the script and would like to share your appreciation:
 
-<a href="https://www.paypal.com/donate?hosted_button_id=5T87WS57LNLL4" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donate"></a>
+[![donate button](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif "donate")](https://www.paypal.com/donate?hosted_button_id=5T87WS57LNLL4)
 
 <hr/>
 
