@@ -6,7 +6,7 @@ Adds a button to open the original source of an IG story, post or profile pictur
    -  **Posts** - On the feed, post page or quick view (single image/video or carousel)
    -  **Stories**
    -  <sup>(1)</sup> **Profile pictures** - Even on private and not followed pages (requires login)
-      -  This is now achieved using the script's <u>developer options</u>, see more below
+      -  This is now achieved using the script's <u>developer options</u>, see more below on the settings section
 -  Saving a post directly from the context menu (right-click)
    -  _Note: This is just convenience and it doesn't save the full size version_
 -  Posts show the full timestamp instead of a relative and more generic time
