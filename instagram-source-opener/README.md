@@ -16,8 +16,8 @@ Adds a button to open the original source of an IG story, post or profile pictur
 
 #### Defaults:
 
--  Alt + O - Opening single posts (pop-up) and stories
--  Alt + P - Opening the profile picture on a profile page
+-  Alt/⌥ + O - Opening single posts (pop-up) and stories
+-  Alt/⌥ + P - Opening the profile picture on a profile page
 
 These key bindings can be **changed on the script's settings**, see more below
 
@@ -64,7 +64,7 @@ _Note: I cannot guarantee compatibility with third-party Instagram viewers/exten
 
 ### Open source button locations:
 
-![open source button locations](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/instagram-source-opener.jpg?raw=true "open source button locations")
+![open source button locations](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/instagram-source-opener.png?raw=true "open source button locations")
 
 ### Tampermonkey settings menu:
 
