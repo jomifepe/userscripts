@@ -64,20 +64,20 @@ _Note: I cannot guarantee compatibility with third-party Instagram viewers/exten
 
 ### Open source button locations:
 
-![open source button locations](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/instagram-source-opener.png?raw=true "open source button locations")
+![open source button locations](https://raw.githubusercontent.com/jomifepe/userscripts/develop/instagram-source-opener/instagram-source-opener.png "open source button locations")
 
 ### Tampermonkey settings menu:
 
-![tampermonkey settings menu](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/settings-menu-tampermonkey.png?raw=true "tampermonkey settings menu")
+![tampermonkey settings menu](https://raw.githubusercontent.com/jomifepe/userscripts/develop/instagram-source-opener/settings-menu-tampermonkey.png "tampermonkey settings menu")
 
 ### On-page settings menu:
 
-![on-page settings menu](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/settings-menu-page.png?raw=true "on-page settings menu")
+![on-page settings menu](https://raw.githubusercontent.com/jomifepe/userscripts/develop/instagram-source-opener/settings-menu-page.png "on-page settings menu")
 
 ### Getting the sessionid on chrome & opera:
 
-![getting sessionid chrome & opera](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/session-id-chrome-opera.png?raw=true "getting sessionid chrome & opera")
+![getting sessionid chrome & opera](https://raw.githubusercontent.com/jomifepe/userscripts/develop/instagram-source-opener/session-id-chrome-opera.png "getting sessionid chrome & opera")
 
 ### Getting the sessionid on firefox:
 
-![getting sessionid firefox](https://github.com/jomifepe/userscripts/blob/main/instagram-source-opener/session-id-firefox.png?raw=true "getting sessionid firefox")
+![getting sessionid firefox](https://raw.githubusercontent.com/jomifepe/userscripts/develop/instagram-source-opener/session-id-firefox.png "getting sessionid firefox")
