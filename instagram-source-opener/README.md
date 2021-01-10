@@ -2,22 +2,16 @@ Adds a button to open the original source of an IG story, post or profile pictur
 
 ### Features
 
--  Opening the source of a post on the post feed, page or profile pop-up (single image/video or carousel)
--  Opening the source of a story (image or video)
--  <sup>(1)</sup> Visualising full size profile pictures, even on private and not followed pages
-   -  This is now achieved using the developer options, see more below
--  Saving a picture directly from the post with a right-click
--  Other features:
--  Key bindings to open the source
--  Ability to customise how to open (redirect and new tab with or without focus)
--  Posts show the full timestamp
-
-#### Developer options
-
-Options available on the script's settings menu (shown in the images below)
-
--  Session ID
-   -  The session id determines your current login and it's used to get full size profile pictures using the instagram API. Without this, you will get low-res profile pictures. See <u>how to get your session id</u> on the **images below** and <u>News/Difficulties</u> for a detailed explanation.
+-  Visualising the full size, original image or video of:
+   -  **Posts** - On the feed, post page or quick view (single image/video or carousel)
+   -  **Stories**
+   -  <sup>(1)</sup> **Profile pictures** - Even on private and not followed pages (requires login)
+      -  This is now achieved using the script's <u>developer options</u>, see more below
+-  Saving a post directly from the context menu (right-click)
+   -  _Note: This is just convenience and it doesn't save the full size version_
+-  <u>Other features</u>:
+   -  Posts show the full timestamp instead of a relative and more generic time
+   -  Ability to customise your experience (key binding, default actions, ... see more settings below)
 
 ### Key bindings
 
@@ -26,9 +20,16 @@ Options available on the script's settings menu (shown in the images below)
 -  Alt + O - Opening single posts (pop-up) and stories
 -  Alt + P - Opening the profile picture on a profile page
 
-These key bindings can be changed on the menu shown by clicking on your extension icon, as shown on the Tampermonkey screenshot below.
+These key bindings can be **changed on the script's settings**, see more below
 
-If your script manager doesn't have the menu feature, you can use the on-page menu that can be opened using the button on the top bar of the IG page, as shown below.
+### Settings:
+
+-  Changing the key bindings - These always use the Alt/⌥ key in combination with a letter, this option allows you to change the default letter.
+-  Open source button behavior - Redirect or open in a new tab with or without focus.
+-  **<u>Developer options</u>**
+   -  Options available on the script's settings menu (see images below). These are more developer-oriented, but by following the provided instructions, anyone can use them.
+   -  **Session ID:**
+      -  The session id determines your current login and it's used to get **full size profile pictures** using the instagram API. Without this, you will get low-res profile pictures. See <u>how to get your session id</u> on the **images below** and the <u>News/Difficulties</u> section for more a detailed explanation.
 
 ### Compatibility
 
@@ -36,7 +37,7 @@ If your script manager doesn't have the menu feature, you can use the on-page me
 -  Firefox: Tampermonkey, Greasemonkey & Violentmonkey
 -  Opera: Tampermonkey
 
-_Note: I cannot guarantee compatibility with IG viewers other than the actual website (common on Opera)_
+_Note: I cannot guarantee compatibility with third-party Instagram viewers/extensions (common on Opera), only with the actual website._
 
 ### Notes
 
