@@ -9,9 +9,8 @@ Adds a button to open the original source of an IG story, post or profile pictur
       -  This is now achieved using the script's <u>developer options</u>, see more below
 -  Saving a post directly from the context menu (right-click)
    -  _Note: This is just convenience and it doesn't save the full size version_
--  <u>Other features</u>:
-   -  Posts show the full timestamp instead of a relative and more generic time
-   -  Ability to customise your experience (key binding, default actions, ... see more settings below)
+-  Posts show the full timestamp instead of a relative and more generic time
+-  Ability to customise your experience (key binding, default actions, ... see more settings below)
 
 ### Key bindings
 
