@@ -2,6 +2,7 @@
 *.pem
 *.cert
 *.min.*
+*.psd
 
 # Dependency directories
 node_modules/
