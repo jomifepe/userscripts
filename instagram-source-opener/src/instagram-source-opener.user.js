@@ -780,16 +780,14 @@
 
     const user = await getUserDataFromIG(username);
     const lowResPicture = user?.profile_pic_url_hd || user?.profile_pic_url;
-    const highResPicture =
-      user?.id &&
-      sessionId &&
+    let highResPicture =
+      Boolean(user?.id && sessionId) &&
       isLoggedIn() &&
-      (
-        await httpGETRequest(API.IG_USER_INFO_API(user.id), {
-          'User-Agent': USER_AGENT,
-          Cookie: `sessionid=${sessionId}`,
-        })
-      )?.user?.hd_profile_pic_url_info?.url;
+      (await httpGETRequest(API.IG_USER_INFO_API(user.id), {
+        'User-Agent': USER_AGENT,
+        Cookie: `sessionid=${sessionId}`,
+      }));
+    highResPicture = (highResPicture?.user || highResPicture?.graphql?.user)?.hd_profile_pic_url_info?.url;
 
     if (!highResPicture) {
       if (!lowResPicture) {
@@ -1075,15 +1073,15 @@
         headers,
         timeout: 10000,
         onload: res => {
-          if (res.status !== 200) {
+          if (res.status && res?.status !== 200) {
             reject('Status Code', res?.status, res?.statusText || '');
             return;
           }
-          let response = res.responseText;
+          let data = res.responseText;
           if (parseToJSON) {
-            response = JSON.parse(res.responseText);
+            data = JSON.parse(res.responseText);
           }
-          resolve(response);
+          resolve(data);
         },
         onerror: error => {
           error(`Failed to perform GET request to ${url}`, error);
@@ -1102,56 +1100,6 @@
       const fnResponse = callGMFunction(GMFunc.xmlHttpRequest, options);
       if (fnResponse === null) {
         error(`Failed to perform GET request to ${url}`);
-        reject();
-      }
-    });
-  }
-
-  /**
-   * Performs an HTTP POST request using the GM_xmlhttpRequest or GM.xmlHttpRequest function
-   * @param {string} url Target url to perform the request
-   * @param {{[key: string]: string}} [headers = null] Request header (optional)
-   * @param {string} [data = null] Request body (optional)
-   * @param {boolean} [parseToJSON = true] Parse the response to JSON (default true)
-   * @returns {Promise<string|any>} Response text or an exception error object
-   */
-  // eslint-disable-next-line no-unused-vars
-  function httpPOSTRequest(url, headers = null, data = null, parseToJSON = true) {
-    return new Promise((resolve, reject) => {
-      const options = {
-        method: 'POST',
-        url: url,
-        ...(headers && { headers: headers }),
-        ...(data && { data: data }),
-        timeout: 10000,
-        onload: res => {
-          if (res.status !== 200) {
-            reject('Status Code', res?.status, res?.statusText || '');
-            return;
-          }
-          let response = res.responseText;
-          if (parseToJSON) {
-            response = JSON.parse(res.responseText);
-          }
-          resolve(response);
-        },
-        onerror: error => {
-          error(`Failed to perform POST request to ${url}`, error);
-          reject(error);
-        },
-        ontimeout: () => {
-          error('POST Request Timeout');
-          reject('POST Request Timeout');
-        },
-        onabort: () => {
-          error('POST Request Aborted');
-          reject('POST Request Aborted');
-        },
-      };
-
-      const fnResponse = callGMFunction(GMFunc.xmlHttpRequest, options);
-      if (fnResponse === null) {
-        error(`Failed to perform POST request to ${url}`);
         reject();
       }
     });
