@@ -9,7 +9,7 @@
 // @include          https://www.ebay.com/sch/*
 // @namespace        https://jomifepe.github.io/
 // @supportURL       https://github.com/jomifepe/userscripts/issues
-// @homepage         https://github.com/jomifepe/userscripts/main/ebay-popularity-sort
+// @homepage         https://github.com/jomifepe/userscripts/tree/main/ebay-popularity-sort
 // @updateURL        https://raw.githubusercontent.com/jomifepe/userscripts/main/ebay-popularity-sort/src/ebay-popularity-sort.user.js
 // @downloadURL      https://raw.githubusercontent.com/jomifepe/userscripts/main/ebay-popularity-sort/src/ebay-popularity-sort.user.js
 // @contributionURL  https://www.paypal.com/donate?hosted_button_id=JT2G5E5SM9C88
