@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.1.17
+// @version          1.1.18
 // @description      Open the original source of an IG post, story or profile picture. No jQuery
 // @author           jomifepe
 // @license          MIT
@@ -22,7 +22,7 @@
 // @connect          i.instagram.com
 // @namespace        https://jomifepe.github.io/
 // @supportURL       https://github.com/jomifepe/userscripts/issues
-// @homepage         https://github.com/jomifepe/userscripts/main/instagram-source-opener
+// @homepage         https://github.com/jomifepe/userscripts/tree/main/instagram-source-opener
 // @updateURL        https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
 // @downloadURL      https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
 // @contributionURL  https://www.paypal.com/donate?hosted_button_id=JT2G5E5SM9C88
@@ -60,7 +60,7 @@
     IG_S_PRIVATE_PROFILE_PIC_IMG_CONTAINER = '.IalUJ',
     IG_S_PROFILE_USERNAME_TITLE = '.fKFbl,h2',
     IG_S_POST_BLOCKER = '._9AhH0',
-    IG_S_TOP_BAR = '.Hz2lF',
+    IG_S_TOP_BAR = '.Hz2lF,._lz6s',
     IG_S_POST_TIME_ANCHOR = '.c-Yi7',
     IG_S_MULTI_POST_INDICATOR = '.Yi5aA',
     IG_C_MULTI_POST_INDICATOR_ACTIVE = 'XCodT';
@@ -780,16 +780,14 @@
 
     const user = await getUserDataFromIG(username);
     const lowResPicture = user?.profile_pic_url_hd || user?.profile_pic_url;
-    const highResPicture =
-      user?.id &&
-      sessionId &&
+    let highResPicture =
+      Boolean(user?.id && sessionId) &&
       isLoggedIn() &&
-      (
-        await httpGETRequest(API.IG_USER_INFO_API(user.id), {
-          'User-Agent': USER_AGENT,
-          Cookie: `sessionid=${sessionId}`,
-        })
-      )?.user?.hd_profile_pic_url_info?.url;
+      (await httpGETRequest(API.IG_USER_INFO_API(user.id), {
+        'User-Agent': USER_AGENT,
+        Cookie: `sessionid=${sessionId}`,
+      }));
+    highResPicture = (highResPicture?.user || highResPicture?.graphql?.user)?.hd_profile_pic_url_info?.url;
 
     if (!highResPicture) {
       if (!lowResPicture) {
@@ -1075,15 +1073,15 @@
         headers,
         timeout: 10000,
         onload: res => {
-          if (res.status !== 200) {
+          if (res.status && res?.status !== 200) {
             reject('Status Code', res?.status, res?.statusText || '');
             return;
           }
-          let response = res.responseText;
+          let data = res.responseText;
           if (parseToJSON) {
-            response = JSON.parse(res.responseText);
+            data = JSON.parse(res.responseText);
           }
-          resolve(response);
+          resolve(data);
         },
         onerror: error => {
           error(`Failed to perform GET request to ${url}`, error);
@@ -1102,56 +1100,6 @@
       const fnResponse = callGMFunction(GMFunc.xmlHttpRequest, options);
       if (fnResponse === null) {
         error(`Failed to perform GET request to ${url}`);
-        reject();
-      }
-    });
-  }
-
-  /**
-   * Performs an HTTP POST request using the GM_xmlhttpRequest or GM.xmlHttpRequest function
-   * @param {string} url Target url to perform the request
-   * @param {{[key: string]: string}} [headers = null] Request header (optional)
-   * @param {string} [data = null] Request body (optional)
-   * @param {boolean} [parseToJSON = true] Parse the response to JSON (default true)
-   * @returns {Promise<string|any>} Response text or an exception error object
-   */
-  // eslint-disable-next-line no-unused-vars
-  function httpPOSTRequest(url, headers = null, data = null, parseToJSON = true) {
-    return new Promise((resolve, reject) => {
-      const options = {
-        method: 'POST',
-        url: url,
-        ...(headers && { headers: headers }),
-        ...(data && { data: data }),
-        timeout: 10000,
-        onload: res => {
-          if (res.status !== 200) {
-            reject('Status Code', res?.status, res?.statusText || '');
-            return;
-          }
-          let response = res.responseText;
-          if (parseToJSON) {
-            response = JSON.parse(res.responseText);
-          }
-          resolve(response);
-        },
-        onerror: error => {
-          error(`Failed to perform POST request to ${url}`, error);
-          reject(error);
-        },
-        ontimeout: () => {
-          error('POST Request Timeout');
-          reject('POST Request Timeout');
-        },
-        onabort: () => {
-          error('POST Request Aborted');
-          reject('POST Request Aborted');
-        },
-      };
-
-      const fnResponse = callGMFunction(GMFunc.xmlHttpRequest, options);
-      if (fnResponse === null) {
-        error(`Failed to perform POST request to ${url}`);
         reject();
       }
     });
@@ -1283,7 +1231,7 @@
       :root{
         --iso-settings-post-btn-icon:url('data:image/png;base64,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');
         --iso-settings-story-btn-icon:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAeFBMVEUAAAD////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GqOSsAAAAJ3RSTlMAAgMLDRQVFkVOUGFiaIKap6ipqquszM/Q0dbY5ufv8PP0+fr8/f7DeTSmAAAAAWJLR0QnLQ+oIwAAALpJREFUOMvNk90SgiAUBj8tzdK0JCv7tdJ4/zfsqIgI6Ex37o3M7MoZRgRmgp+9eEuZAKtrvxZkXPIAgm5dyoDeP7GG3RpwY1rc6kIGnJ+d4dCo0gJm+Oo+EZD/btl40HiMB60fD+r5ET1jfrEGnYcb+LZA7K/RB3bfB3J/YvNMjED12CvfQgSh6i3HXH5Ubwnc4zvEVABngelgyJ+BfmFoXq4EdOVypkG+kMGBW0ll4LHC1EXqzeW3/AFfeiRd23tgxAAAAABJRU5ErkJggg==');
-        --iso-settings-btn-icon:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAA8klEQVRYhe2WMQrCMBSGP8ULCA7eofQe4qyT3sOtxs2zFZcuHkAP0UGhDiYYJG2T9rUO5odAeHm8/yN5CYGoeq2BO1B5jhxYSAKEmJtRSEKYor55hTREKMAcuOj5FViODYA0RBcAUYiuAGIQfQDg3YimMfMhAXyv62AAK+D2S4BedaYCBr0UASLAbASPSdPiz3cgAkgDKCCriZ9Di4U+xUrnP4DEiqc6VumcQQCM+RPYO9a3FoT3TvgC2Oa7hryNC0KiB0pr3nTn7bWyNstSyBEc8D+Co2fN1p/OtxSfJkyteELHJmz76bikgJMjnoWa/49eJ0SVuX3p8rIAAAAASUVORK5CYII=');
+        --iso-settings-btn-icon:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAD+UlEQVR4nO3aS4xkYxQH8F8rNDozpmcyk8hoYSEEM0IiYUkvJJN4TLcMCwsRZsXOxpL9JMaClcdGLDw34zUJKxlsxDOTiKaHYEEahWFUd1l8Lemp+m7Vvd/9bnWR+idnUzfnf87536/O97pMMMEEE+TFHhzGp/gN3UQ7hS/xOC4aaQWJmMYTWJVedJG1cfvoSqmOabwtf+EbrYO7RlVQVTyp2eL/tb+NoQh79A/7E1jElgS+WNFjLcJj+ovfXoOvV4A7jbkInzk9ucWafL0CMOYi/Or0xFKG/UbEBGCMRShKuAm+O/SL0MHdGeImY5QCMIYijFoAxkyEzRCAMRJhswRgTETYTAEonh1uy5BLKeQWoN3Dd2EJn5gIbcxlyGcocgvwfg/fa9JFOJwhn6E4goexD5dn4HtQv6ip9kWGfEaOaXwojwB/jTj3bNgtnwj/WZyNB3BMf2PMJsBUA4lvNnqLHljjGTUC3YBtCX4tXFsj7qZjDq8KSr+LmQq+U3hm3fdlzczTjfaAq7HSE+A97Crhew6e7/FdwXzmHBsV4AKsRYJ8j/uFInvRwq34POLXxS2Zc2y8CX6EvQXP2ngHXwkHpbtxo+IR0hH6yO8JeRShUhNMwVPyrdQ+zp1cJMZApMwCXyf4FOHHjFxJSBGglTF+rGeMFCkCXJox/lXyCto4WvhGvh7QxU2Zc2x0GlyMBKhrr2fOsTEBzsdSJEAOuydjno0IcB7eiJDnspPYnynX7ALsxQcR4pgtY0G4HtsqFHW8pG9H+Bpktma+WQSYFQp5Sf8526DiY8lvV61xnsSLOFjANwy1BdgnvI2qw3hhAOeBBL6utKPtSgLE1gE7pc3Nbw149mYCH6HxNoqYAHUOSYqQuiFZy5pFBLFif07kGrSvvzmBbxU/JeZSC7PC3v4F/KH8//W4eNPagW9Lcpxaj7sg7bhNhLMWZoWpqWxTPCFcWG5dtwPKzwDHcGXdhCO8WbBfmJ5SOnkZO4JzM+XaiABwb4Q8hy0JoyUXGhOAsHHJLcCg9UMKGhVgPhKgji3LP+02KkALv0SCpNqzuROMxBiIquqvCsfbubCUkSsJKcPvz4zxOxm56F86t4c5pAiwM8GnCJdk5KJ/xbk8zOHMigFmcNmA5z8IFyPfCf3iYuHMr2iau65i/EHYgUM9vx3NyI9wxRVrZp8I2+jYiJrGfYIovX5rwnVbHRStODu4oiZ3H+b1X44+JxQ5DLuE5e5G3xXF12yPKj+bxKyxD6TmhKvtLp5Wbas7I1ypd9c5ir7+eki94o/irAp5JeEaaQcn23B9wbMpPCJ+A13GOsKbb7z4JrAFr6hedFvoQYc08J+fYIIJ/t/4By9tfiJ9bFVlAAAAAElFTkSuQmCC');
         --iso-settings-select-arrow-icon:url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
         --iso-settings-separator-color:rgba(219, 219, 219, 1);
       }
@@ -1302,11 +1250,11 @@
       ${IG_S_PRIVATE_PROFILE_PIC_IMG_CONTAINER}>img{transition:.5s ease;backface-visibility:hidden}
       ${IG_S_PROFILE_PIC_CONTAINER}:hover .${C_BTN_PROFILE_PIC_CONTAINER}{opacity:1}
       ${IG_S_PRIVATE_PROFILE_PIC_CONTAINER}:hover .${C_BTN_PROFILE_PIC_CONTAINER}{opacity:1}
-      .${C_SETTINGS_BTN}{width:20px;height:20px;cursor:pointer;top:16px;border:none;right:16px;position:fixed;background-color:transparent;background-image:var(--iso-settings-btn-icon);background-size:20px 20px;opacity:.8;transition:opacity .2s ease-in-out;-webkit-transition:opacity .2s ease-in-out;-moz-transition:opacity .2s ease-in-out;-ms-transition:opacity .2s ease-in-out;-o-transition:opacity .2s ease-in-out}
+      .${C_SETTINGS_BTN}{width:22px;height:22px;cursor:pointer;top:16px;border:none;right:16px;position:fixed;background-color:transparent;background-image:var(--iso-settings-btn-icon);background-size:22px 22px;opacity:.8;transition:opacity .2s ease-in-out;-webkit-transition:opacity .2s ease-in-out;-moz-transition:opacity .2s ease-in-out;-ms-transition:opacity .2s ease-in-out;-o-transition:opacity .2s ease-in-out}
       @media only screen and (max-width: 1024px) {.${C_SETTINGS_BTN}{top:64px}}
       .${C_SETTINGS_BTN}:hover{opacity:1}
       .${C_SETTINGS_CONTAINER}{position:fixed;justify-content:center;align-items:center;width:100vw;height:100vh;top:0;left:0;background-color:rgba(0,0,0,.7);display:none}
-      .${C_SETTINGS_MENU}{width:280px;display:flex;flex-direction:column;background-color:#fff;border-radius:4px;z-index:5;box-shadow:-1px 2px 14px 3px rgba(0,0,0,.5)}
+      .${C_SETTINGS_MENU}{width:320px;display:flex;flex-direction:column;background-color:#fff;border-radius:6px;z-index:5;box-shadow:-1px 2px 14px 3px rgba(0,0,0,.5)}
       .${C_SETTINGS_MENU_TITLE_CONTAINER}{display:flex;flex-direction:row;justify-content:space-between;font-weight:700;border-bottom:1px solid var(--iso-settings-separator-color)}
       .${C_SETTINGS_MENU_TITLE}{display:flex;justify-content:center;flex-direction:row;font-size:16px;padding:16px;text-align:left}
       .${C_SETTINGS_MENU_TITLE_CLOSE_BTN}{width:24px;height:24px;border:0;padding:0;background-color:transparent;margin-top:8px;margin-right:8px;cursor:pointer}
