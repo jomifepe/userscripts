@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.1.18
-// @description      Open the original source of an IG post, story or profile picture. No jQuery
+// @version          1.1.19
+// @description      Open the original source of an IG post, story or profile picture
 // @author           jomifepe
 // @license          MIT
 // @icon             https://www.instagram.com/favicon.ico
@@ -547,8 +547,9 @@
 
       const timeElement = node.querySelector(`${IG_S_POST_TIME_ANCHOR} time`);
       if (timeElement) {
-        const fullDateStr = timeElement.getAttribute('datetime');
-        if (fullDateStr) timeElement.innerHTML += ` (${fullDateStr})`;
+        const fullDateTime = timeElement.getAttribute('datetime');
+        const localeDateTime = fullDateTime && new Date(fullDateTime)?.toLocaleString();
+        if (localeDateTime) timeElement.innerHTML += ` (${localeDateTime})`;
       }
     } catch (err) {
       error('Failed to generate post button', err);
