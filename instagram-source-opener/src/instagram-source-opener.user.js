@@ -44,9 +44,9 @@
       'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)';
 
   /* Instagram classes and selectors */
-  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G',
-    IG_S_SINGLE_POST_CONTAINER = '.JyscU',
-    IG_S_PROFILE_CONTAINER = '.v9tJq',
+  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.SM5ad,.yUdUG',
+    IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2',
+    IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX',
     IG_S_STORY_MEDIA_CONTAINER = '.qbCDp',
     IG_S_POST_IMG = '.FFVAD',
     IG_S_POST_VIDEO = '.tWeCl',
