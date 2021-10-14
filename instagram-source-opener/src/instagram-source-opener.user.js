@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.1.21
+// @version          1.1.22
 // @description      Open the original source of an IG post, story or profile picture
 // @author           jomifepe
 // @license          MIT
@@ -122,6 +122,8 @@
     URL_PATH_PARTS: /\/([a-zA-Z0-9._]{0,})/,
     IG_VALID_USERNAME: /^([a-zA-Z0-9._]{0,30})$/,
     COOKIE_VALUE: key => new RegExp(`(^| )${key}=([^;]+)`),
+    PAGE_SINGLE_MEDIA: /^\/(p|reel|tv)\//,
+    PAGE_STORIES: /^\/stories\//,
   };
 
   const GMFunc = {
@@ -167,7 +169,7 @@
       },
     },
     story: {
-      isVisible: () => window.location.pathname.startsWith('/stories/'),
+      isVisible: () => PATTERN.PAGE_STORIES.test(window.location.pathname),
       onLoadActions: () => {
         const node = document.querySelector(IG_S_STORY_CONTAINER);
         if (!node) return;
@@ -185,7 +187,7 @@
       },
     },
     post: {
-      isVisible: () => window.location.pathname.startsWith('/p/'),
+      isVisible: () => PATTERN.PAGE_SINGLE_MEDIA.test(window.location.pathname),
       onLoadActions: () => {
         const node = document.querySelector(IG_S_SINGLE_POST_CONTAINER);
         if (!node) return;
