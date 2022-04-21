@@ -70,12 +70,12 @@
   const C_BTN_STORY = 'iso-story-btn',
     C_BTN_STORY_CONTAINER = 'iso-story-container',
     C_POST_WITH_BUTTON = 'iso-post',
-    C_BTN_POST_OUTER_SPAN = 'iso-post-container',
+    C_BTN_POST_OUTER_ELEMENT = 'iso-post-container',
     C_BTN_POST = 'iso-post-btn',
-    C_BTN_POST_INNER_SPAN = 'iso-post-span',
+    C_BTN_POST_INNER_ELEMENT = 'iso-post-span',
     C_BTN_PROFILE_PIC_CONTAINER = 'iso-profile-pic-container',
     C_BTN_PROFILE_PIC = 'iso-profile-picture-btn',
-    C_BTN_PROFILE_PIC_SPAN = 'iso-profile-picture-span',
+    C_BTN_PROFILE_PIC_INNER_ELEMENT = 'iso-profile-picture-span',
     /* Script settings */
     C_SETTINGS_CONTAINER = 'iso-settings-container',
     C_SETTINGS_BTN = 'iso-settings-btn',
@@ -136,17 +136,30 @@
   };
 
   const API = {
-    IG_POST_INFO_API: postRelUrl => `https://www.instagram.com${postRelUrl}?__a=1`,
-    IG__A1: username => `https://www.instagram.com/${username}?__a=1`,
+    /** @type {(postRelUrl: string) => string} */
+    IG_POST_INFO_API: (postRelUrl) => `https://www.instagram.com${postRelUrl}?__a=1`,
+    /** @type {(username: string) => string} */
+    IG__A1: (username) => `https://www.instagram.com/${username}?__a=1`,
+    /** @type {() => string} */
     IG__A1_CURRENT_PAGE: () => `${window.location.href}?__a=1`,
-    IG_USER_INFO_API: userId => `https://i.instagram.com/api/v1/users/${userId}/info/`,
+    /** @type {(userId: string) => string} */
+    IG_USER_INFO_API: (userId) => `https://i.instagram.com/api/v1/users/${userId}/info/`,
+    /** @type {(userId: string) => string} */
+    IG_REELS_FEED_API: (userId) => `https://i.instagram.com/api/v1/feed/reels_media?reel_ids=${userId}`,
   };
 
   let isStoryKeyBindingSetup, isSinglePostKeyBindingSetup, isProfileKeyBindingSetup;
   let openPostStoryKeyBinding = DEFAULT_KB_POST_STORY;
   let openProfilePictureKeyBinding = DEFAULT_KB_PROFILE_PICTURE;
-  let openSourceBehavior = DEFAULT_BUTTON_BEHAVIOR;
+  let openSourceBehavior = '';
   let sessionId = '';
+
+  const cachedData = {
+    userBasicInfo: undefined,
+    userInfo: undefined,
+    userReels: undefined,
+    userProfilePicture: undefined,
+  }
 
   //#region Logging utilities
 
@@ -161,37 +174,48 @@
 
   //#endregion
 
+  async function prefetchProfileData() {
+    const username = getProfileUsername();
+    const [userInfo, userProfilePicture] = await Promise.all([
+      getUserDataFromIG(username), 
+      getProfilePicture(username)
+    ])
+    cachedData.userInfo = userInfo;
+    cachedData.userProfilePicture = userProfilePicture;
+  }
+
   const pages = {
     feed: {
       isVisible: () => window.location.pathname === '/',
       onLoadActions: () => {
-        document.querySelectorAll(S_IG_POST_CONTAINER_WITHOUT_BUTTON).forEach(node => generatePostButton(node));
+        qsa(document, S_IG_POST_CONTAINER_WITHOUT_BUTTON).forEach(node => generatePostButtons(node));
       },
     },
     story: {
       isVisible: () => PATTERN.PAGE_STORIES.test(window.location.pathname),
       onLoadActions: () => {
-        const node = document.querySelector(IG_S_STORY_CONTAINER);
+        const node = qs(document, IG_S_STORY_CONTAINER);
         if (!node) return;
         generateStoryButton(node);
         setupStoryEventListeners();
       },
     },
     profile: {
-      isVisible: () => window.location.pathname.length > 1 && document.querySelector(IG_S_PROFILE_CONTAINER),
+      isVisible: () => window.location.pathname.length > 1 && qs(document, IG_S_PROFILE_CONTAINER),
       onLoadActions: () => {
-        const node = document.querySelector(IG_S_PROFILE_CONTAINER);
+        const node = qs(document, IG_S_PROFILE_CONTAINER);
         if (!node) return;
         generateProfilePictureButton(node);
         setupProfileEventListeners();
+        prefetchProfileData();
       },
     },
     post: {
       isVisible: () => PATTERN.PAGE_SINGLE_MEDIA.test(window.location.pathname),
       onLoadActions: () => {
-        const node = document.querySelector(IG_S_SINGLE_POST_CONTAINER);
+        const node = qs(document, IG_S_SINGLE_POST_CONTAINER);
         if (!node) return;
-        generatePostButton(node);
+        generatePostButtons(node);
         setupSinglePostEventListeners();
       },
     },
@@ -200,10 +224,10 @@
   const actionTriggers = {
     [TRIGGER.ARRIVE]: {
       /* triggered whenever a new instagram post is loaded on the feed */
-      [S_IG_POST_CONTAINER_WITHOUT_BUTTON]: node => generatePostButton(node),
+      [S_IG_POST_CONTAINER_WITHOUT_BUTTON]: node => generatePostButtons(node),
       /* triggered whenever a single post is opened (on a profile) */
       [IG_S_SINGLE_POST_CONTAINER]: node => {
-        generatePostButton(node);
+        generatePostButtons(node);
         setupSinglePostEventListeners();
       },
       /* triggered whenever a story is opened */
@@ -230,7 +254,7 @@
   };
 
   const profilePictureSources = {
-    'user info API': () => getProfilePictureFromUserInfoApi(),
+    'user info API': getProfilePictureFromUserInfoApi,
   };
 
   //#region Script setup and on load actions
@@ -416,14 +440,14 @@
    */
   function setSettingsMenuVisible(visible) {
     if (visible) {
-      document.querySelector(`.${C_SETTINGS_CONTAINER}`).style.display = 'flex';
+      qs(document, `.${C_SETTINGS_CONTAINER}`).style.display = 'flex';
       /* load values on the menu */
-      const buttonBehaviorSelect = document.querySelector(`#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`);
+      const buttonBehaviorSelect = qs(document, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`);
       if (buttonBehaviorSelect) buttonBehaviorSelect.value = openSourceBehavior;
-      const sessionIdInput = document.querySelector(`#${ID_SETTINGS_SESSION_ID_INPUT}`);
+      const sessionIdInput = qs(document, `#${ID_SETTINGS_SESSION_ID_INPUT}`);
       if (sessionIdInput) sessionIdInput.value = sessionId;
     } else {
-      document.querySelector(`.${C_SETTINGS_CONTAINER}`).style.display = 'none';
+      qs(document, `.${C_SETTINGS_CONTAINER}`).style.display = 'none';
     }
   }
 
@@ -436,49 +460,37 @@
    * since it isn't supported by all extensions
    */
   function generateSettingsPageMenu() {
-    if (!document.querySelector(`.${C_SETTINGS_BTN}`)) {
+    if (!qs(document, `.${C_SETTINGS_BTN}`)) {
       /* Create the settings button */
-      const button = document.createElement('button');
-      button.classList.add(C_SETTINGS_BTN);
-      button.setAttribute('type', 'button');
-      button.setAttribute('title', `Open ${SCRIPT_NAME_SHORT} settings`);
+      const button = createElementFromHtml(`
+        <button class="${C_SETTINGS_BTN}" type="button" title="Open ${SCRIPT_NAME_SHORT} settings" />
+      `)
       button.addEventListener('click', () => setSettingsMenuVisible(true));
-      document.querySelector(IG_S_TOP_BAR)?.appendChild(button);
+      qs(document, IG_S_TOP_BAR)?.appendChild(button);
       log('Created script settings button');
     }
 
-    if (!document.querySelector(`.${C_SETTINGS_CONTAINER}`)) {
+    if (!qs(document, `.${C_SETTINGS_CONTAINER}`)) {
       /* Create the settings menu */
-      const menu = document.createElement('div');
-      menu.innerHTML = `<div class="${C_SETTINGS_CONTAINER}"><div class="${C_SETTINGS_MENU}"><div class="${C_SETTINGS_MENU_TITLE_CONTAINER}"><div class="${C_SETTINGS_MENU_TITLE}">${SCRIPT_NAME_SHORT} Settings<a class="${C_SETTINGS_MENU_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_SETTINGS_MENU_TITLE_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_SETTINGS_MENU_OPTIONS}"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change post/story shortcut</button><button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change profile picture shortcut</button><div class="${C_SETTINGS_MENU_OPTION}"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label><select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN} ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="${C_SETTINGS_SELECT_ARROW}"></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="${C_SETTINGS_MENU_OPTION} ${C_SETTINGS_SECTION_COLLAPSED}"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID<a class="${C_SETTINGS_MENU_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label><input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div></div></div></div>`;
+      const menu = createElementFromHtml(`<div class="${C_SETTINGS_CONTAINER}"><div class="${C_SETTINGS_MENU}"><div class="${C_SETTINGS_MENU_TITLE_CONTAINER}"><div class="${C_SETTINGS_MENU_TITLE}">${SCRIPT_NAME_SHORT} Settings<a class="${C_SETTINGS_MENU_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_SETTINGS_MENU_TITLE_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_SETTINGS_MENU_OPTIONS}"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change post/story shortcut</button><button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change profile picture shortcut</button><div class="${C_SETTINGS_MENU_OPTION}"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label><select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN} ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="${C_SETTINGS_SELECT_ARROW}"></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="${C_SETTINGS_MENU_OPTION} ${C_SETTINGS_SECTION_COLLAPSED}"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID<a class="${C_SETTINGS_MENU_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label><input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div></div></div></div>`);
 
-      menu.querySelector(`.${C_SETTINGS_MENU}`)?.addEventListener('click', event => event.stopPropagation());
       /* close settings menu on background click */
-      menu.querySelector(`.${C_SETTINGS_CONTAINER}`)?.addEventListener('click', () => setSettingsMenuVisible(false));
+      menu.addEventListener('click', () => setSettingsMenuVisible(false))
+      qsael(menu, `.${C_SETTINGS_MENU}`, 'click', (e) => e.stopPropagation());
       /* close settings menu on close button click */
-      menu
-        .querySelector(`.${C_SETTINGS_MENU_TITLE_CLOSE_BTN}`)
-        ?.addEventListener('click', () => setSettingsMenuVisible(false));
-      menu.querySelector(`#${ID_SETTINGS_POST_STORY_KB_BTN}`)?.addEventListener('click', handleMenuPostStoryKBCommand);
+      qsael(menu, `.${C_SETTINGS_MENU_TITLE_CLOSE_BTN}`, 'click', () => setSettingsMenuVisible(false));
+      qsael(menu, `#${ID_SETTINGS_POST_STORY_KB_BTN}`, 'click', handleMenuPostStoryKBCommand);
       /* save profile picture key binding */
-      menu
-        .querySelector(`#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`)
-        ?.addEventListener('click', handleMenuProfilePicKBCommand);
+      qsael(menu, `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`, 'click', handleMenuProfilePicKBCommand);
       /* save button behavior on option select */
-      menu
-        .querySelector(`#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`)
-        ?.addEventListener('change', e => handleMenuButtonBehaviorChange(e.target.value));
+      qsael(menu, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`, 'change', (e) => handleMenuButtonBehaviorChange(e.target.value));
       /* show developer option on click */
-      menu.querySelector(`#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`).addEventListener('click', () => {
-        menu.querySelector(`#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
-        menu
-          .querySelector(`#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)
-          ?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+      qsael(menu, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`, 'click', () => {
+        qs(menu, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+        qs(menu, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
       });
       /* save session id */
-      menu
-        .querySelector(`#${ID_SETTINGS_SESSION_ID_INPUT}`)
-        ?.addEventListener('blur', e => handleSessionIdChange(e.target.value));
+      qsael(menu, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', (e) => handleSessionIdChange(e.target.value));
 
       document.body.appendChild(menu);
       log('Created script settings menu');
@@ -494,16 +506,13 @@
     if (!node || elementExistsInNode(`.${C_BTN_STORY_CONTAINER}`, node)) return;
 
     try {
-      const buttonStoryContainer = document.createElement('div');
-      const buttonStory = document.createElement('button');
-
-      buttonStoryContainer.classList.add(C_BTN_STORY_CONTAINER);
-      buttonStory.classList.add(C_BTN_STORY);
-      buttonStoryContainer.setAttribute('title', 'Open source');
-      buttonStory.addEventListener('click', () => openStoryContent(node));
-
-      buttonStoryContainer.appendChild(buttonStory);
-      node.appendChild(buttonStoryContainer);
+      const openButton = createElementFromHtml(`
+        <div class="${C_BTN_STORY_CONTAINER}">
+          <button class="${C_BTN_STORY}" type="button" title="Open source" />
+        </div>
+      `);
+      qsael(openButton, `.${C_BTN_STORY}`, 'click', () => openStoryContent(node))
+      node.appendChild(openButton);
     } catch (err) {
       error('Failed to generate story button', err);
     }
@@ -513,36 +522,33 @@
    * Appends new elements to DOM containing the post source opening button
    * @param {HTMLElement} node DOM element node
    */
-  function generatePostButton(node) {
+  function generatePostButtons(node) {
     /* exits if the post button already exists */
-    if (!node || elementExistsInNode(`.${C_BTN_POST_OUTER_SPAN}`, node)) return;
+    if (!node || elementExistsInNode(`.${C_BTN_POST_OUTER_ELEMENT}`, node)) return;
 
     try {
       /* removes the div that's blocking the img element on a post */
-      const blocker = node.querySelector(IG_S_POST_BLOCKER);
+      const blocker = qs(node, IG_S_POST_BLOCKER);
       if (blocker) blocker.parentNode.removeChild(blocker);
 
-      const buttonsContainer = node.querySelector(IG_S_POST_BUTTONS);
-      if (!buttonsContainer) {
-        error(`Failed to generate post button, couldn't find by selector ${IG_S_POST_BUTTONS}`);
+      const postButtonsContainer = qs(node, IG_S_POST_BUTTONS);
+      if (!postButtonsContainer) {
+        error(`Failed to generate post button, couldn't find post buttons container (${IG_S_POST_BUTTONS})`);
         return;
       }
-      const newElementOuterSpan = document.createElement('span');
-      const newElementButton = document.createElement('button');
-      const newElementInnerSpan = document.createElement('span');
 
-      newElementOuterSpan.classList.add(C_BTN_POST_OUTER_SPAN);
-      newElementButton.classList.add(C_BTN_POST);
-      newElementInnerSpan.classList.add(C_BTN_POST_INNER_SPAN);
-      newElementOuterSpan.setAttribute('title', 'Open source');
-      newElementButton.addEventListener('click', () => openPostSourceFromSrcAttribute(node));
-
-      newElementButton.appendChild(newElementInnerSpan);
-      newElementOuterSpan.appendChild(newElementButton);
-      buttonsContainer.appendChild(newElementOuterSpan);
+      const sourceButton = createElementFromHtml(`
+        <div class="${C_BTN_POST_OUTER_ELEMENT}" title="Open source">
+          <button class="${C_BTN_POST}">
+            <span class="${C_BTN_POST_INNER_ELEMENT}" />
+          </button>
+        <div>
+      `);
+      qsael(sourceButton, `.${C_BTN_POST}`, 'click', () => openPostSourceFromSrcAttribute(node));
+      postButtonsContainer.appendChild(sourceButton);
       node.classList.add(C_POST_WITH_BUTTON);
 
-      const timeElement = node.querySelector(`${IG_S_POST_TIME_ANCHOR} time`);
+      const timeElement = qs(node, `${IG_S_POST_TIME_ANCHOR} time`);
       if (timeElement) {
         const fullDateTime = timeElement.getAttribute('datetime');
         const localeDateTime = fullDateTime && new Date(fullDateTime)?.toLocaleString();
@@ -562,33 +568,23 @@
     if (!node || elementExistsInNode(`.${C_BTN_PROFILE_PIC_CONTAINER}`, node)) return;
 
     try {
-      let profilePictureContainer = node.querySelector(IG_S_PROFILE_PIC_CONTAINER);
-      /* if the profile is private and the user isn't following or isn't logged in */
+      const profilePictureContainer = qs(node, IG_S_PROFILE_PIC_CONTAINER) || qs(node, IG_S_PRIVATE_PROFILE_PIC_CONTAINER);
       if (!profilePictureContainer) {
-        profilePictureContainer = node.querySelector(IG_S_PRIVATE_PROFILE_PIC_CONTAINER);
-      }
-      if (!profilePictureContainer) {
-        error(`Failed to generate profile picture button, couldn't find by selector ${IG_S_PROFILE_PIC_CONTAINER}`);
+        error(`Failed to generate profile picture button, couldn't find profile picture container (${IG_S_PROFILE_PIC_CONTAINER})`);
         return;
       }
-      const newElementOuterSpan = document.createElement('span');
-      const newElementButton = document.createElement('button');
-      const newElementInnerSpan = document.createElement('span');
-      newElementOuterSpan.setAttribute('title', 'Open full size picture');
-      newElementButton.addEventListener('click', e => {
-        e.stopPropagation();
-        openProfilePicture();
-      });
 
-      newElementOuterSpan.classList.add(C_BTN_PROFILE_PIC_CONTAINER);
-      newElementButton.classList.add(C_BTN_PROFILE_PIC);
-      newElementInnerSpan.classList.add(C_BTN_PROFILE_PIC_SPAN);
-
-      newElementButton.appendChild(newElementInnerSpan);
-      newElementOuterSpan.appendChild(newElementButton);
-      profilePictureContainer.appendChild(newElementOuterSpan);
+      const sourceButton = createElementFromHtml(`
+        <div class="${C_BTN_PROFILE_PIC_CONTAINER}" title="Open full size picture">
+          <button class="${C_BTN_PROFILE_PIC}">
+            <span class="${C_BTN_PROFILE_PIC_INNER_ELEMENT}" />
+          </button>
+        <div>
+      `);
+      qsael(sourceButton, `.${C_BTN_PROFILE_PIC}`, 'click', withStopPropagation(openProfilePicture))
+      profilePictureContainer.appendChild(sourceButton);
     } catch (err) {
-      error(err);
+      error('Failed to generate profile picture button', err);
     }
   }
 
@@ -602,9 +598,8 @@
    */
   function openStoryContent(node = null) {
     try {
-      const container = (node || document).querySelector(IG_S_STORY_MEDIA_CONTAINER);
-      const video = container.querySelector('video');
-      const image = container.querySelector('img');
+      const container = qs(node || document, IG_S_STORY_MEDIA_CONTAINER);
+      const video = qs(container, 'video'), image = qs(container, 'img');
       if (video) {
         const source = getStoryVideoSrc(video);
         if (!source) throw 'Video source not available';
@@ -627,13 +622,13 @@
    * Gets the source url of a post from the src attribute on the node and opens it in a new tab
    * @param {HTMLElement} node DOM element node containing the post
    */
-  async function openPostSourceFromSrcAttribute(node = document.querySelector(IG_S_SINGLE_POST_CONTAINER)) {
+  async function openPostSourceFromSrcAttribute(node = qs(document, IG_S_SINGLE_POST_CONTAINER)) {
     /* if is on single post page and the node is null, the picture container can be found, since there's only one */
     if (node == null) return;
 
     try {
-      const postRelativeUrl = node.querySelector(IG_S_POST_TIME_ANCHOR)?.getAttribute('href');
-      const sourceListItems = node.querySelectorAll(IG_S_MULTI_POST_LIST_ITEMS);
+      const postRelativeUrl = qs(node, IG_S_POST_TIME_ANCHOR)?.getAttribute('href');
+      const sourceListItems = qsa(node, IG_S_MULTI_POST_LIST_ITEMS);
       if (sourceListItems.length == 0 /* is single post */) {
         await openPostMediaSource(node, postRelativeUrl);
         return;
@@ -641,17 +636,15 @@
 
       const postIndex = getMultiPostIndex(node);
       if (sourceListItems.length == 2 /* is on the first or last item */) {
-        if (node.querySelector(IG_S_MULTI_POST_NEXT_ARROW_BTN) /* next arrow exist */) {
+        if (qs(node, IG_S_MULTI_POST_NEXT_ARROW_BTN) /* next arrow exist */) {
           await openPostMediaSource(sourceListItems[0], postRelativeUrl, postIndex); /* opens first item */
-        } else if (node.querySelector(IG_S_MULTI_POST_PREV_ARROW_BTN) /* previous arrow exists */) {
+        } else {
           await openPostMediaSource(sourceListItems[1], postRelativeUrl, postIndex); /* opens last item */
-        } /* something is not right */ else {
-          errorMessage('Failed to open post source', 'Failed to open first or last post carousel item');
         }
       } else if (sourceListItems.length == 3 /* is on any other item */) {
         await openPostMediaSource(sourceListItems[1], postRelativeUrl, postIndex);
       } /* something is not right */ else {
-        errorMessage('Failed to open post source', 'Failed to open post carousel item other than first and last');
+        errorMessage('Failed to open post source', 'Failed to open post carousel item');
       }
     } catch (exception) {
       errorMessage('Failed to open post source', exception);
@@ -667,8 +660,8 @@
    * @param {number} postIndex current index of the post carousel
    */
   async function openPostMediaSource(node, postRelativeUrl, postIndex) {
-    let image = node.querySelector(IG_S_POST_IMG);
-    let video = node.querySelector(IG_S_POST_VIDEO);
+    let image = qs(node, IG_S_POST_IMG);
+    let video = qs(node, IG_S_POST_VIDEO);
     if (image) {
       openUrl(image.getAttribute('src'));
       return;
@@ -698,6 +691,25 @@
   }
 
   /**
+   * 
+   * @param {string} username 
+   */
+  async function getProfilePicture(username) {
+    let pictureUrl = null;
+    for (const [sourceName, getProfilePicture] of Object.entries(profilePictureSources)) {
+      log(`Trying to get user's profile picture from ${sourceName}`);
+      const url = await getProfilePicture(username);
+      if (!url) {
+        error(`Couldn't get profile picture url from ${sourceName}`);
+        continue;
+      }
+      pictureUrl = url;
+      break;
+    }
+    return pictureUrl;
+  }
+
+  /**
    * Tries to get the source URL of the user's profile picture using multiple methods
    * Opens the image or shows an alert if it doesn't find any URL
    */
@@ -707,17 +719,7 @@
       if (!username) throw "Couldn't find username";
 
       document.body.style.cursor = 'wait';
-      let pictureUrl = null;
-      for (const [sourceName, getProfilePicture] of Object.entries(profilePictureSources)) {
-        log(`Trying to get user's profile picture from ${sourceName}`);
-        const url = await getProfilePicture(username);
-        if (!url) {
-          error(`Couldn't get profile picture url from ${sourceName}`);
-          continue;
-        }
-        pictureUrl = url;
-        break;
-      }
+      const pictureUrl = await getProfilePicture(username);
       if (!pictureUrl) throw 'No profile picture found on any of the external sources';
 
       log('Profile picture found, opening in a new tab...');
@@ -735,7 +737,7 @@
    */
   function getStoryVideoSrc(video) {
     try {
-      const videoElement = video.querySelector('source');
+      const videoElement = qs(video, 'source');
       return videoElement ? videoElement.getAttribute('src') : null;
     } catch (err) {
       error('Failed to get story video source', err);
@@ -748,17 +750,18 @@
    * @param {HTMLElement} image DOM element node containing the image
    */
   function getStoryImageSrc(image) {
-    const defaultSrc = image.getAttribute('src');
+    const fallbackUrl = image.getAttribute('src');
     try {
       const srcs = image.getAttribute('srcset').split(',');
-      const images = srcs.map(src => {
+      const sources = srcs.map((src) => {
         const [url, size] = src.split(' ');
         return { url, size: parseInt(size.replace(/[^0-9.,]/g, '')) };
       });
-      return images ? images.reduce((pi, ci) => (pi.size > ci.size ? pi : ci)).url : defaultSrc;
+      /* get the url of the image with the biggest size */
+      return sources ? sources.reduce((biggestSrc, src) => (biggestSrc.size > src.size ? biggestSrc : src)).url : fallbackUrl;
     } catch (err) {
       error('Failed to get story image source', err);
-      return defaultSrc || null;
+      return fallbackUrl || null;
     }
   }
 
@@ -777,37 +780,46 @@
     if (!username) return null;
 
     const user = await getUserDataFromIG(username);
-    const lowResPicture = user?.profile_pic_url_hd || user?.profile_pic_url;
-    let highResPicture =
-      Boolean(user?.id && sessionId) &&
-      isLoggedIn() &&
+    const lowResPictureUrl = user?.profile_pic_url_hd || user?.profile_pic_url;
+
+    const userApiInfo = user?.id && sessionId && checkIsLoggedIn() ?
       (await httpGETRequest(API.IG_USER_INFO_API(user.id), {
         'User-Agent': USER_AGENT,
         Cookie: `sessionid=${sessionId}`,
-      }));
-    highResPicture = (highResPicture?.user || highResPicture?.graphql?.user)?.hd_profile_pic_url_info?.url;
+      })) : undefined;
+      
+    const highResPictureUrl = 'user' in userApiInfo ? 
+      userApiInfo.user.hd_profile_pic_url_info.url : 
+      userApiInfo.graphql.user.hd_profile_pic_url_info.url
 
-    if (!highResPicture) {
-      if (!lowResPicture) {
+    if (!highResPictureUrl) {
+      if (!lowResPictureUrl) {
         error("Unable to get user's profile picture");
         return null;
       }
-      error("Unable to get user's high-res profile picture, fallback to low-res...");
+      error("Unable to get user's high-res profile picture, falling back to to low-res...");
       if (sessionId) {
         warn("Make sure you are logged in and using a session id that hasn't expired or been revoked (logged out)");
       }
-      return lowResPicture;
+      return lowResPictureUrl;
     }
-    return highResPicture;
+    return highResPictureUrl;
   }
 
   /**
    * Return the data from a certain user using IG's __a=1 API
-   * @returns {Promise<any|null>} Object containing the user data or undefined
+   * @param {string} username username of the user
+   * @returns {Promise<{
+   *   id: string;
+   *   profile_pic_url_hd: string;
+   *   profile_pic_url: string;
+   * } | null>} Object containing the user data or undefined
    */
-  async function getUserDataFromIG(username) {
-    const data = (await httpGETRequest(API.IG__A1(username)))?.graphql?.user;
-    return data;
+  async function getUserDataFromIG(username, cacheFirst = true) {
+    if (cacheFirst && cachedData.userInfo) return cachedData.userInfo;
+    const userInfo = (await httpGETRequest(API.IG__A1(username)))?.graphql?.user
+    cachedData.userInfo = userInfo;
+    return userInfo;
   }
 
   //#endregion
@@ -1149,7 +1161,7 @@
    * @return {number} current index
    */
   function getMultiPostIndex(node) {
-    const indicators = node.querySelectorAll(IG_S_MULTI_POST_INDICATOR);
+    const indicators = qsa(node, IG_S_MULTI_POST_INDICATOR);
     for (let i = 0; i < indicators.length; i++) {
       if (indicators[i].classList.contains(IG_C_MULTI_POST_INDICATOR_ACTIVE)) {
         return i;
@@ -1174,7 +1186,7 @@
    * @returns {boolean} True if the element exists in the node, otherwise false
    */
   function elementExistsInNode(selector, node) {
-    return node && node.querySelector(selector) != null;
+    return node && qs(node, selector) != null;
   }
 
   /**
@@ -1190,7 +1202,7 @@
    * Checks if the user is logged in
    * @return {boolean} whether the user is logged in or not
    */
-  function isLoggedIn() {
+  function checkIsLoggedIn() {
     return Boolean(getCookie(COOKIE_IG_USER_ID));
   }
 
@@ -1209,13 +1221,76 @@
    * @return {string} username
    */
   function getProfileUsername() {
-    const pageUsername = document.querySelector(IG_S_PROFILE_USERNAME_TITLE)?.innerText;
+    const pageUsername = qs(document, IG_S_PROFILE_USERNAME_TITLE)?.innerText;
     const isNotUsername = !PATTERN.IG_VALID_USERNAME.test(pageUsername);
     if (isNotUsername) {
       const urlPathParts = window.location.pathname.match(PATTERN.URL_PATH_PARTS);
       return urlPathParts.length >= 2 ? urlPathParts[1] : null;
     }
     return pageUsername;
+  }
+
+  function createElementFromHtml(htmlString) {
+    const div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+    return div.firstElementChild;
+  }
+
+  /**
+   * Query Selector
+   * @param {HTMLElement} node 
+   * @param {string} selector 
+   * @returns {Element | null}
+   */ 
+  function qs(node, selector) {
+    return node.querySelector(selector);
+  }
+
+  /**
+   * Query Selector All
+   * @param {HTMLElement} node 
+   * @param {string} selector 
+   * @returns {Element | null}
+   */ 
+  function qsa(node, selector) {
+    return node.querySelectorAll(selector);
+  }
+
+  /**
+   * Query Selector & Add Event Listener
+   * @param {HTMLElement} node 
+   * @param {string} selector 
+   * @param {string} type 
+   * @param {EventListener} listener 
+   */ 
+  function qsael(node, selector, type, listener) {
+    const element = qs(node, selector);
+    element.addEventListener(type, withPreventDefault(listener));
+    return element;
+  }
+
+  /**
+   * Executes the prevent default before the passed function, passing the event down to it
+   * @type {<Fn>(callback: Fn) => void}
+   */
+  function withPreventDefault(callback) {
+    /** @param {Event | undefined} event */
+    return (event) => {
+      event?.preventDefault();
+      callback(event);
+    }
+  }
+
+  /**
+   * Executes the stop propagation before the passed function, passing the event down to it
+   * @type {<Fn>(callback: Fn) => void}
+   */
+  function withStopPropagation(callback) {
+    /** @param {Event | undefined} event */
+    return (event) => {
+      event?.stopPropagation();
+      callback(event);
+    }
   }
 
   /**
@@ -1227,21 +1302,22 @@
 
     const styles = `
       :root{
-        --iso-settings-post-btn-icon:url('data:image/png;base64,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');
-        --iso-settings-story-btn-icon:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAeFBMVEUAAAD////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GqOSsAAAAJ3RSTlMAAgMLDRQVFkVOUGFiaIKap6ipqquszM/Q0dbY5ufv8PP0+fr8/f7DeTSmAAAAAWJLR0QnLQ+oIwAAALpJREFUOMvNk90SgiAUBj8tzdK0JCv7tdJ4/zfsqIgI6Ex37o3M7MoZRgRmgp+9eEuZAKtrvxZkXPIAgm5dyoDeP7GG3RpwY1rc6kIGnJ+d4dCo0gJm+Oo+EZD/btl40HiMB60fD+r5ET1jfrEGnYcb+LZA7K/RB3bfB3J/YvNMjED12CvfQgSh6i3HXH5Ubwnc4zvEVABngelgyJ+BfmFoXq4EdOVypkG+kMGBW0ll4LHC1EXqzeW3/AFfeiRd23tgxAAAAABJRU5ErkJggg==');
+        --iso-post-btn-icon:url('data:image/png;base64,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');
+        --iso-post-carousel-btn-icon:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20width%3D%2264%22%20height%3D%2264%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M12%202C6.477%202%202%206.477%202%2012s4.477%2010%2010%2010s10-4.477%2010-10S17.523%202%2012%202zm-1%205a4%204%200%201%200%202.032%207.446l1.76%201.761a1%201%200%200%200%201.415-1.414l-1.761-1.761A4%204%200%200%200%2011%207zm0%206a2%202%200%201%200%200-4a2%202%200%200%200%200%204z%22%20fill%3D%22white%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E');
+        --iso-story-btn-icon:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAeFBMVEUAAAD////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////GqOSsAAAAJ3RSTlMAAgMLDRQVFkVOUGFiaIKap6ipqquszM/Q0dbY5ufv8PP0+fr8/f7DeTSmAAAAAWJLR0QnLQ+oIwAAALpJREFUOMvNk90SgiAUBj8tzdK0JCv7tdJ4/zfsqIgI6Ex37o3M7MoZRgRmgp+9eEuZAKtrvxZkXPIAgm5dyoDeP7GG3RpwY1rc6kIGnJ+d4dCo0gJm+Oo+EZD/btl40HiMB60fD+r5ET1jfrEGnYcb+LZA7K/RB3bfB3J/YvNMjED12CvfQgSh6i3HXH5Ubwnc4zvEVABngelgyJ+BfmFoXq4EdOVypkG+kMGBW0ll4LHC1EXqzeW3/AFfeiRd23tgxAAAAABJRU5ErkJggg==');
         --iso-settings-btn-icon:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAD+UlEQVR4nO3aS4xkYxQH8F8rNDozpmcyk8hoYSEEM0IiYUkvJJN4TLcMCwsRZsXOxpL9JMaClcdGLDw34zUJKxlsxDOTiKaHYEEahWFUd1l8Lemp+m7Vvd/9bnWR+idnUzfnf87536/O97pMMMEEE+TFHhzGp/gN3UQ7hS/xOC4aaQWJmMYTWJVedJG1cfvoSqmOabwtf+EbrYO7RlVQVTyp2eL/tb+NoQh79A/7E1jElgS+WNFjLcJj+ovfXoOvV4A7jbkInzk9ucWafL0CMOYi/Or0xFKG/UbEBGCMRShKuAm+O/SL0MHdGeImY5QCMIYijFoAxkyEzRCAMRJhswRgTETYTAEonh1uy5BLKeQWoN3Dd2EJn5gIbcxlyGcocgvwfg/fa9JFOJwhn6E4goexD5dn4HtQv6ip9kWGfEaOaXwojwB/jTj3bNgtnwj/WZyNB3BMf2PMJsBUA4lvNnqLHljjGTUC3YBtCX4tXFsj7qZjDq8KSr+LmQq+U3hm3fdlzczTjfaAq7HSE+A97Crhew6e7/FdwXzmHBsV4AKsRYJ8j/uFInvRwq34POLXxS2Zc2y8CX6EvQXP2ngHXwkHpbtxo+IR0hH6yO8JeRShUhNMwVPyrdQ+zp1cJMZApMwCXyf4FOHHjFxJSBGglTF+rGeMFCkCXJox/lXyCto4WvhGvh7QxU2Zc2x0GlyMBKhrr2fOsTEBzsdSJEAOuydjno0IcB7eiJDnspPYnynX7ALsxQcR4pgtY0G4HtsqFHW8pG9H+Bpktma+WQSYFQp5Sf8526DiY8lvV61xnsSLOFjANwy1BdgnvI2qw3hhAOeBBL6utKPtSgLE1gE7pc3Nbw149mYCH6HxNoqYAHUOSYqQuiFZy5pFBLFif07kGrSvvzmBbxU/JeZSC7PC3v4F/KH8//W4eNPagW9Lcpxaj7sg7bhNhLMWZoWpqWxTPCFcWG5dtwPKzwDHcGXdhCO8WbBfmJ5SOnkZO4JzM+XaiABwb4Q8hy0JoyUXGhOAsHHJLcCg9UMKGhVgPhKgji3LP+02KkALv0SCpNqzuROMxBiIquqvCsfbubCUkSsJKcPvz4zxOxm56F86t4c5pAiwM8GnCJdk5KJ/xbk8zOHMigFmcNmA5z8IFyPfCf3iYuHMr2iau65i/EHYgUM9vx3NyI9wxRVrZp8I2+jYiJrGfYIovX5rwnVbHRStODu4oiZ3H+b1X44+JxQ5DLuE5e5G3xXF12yPKj+bxKyxD6TmhKvtLp5Wbas7I1ypd9c5ir7+eki94o/irAp5JeEaaQcn23B9wbMpPCJ+A13GOsKbb7z4JrAFr6hedFvoQYc08J+fYIIJ/t/4By9tfiJ9bFVlAAAAAElFTkSuQmCC');
         --iso-settings-select-arrow-icon:url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
         --iso-settings-separator-color:rgba(219, 219, 219, 1);
       }
-      .${C_BTN_POST_OUTER_SPAN}{margin-left:8px}
+      .${C_BTN_POST_OUTER_ELEMENT}{margin-left:8px}
       .${C_BTN_POST}{outline:none;-webkit-box-align:center;align-items:center;background:0;border:0;cursor:pointer;display:flex;-webkit-box-flex:0;flex-grow:0;-webkit-box-pack:center;justify-content:center;padding:8px 0 8px 8px}
-      .${C_BTN_POST_INNER_SPAN},.${C_BTN_PROFILE_PIC_SPAN}{display:block;background-repeat:no-repeat;height:24px;width:24px;background-image:var(--iso-settings-post-btn-icon);background-size:24px 24px;cursor:pointer;opacity:1;${opacityTransition}}
-      .${C_BTN_POST_INNER_SPAN}:hover{opacity:.6}
+      .${C_BTN_POST_INNER_ELEMENT},.${C_BTN_PROFILE_PIC_INNER_ELEMENT}{display:block;background-repeat:no-repeat;height:24px;width:24px;background-image:var(--iso-post-btn-icon);background-size:24px 24px;cursor:pointer;opacity:1;${opacityTransition}}
+      .${C_BTN_POST_INNER_ELEMENT}:hover{opacity:.6}
       .${C_BTN_PROFILE_PIC}{outline:none;background-color:white;border:0;cursor:pointer;min-height:40px;min-width:40px;padding:0;border-radius:50%;transition:background-color .5s ease;-webkit-transition:background-color .5s ease}
       .${C_BTN_PROFILE_PIC}:hover{background-color:#D0D0D0;transition:background-color .5s ease;-webkit-transition:background-color .5s ease}
-      .${C_BTN_PROFILE_PIC_SPAN}{margin:auto}
+      .${C_BTN_PROFILE_PIC_INNER_ELEMENT}{margin:auto}
       .${C_BTN_STORY_CONTAINER}{position:fixed;top:32px;right:0;margin:16px;z-index:99}
-      .${C_BTN_STORY}{width:24px;height:24px;margin:8px;border:none;cursor:pointer;background-color:transparent;background-image:var(--iso-settings-story-btn-icon);background-size:24px 24px;opacity:1;${opacityTransition}}
+      .${C_BTN_STORY}{width:24px;height:24px;margin:8px;border:none;cursor:pointer;background-color:transparent;background-image:var(--iso-story-btn-icon);background-size:24px 24px;opacity:1;${opacityTransition}}
       .${C_BTN_STORY}:hover{opacity:0.8}
       .${C_BTN_PROFILE_PIC_CONTAINER}{transition:.5s ease;opacity:0;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);-ms-transform:translate(-50%,-50%);text-align:center}
       ${IG_S_PRIVATE_PIC_IMG_CONTAINER}>img{transition:.5s ease;backface-visibility:hidden}
