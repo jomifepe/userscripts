@@ -4,7 +4,10 @@ module.exports = function (grunt) {
       scriptPath: "instagram-source-opener.user.js"
     },
     pkg: grunt.file.readJSON("package.json"),
-    clean: ["dist"],
+    clean: {
+      all: ["dist"],
+      temp: ["dist/*.min.html", "dist/*.min.css"]
+    },
     htmlmin: {
       dist: {
         options: {
@@ -85,11 +88,12 @@ module.exports = function (grunt) {
 
   grunt.registerTask("dev", ["watch"]);
   grunt.registerTask("build", [
-    "clean",
+    "clean:all",
     "htmlmin",
     "cssmin",
     "copy",
     "includes",
     "string-replace",
+    "clean:temp",
   ]);
 };
