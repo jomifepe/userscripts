@@ -44,7 +44,7 @@
     IG_APP_ID = '936619743392459';
 
   /* Instagram classes and selectors */
-  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.SM5ad,.yUdUG',
+  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG',
     IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2',
     IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX',
     IG_S_STORY_MEDIA_CONTAINER = '.qbCDp',
@@ -472,7 +472,7 @@
    */
   function generateStoryButton(node) {
     /* exits if the story button already exists */
-    if (!node || elementExistsInNode(`.${C_BTN_STORY}`, node)) return;
+    if (!node || elementExistsInNode(`.${C_BTN_STORY}`, document)) return;
 
     try {
       const openButton = createElementFromHtml(`
