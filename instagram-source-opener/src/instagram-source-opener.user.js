@@ -662,6 +662,8 @@
       openUrl(url);
       return;
     }
+
+    document.body.style.cursor = 'wait';
     const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
     const carouselMediaItems = response.items[0].carousel_media;
     const url = getUrlFromVideoPostApiResponse(carouselMediaItems[carouselIndex]);
