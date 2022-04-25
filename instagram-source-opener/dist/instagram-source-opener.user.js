@@ -37,7 +37,6 @@
 
   const SCRIPT_NAME = 'Instagram Source Opener',
     SCRIPT_NAME_SHORT = 'ISO',
-    LOGGING_TAG = `[${SCRIPT_NAME_SHORT}]`,
     HOMEPAGE_URL = 'https://greasyfork.org/en/scripts/372366-instagram-source-opener',
     SESSION_ID_INFO_URL = 'https://greasyfork.org/en/scripts/372366-instagram-source-opener#sessionid',
     USER_AGENT =
@@ -66,7 +65,6 @@
     IG_S_POST_TIME_ANCHOR = '.c-Yi7',
     IG_S_MULTI_POST_INDICATOR = '.Yi5aA',
     IG_C_MULTI_POST_INDICATOR_ACTIVE = 'XCodT',
-    IG_S_SINGLE_POST_CAROUSEL_INDICATOR = '.JSZAJ > *',
     IG_S_PROFILE_PRIVATE_MESSAGE = '.rkEop',
     IG_S_PROFILE_HAS_STORIES_INDICATOR = '.h5uC0';
 
@@ -142,6 +140,8 @@
     IG_REELS_FEED_API: userId => `https://i.instagram.com/api/v1/feed/reels_media?reel_ids=${userId}`,
   };
 
+  const Logger = createLogger(SCRIPT_NAME_SHORT);
+
   const cachedApiData = {
     userBasicInfo: buildCache(),
     userInfo: buildCache(),
@@ -155,15 +155,6 @@
   let openProfilePictureKeyBinding = DEFAULT_KB_PROFILE_PICTURE;
   let openSourceBehavior = '';
   let sessionId = '';
-
-  const log = (...args) => LOGGING_ENABLED && console.log(...[LOGGING_TAG, ...args]);
-  const error = (...args) => LOGGING_ENABLED && console.error(...[LOGGING_TAG, ...args]);
-  const warn = (...args) => LOGGING_ENABLED && console.warn(...[LOGGING_TAG, ...args]);
-  const message = (...args) => alert(`${SCRIPT_NAME}:\n\n${args.join(' ')}`);
-  const errorMessage = (msg, ...errorArgs) => {
-    if (LOGGING_ENABLED) error(msg, ...errorArgs);
-    message(msg);
-  };
 
   const pages = {
     feed: {
@@ -251,12 +242,12 @@
         document[event](actuator, node => {
           if (!node) return;
           fireTrigger(node);
-          log(`Triggered ${event} for selector ${actuator}`);
+          Logger.log(`Triggered ${event} for selector ${actuator}`);
         });
         count++;
       }
     }
-    log(`Created ${count} element triggers`);
+    Logger.log(`Created ${count} element triggers`);
   }
 
   /**
@@ -266,7 +257,7 @@
     for (const [name, page] of Object.entries(pages)) {
       if (page.isVisible()) {
         page.onLoadActions();
-        log(`Performed onload actions for ${name} page`);
+        Logger.log(`Performed onload actions for ${name} page`);
       }
     }
     loadPreferences();
@@ -280,19 +271,19 @@
     if (!openSourceBehavior) {
       const savedOsb = await callGMFunction('getValue', STORAGE_KEY_BUTTON_BEHAVIOR, DEFAULT_BUTTON_BEHAVIOR);
       if (!savedOsb || !BUTTON_BEHAVIOR_OPTIONS.includes(savedOsb)) {
-        error('No valid saved button behavior option found');
+        Logger.error('No valid saved button behavior option found');
       } else {
         openSourceBehavior = savedOsb;
-        log('[Loaded preference] Open button behavior:', savedOsb);
+        Logger.log('[Loaded preference] Open button behavior:', savedOsb);
       }
     }
     if (!sessionId) {
       const savedSID = await callGMFunction('getValue', STORAGE_KEY_SESSION_ID, null);
       if (!savedSID) {
-        error('No saved session id found');
+        Logger.error('No saved session id found');
       } else {
         sessionId = savedSID;
-        log(`[Loaded preference] Session id: ...${getLast4Digits(savedSID)}`);
+        Logger.log(`[Loaded preference] Session id: ...${getLast4Digits(savedSID)}`);
       }
     }
   }
@@ -304,7 +295,7 @@
   function registerMenuCommands() {
     callGMFunction('registerMenuCommand', 'Change post & story shortcut', handleMenuPostStoryKBCommand, null);
     callGMFunction('registerMenuCommand', 'Change profile picture shortcut', handleMenuProfilePicKBCommand, null);
-    log('Registered menu commands');
+    Logger.log('Registered menu commands');
   }
 
   /**
@@ -343,13 +334,13 @@
    */
   async function handleMenuButtonBehaviorChange(option) {
     if (!BUTTON_BEHAVIOR_OPTIONS.includes(option)) {
-      error('Invalid option for source button behavior');
+      Logger.error('Invalid option for source button behavior');
       return;
     }
     const result = await callGMFunction('setValue', STORAGE_KEY_BUTTON_BEHAVIOR, option);
-    if (result === null) error('Failed to save button behavior option on storage');
+    if (result === null) Logger.error('Failed to save button behavior option on storage');
     openSourceBehavior = option;
-    log('Changed open source button behavior to', option);
+    Logger.log('Changed open source button behavior to', option);
   }
 
   /**
@@ -362,13 +353,13 @@
     if (newSessionId.length === 0 && sessionId) {
       await callGMFunction('deleteValue', STORAGE_KEY_SESSION_ID);
       sessionId = '';
-      log('Deleted saved session id');
+      Logger.log('Deleted saved session id');
       return;
     }
     const result = await callGMFunction('setValue', STORAGE_KEY_SESSION_ID, newSessionId);
-    if (result === null) error('Failed to save session id on storage');
+    if (result === null) Logger.error('Failed to save session id on storage');
     sessionId = newSessionId;
-    log(`Saved current session id: ...${getLast4Digits(newSessionId)}`);
+    Logger.log(`Saved current session id: ...${getLast4Digits(newSessionId)}`);
   }
 
   /**
@@ -383,7 +374,7 @@
     let currentKey = await callGMFunction('getValue', keyBindingStorageKey, defaultKeyBinding);
     if (currentKey == null) {
       currentKey = defaultKeyBinding;
-      log(`Falling back to default key binding: Alt + ${defaultKeyBinding}`);
+      Logger.log(`Falling back to default key binding: Alt + ${defaultKeyBinding}`);
     }
 
     const newKeyBinding = prompt(
@@ -393,14 +384,14 @@
     );
     if (newKeyBinding == null) return null;
     if (!isKeyBindingValid(newKeyBinding)) {
-      errorMessage(`Couldn't save new key binding to open ${keyBindingName}, invalid option`);
+      Logger.alertAndLog(`Couldn't save new key binding to open ${keyBindingName}, invalid option`);
       return null;
     }
 
     const successMessage = `Saved new shortcut to open ${keyBindingName}:\nAlt + ${newKeyBinding.toUpperCase()}`;
     const result = await callGMFunction('setValue', keyBindingStorageKey, newKeyBinding);
     if (result === null) return null;
-    message(successMessage);
+    Logger.alert(successMessage);
     return newKeyBinding;
   }
 
@@ -441,7 +432,7 @@
       `);
       button.addEventListener('click', () => setSettingsMenuVisible(true));
       qs(document, IG_S_TOP_BAR)?.appendChild(button);
-      log('Created settings button');
+      Logger.log('Created settings button');
     }
 
     if (!qs(document, `.${C_SETTINGS_MODAL_BACKDROP}`)) {
@@ -471,7 +462,7 @@
       qsael(menu, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', e => handleSessionIdChange(e.target.value));
 
       document.body.appendChild(menu);
-      log('Created settings menu');
+      Logger.log('Created settings menu');
     }
   }
 
@@ -489,8 +480,8 @@
       `);
       openButton.addEventListener('click', () => openStoryContent(node));
       node.appendChild(openButton);
-    } catch (err) {
-      error('Failed to generate story button', err);
+    } catch (error) {
+      Logger.error('Failed to generate story button', error);
     }
   }
 
@@ -509,14 +500,14 @@
 
       const postButtonsContainer = qs(node, IG_S_POST_BUTTONS);
       if (!postButtonsContainer) {
-        error(`Failed to generate post button, couldn't find post buttons container (${IG_S_POST_BUTTONS})`);
+        Logger.error(`Failed to generate post button, couldn't find post buttons container (${IG_S_POST_BUTTONS})`);
         return;
       }
 
       const sourceButton = createElementFromHtml(`
         <button class="${C_BTN_POST}" title="Open source" />
       `);
-      sourceButton.addEventListener('click', () => openPostSourceFromSrcAttribute(node));
+      sourceButton.addEventListener('click', () => openPostSource(node));
       postButtonsContainer.appendChild(sourceButton);
       node.classList.add(C_POST_WITH_BUTTON);
 
@@ -526,8 +517,8 @@
         const localeDateTime = fullDateTime && new Date(fullDateTime)?.toLocaleString();
         if (localeDateTime) timeElement.innerHTML += ` (${localeDateTime})`;
       }
-    } catch (err) {
-      error('Failed to generate post button', err);
+    } catch (error) {
+      Logger.error('Failed to generate post button', error);
     }
   }
 
@@ -549,10 +540,10 @@
           `);
           profilePictureButton.addEventListener('click', withStopPropagation(openProfilePicture));
           buttonContainer.appendChild(profilePictureButton);
-          log('Generated profile picture button');
+          Logger.log('Generated profile picture button');
         }
-      } catch (err) {
-        error('Failed to generate picture button', err);
+      } catch (error) {
+        Logger.error('Failed to generate picture button', error);
       }
 
       try {
@@ -564,14 +555,14 @@
             `);
             storiesButton.addEventListener('click', withStopPropagation(openAnonymousStoriesModal));
             buttonContainer.appendChild(storiesButton);
-            log('Generated anonymous stories button');
+            Logger.log('Generated anonymous stories button');
           }
         }
-      } catch (err) {
-        error('Failed to generate anonymous stories button', err);
+      } catch (error) {
+        Logger.error('Failed to generate anonymous stories button', error);
       }
     } else {
-      error(`Couldn't find profile picture container (${IG_S_PROFILE_PIC_CONTAINER})`);
+      Logger.error(`Couldn't find profile picture container (${IG_S_PROFILE_PIC_CONTAINER})`);
     }
 
     try {
@@ -585,10 +576,10 @@
           setAnonymousStoriesModalVisible(false)
         );
         document.body.appendChild(modal);
-        log('Generated anonymous stories modal');
+        Logger.log('Generated anonymous stories modal');
       }
-    } catch (err) {
-      error('Failed to generate anonymous stories modal', err);
+    } catch (error) {
+      Logger.error('Failed to generate anonymous stories modal', error);
     }
   }
 
@@ -596,11 +587,11 @@
   async function openAnonymousStoriesModal() {
     try {
       if (qs(document, IG_S_PROFILE_PRIVATE_MESSAGE)) {
-        message('You cannot view stories of a private user');
+        Logger.alert('You cannot view stories of a private user');
         return;
       }
       if (!qs(document, IG_S_PROFILE_HAS_STORIES_INDICATOR)) {
-        message('This user has no stories at the moment');
+        Logger.alert('This user has no stories at the moment');
         return;
       }
       document.body.style.cursor = 'wait';
@@ -624,8 +615,8 @@
 
       listContainer.innerHTML = toAppend;
       setAnonymousStoriesModalVisible(true);
-    } catch (err) {
-      errorMessage('Failed to get user stories');
+    } catch (error) {
+      Logger.alertAndLog('Failed to get user stories');
     } finally {
       document.body.style.cursor = 'default';
     }
@@ -640,7 +631,7 @@
       const container = qs(node, IG_S_STORY_MEDIA_CONTAINER);
       const video = qs(container, 'video');
       const image = qs(container, 'img');
-      
+
       if (video) {
         const source = getStoryVideoSrc(video);
         if (!source) throw new Error('Video source not available');
@@ -655,7 +646,7 @@
       }
       throw new Error('Story media source not available');
     } catch (exception) {
-      errorMessage('Failed to open story source', exception);
+      Logger.alertAndLog('Failed to open story source', exception);
     }
   }
 
@@ -682,7 +673,7 @@
    * Gets the source url of a post from the src attribute on the node and opens it
    * @param {HTMLElement} node DOM element node containing the post
    */
-  async function openPostSourceFromSrcAttribute(node = qs(document, IG_S_SINGLE_POST_CONTAINER)) {
+  async function openPostSource(node = qs(document, IG_S_SINGLE_POST_CONTAINER)) {
     /* if is on single post page and the node is null, the picture container can be found, since there's only one */
     if (node == null) return;
 
@@ -695,7 +686,7 @@
         await openSinglePostMediaSource(node, postRelativeUrl);
       }
     } catch (exception) {
-      errorMessage('Failed to open post source', exception);
+      Logger.alertAndLog('Failed to open post source', exception);
     } finally {
       document.body.style.cursor = 'default';
     }
@@ -704,9 +695,7 @@
   /** Maps the response of the IG api for reels to a more friendly format */
   function getUrlFromVideoPostApiResponse(apiDataItems) {
     const getImageOrVideoUrl = ({ video_versions, image_versions2 }) => {
-      return video_versions
-        ? getUrlFromBestSource(video_versions)
-        : getUrlFromBestSource(image_versions2.candidates);
+      return video_versions ? getUrlFromBestSource(video_versions) : getUrlFromBestSource(image_versions2.candidates);
     };
 
     if (Array.isArray(apiDataItems)) return apiDataItems.map(getImageOrVideoUrl);
@@ -741,6 +730,7 @@
       }
       document.body.style.cursor = 'wait';
       const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
+      Logger.log({ response });
       const url = getUrlFromVideoPostApiResponse(response.items);
       openUrl(url);
       cachedApiData.post.set(postRelativeUrl, url);
@@ -756,16 +746,16 @@
    */
   async function getProfilePicture(username, cacheFirst = true) {
     if (cacheFirst && cachedApiData.userProfilePicture.has(username)) {
-      log('[CACHE HIT] Profile picture');
+      Logger.log('[CACHE HIT] Profile picture');
       return cachedApiData.userProfilePicture.get(username);
     }
 
     let pictureUrl = null;
     for (const [sourceName, getProfilePicture] of Object.entries(profilePictureSources)) {
-      log(`Getting user's profile picture from ${sourceName}`);
+      Logger.log(`Getting user's profile picture from ${sourceName}`);
       const url = await getProfilePicture(username);
       if (!url) {
-        error(`Couldn't get profile picture url from ${sourceName}`);
+        Logger.error(`Couldn't get profile picture url from ${sourceName}`);
         continue;
       }
       pictureUrl = url;
@@ -788,10 +778,10 @@
       const pictureUrl = await getProfilePicture(username);
       if (!pictureUrl) throw new Error('No profile picture found on any of the external sources');
 
-      log('Profile picture found, opening it...');
+      Logger.log('Profile picture found, opening it...');
       openUrl(pictureUrl);
-    } catch (err) {
-      errorMessage("Couldn't get user's profile picture", err);
+    } catch (error) {
+      Logger.alertAndLog("Couldn't get user's profile picture", error);
     } finally {
       document.body.style.cursor = 'default';
     }
@@ -805,8 +795,8 @@
     try {
       const videoElement = qs(video, 'source');
       return videoElement ? videoElement.getAttribute('src') : null;
-    } catch (err) {
-      error('Failed to get story video source', err);
+    } catch (error) {
+      Logger.error('Failed to get story video source', error);
       return null;
     }
   }
@@ -828,8 +818,8 @@
         return biggestSrc.size > src.size ? biggestSrc : src;
       }, sources[0]);
       return biggestSource?.url ?? fallbackUrl;
-    } catch (err) {
-      error('Failed to get story image source', err);
+    } catch (error) {
+      Logger.error('Failed to get story image source', error);
       return fallbackUrl || null;
     }
   }
@@ -875,11 +865,11 @@
   async function getUserStories(username, cacheFirst = true) {
     try {
       if (cacheFirst && cachedApiData.userStories.has(username)) {
-        log('[CACHE HIT] User stories');
+        Logger.log('[CACHE HIT] User stories');
         return cachedApiData.userStories.get(username);
       }
 
-      log('Getting user stories...');
+      Logger.log('Getting user stories...');
       const { id: userId } = await getUserDataFromIG(username);
       const result = await httpGETRequest(API.IG_REELS_FEED_API(userId), {
         'User-Agent': USER_AGENT,
@@ -890,8 +880,8 @@
       cachedApiData.userStories.set(username, mappedStories);
 
       return mappedStories;
-    } catch (err) {
-      error('Failed to get user stories', err);
+    } catch (error) {
+      Logger.error('Failed to get user stories', error);
       return undefined;
     }
   }
@@ -924,12 +914,14 @@
 
     if (!highResPictureUrl) {
       if (!lowResPictureUrl) {
-        error("Unable to get user's profile picture");
+        Logger.error("Unable to get user's profile picture");
         return null;
       }
-      error("Unable to get user's high-res profile picture, falling back to to low-res...");
+      Logger.error("Unable to get user's high-res profile picture, falling back to to low-res...");
       if (sessionId) {
-        warn("Make sure you are logged in and using a session id that hasn't expired or been revoked (logged out)");
+        Logger.warn(
+          "Make sure you are logged in and using a session id that hasn't expired or been revoked (logged out)"
+        );
       }
       return lowResPictureUrl;
     }
@@ -948,7 +940,7 @@
    */
   async function getUserDataFromIG(username, cacheFirst = true) {
     if (cacheFirst && cachedApiData.userInfo.has(username)) {
-      log('[CACHE HIT] User data from IG __A1');
+      Logger.log('[CACHE HIT] User data from IG __A1');
       return cachedApiData.userInfo.get(username);
     }
 
@@ -966,8 +958,11 @@
     try {
       const kb = await loadKeyBindingFromStorage(STORAGE_KEY_POST_STORY_KB, DEFAULT_KB_POST_STORY, kbName);
       if (kb) openPostStoryKeyBinding = kb;
-    } catch (err) {
-      error(`Failed to load "${kbName}" key binding, considering default (Alt + ${DEFAULT_KB_POST_STORY})`, err);
+    } catch (error) {
+      Logger.error(
+        `Failed to load "${kbName}" key binding, considering default (Alt + ${DEFAULT_KB_POST_STORY})`,
+        error
+      );
     }
   }
 
@@ -980,8 +975,11 @@
     try {
       const kb = await loadKeyBindingFromStorage(STORAGE_KEY_PROFILE_PICTURE_KB, DEFAULT_KB_PROFILE_PICTURE, kbName);
       if (kb) openProfilePictureKeyBinding = kb;
-    } catch (err) {
-      error(`Failed to load "${kbName}" key binding, considering default (Alt + ${DEFAULT_KB_PROFILE_PICTURE})`, err);
+    } catch (error) {
+      Logger.error(
+        `Failed to load "${kbName}" key binding, considering default (Alt + ${DEFAULT_KB_PROFILE_PICTURE})`,
+        error
+      );
     }
   }
 
@@ -996,25 +994,25 @@
     let kb = await callGMFunction('getValue', storageKey, defaultKeyBinding);
     if (kb === null) {
       kb = defaultKeyBinding;
-      log(`Falling back to default key binding: Alt + ${defaultKeyBinding}`);
+      Logger.log(`Falling back to default key binding: Alt + ${defaultKeyBinding}`);
     }
 
     try {
       if (isKeyBindingValid(kb)) {
         const newKey = kb.toUpperCase();
-        log(`Discovered ${keyBindingName} key binding: Alt + ${newKey}`);
+        Logger.log(`Discovered ${keyBindingName} key binding: Alt + ${newKey}`);
         return newKey;
       } else {
-        error(
+        Logger.error(
           `Couldn't load "${keyBindingName}" key binding, "${kb}" key is invalid, using default (Alt + ${defaultKeyBinding})`
         );
         return defaultKeyBinding;
       }
-    } catch (err) {
+    } catch (error) {
       if (kb != defaultKeyBinding) {
-        error(
+        Logger.error(
           `Failed to load "${keyBindingName}" key binding, falling back to default: Alt + ${defaultKeyBinding}`,
-          err
+          error
         );
       }
       return null;
@@ -1079,7 +1077,7 @@
     loadingFn().then(() => {
       document.addEventListener('keydown', keyPressHandler);
       callback();
-      log(logMessage);
+      Logger.log(logMessage);
     });
   }
 
@@ -1136,7 +1134,7 @@
     if (!condition) return;
     document.removeEventListener('keydown', keyPressHandler);
     callback();
-    log(logMessage);
+    Logger.log(logMessage);
   }
 
   /**
@@ -1163,7 +1161,7 @@
       openPostStoryKeyBinding,
       () => pages.post.isVisible(),
       'Detected source opening shortcut on a single post page',
-      openPostSourceFromSrcAttribute
+      openPostSource
     );
   }
 
@@ -1191,7 +1189,7 @@
    */
   function handleKeyPress(event, keyBinding, checkConditionsAreMet, logMessageString, keyPressAction) {
     if (event.altKey && event.code.toLowerCase() === `key${keyBinding.toLowerCase()}` && checkConditionsAreMet()) {
-      log(logMessageString);
+      Logger.log(logMessageString);
       keyPressAction();
     }
   }
@@ -1225,18 +1223,18 @@
           reject(error);
         },
         ontimeout: () => {
-          error('GET Request Timeout');
+          Logger.error('GET Request Timeout');
           reject('GET Request Timeout');
         },
         onabort: () => {
-          error('GET Request Aborted');
+          Logger.error('GET Request Aborted');
           reject('GET Request Aborted');
         },
       };
 
       const fnResponse = callGMFunction('xmlHttpRequest', options);
       if (fnResponse === null) {
-        error(`Failed to perform GET request to ${url}`);
+        Logger.error(`Failed to perform GET request to ${url}`);
         reject();
       }
     });
@@ -1268,11 +1266,11 @@
         const fn = eval(fnName);
         if (typeof fn !== 'function') throw new Error('Not found');
         return await fn(...args);
-      } catch (err) {
-        warn(`Failed to call ${fnName} function.`, err);
+      } catch (error) {
+        Logger.warn(`Failed to call ${fnName} function.`, error);
       }
     }
-    error(`Failed to call all GM function variants of '${gmFunctionName}'`);
+    Logger.error(`Failed to call all GM function variants of '${gmFunctionName}'`);
     return null;
   }
 
@@ -1436,6 +1434,7 @@
     }
   }
 
+  /** Utility that creates an iternal object and methods to use as a cache */
   function buildCache() {
     const keyValueRecord = {};
     /** @type {(key: string) => string | undefined} */
@@ -1446,6 +1445,29 @@
     const has = key => !!get(key);
 
     return { get, set, has };
+  }
+
+  /**
+   * Logging utils generator
+   * @param {string} loggingTag
+   */
+  function createLogger(loggingTag) {
+    const baseAlert = (...args) => alert(`${SCRIPT_NAME}:\n\n${args.join(' ')}`);
+    const baseLog = (type, ...args) => {
+      if (!LOGGING_ENABLED) return;
+      console[type]?.(`[${loggingTag}]`, ...args);
+    };
+
+    return {
+      log: (...args) => baseLog('log', ...args),
+      warn: (...args) => baseLog('warn', ...args),
+      error: (...args) => baseLog('error', ...args),
+      alert: (...args) => baseAlert(...args),
+      alertAndLog: (...args) => {
+        baseLog('log', ...args);
+        baseAlert(...args);
+      },
+    };
   }
 
   /** Appends the necessary styles to DOM */
@@ -1500,9 +1522,9 @@
       const element = document.createElement('style');
       element.textContent = styles;
       document.head.appendChild(element);
-      log('Injected CSS into DOM');
-    } catch (err) {
-      error('Failed to inject CSS into DOM', err);
+      Logger.log('Injected CSS into DOM');
+    } catch (error) {
+      Logger.error('Failed to inject CSS into DOM', error);
     }
   }
 })();
