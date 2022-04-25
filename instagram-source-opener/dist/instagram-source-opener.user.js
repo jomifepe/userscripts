@@ -147,6 +147,7 @@
     userInfo: buildCache(),
     userStories: buildCache(),
     userProfilePicture: buildCache(),
+    post: buildCache(),
   };
 
   let isStoryKeyBindingSetup, isSinglePostKeyBindingSetup, isProfileKeyBindingSetup;
@@ -154,7 +155,7 @@
   let openProfilePictureKeyBinding = DEFAULT_KB_PROFILE_PICTURE;
   let openSourceBehavior = '';
   let sessionId = '';
-  
+
   const log = (...args) => LOGGING_ENABLED && console.log(...[LOGGING_TAG, ...args]);
   const error = (...args) => LOGGING_ENABLED && console.error(...[LOGGING_TAG, ...args]);
   const warn = (...args) => LOGGING_ENABLED && console.warn(...[LOGGING_TAG, ...args]);
@@ -205,17 +206,17 @@
       /* triggered whenever a new instagram post is loaded on the feed */
       [S_IG_POST_CONTAINER_WITHOUT_BUTTON]: generatePostButtons,
       /* triggered whenever a single post is opened (on a profile) */
-      [IG_S_SINGLE_POST_CONTAINER]: (node) => {
+      [IG_S_SINGLE_POST_CONTAINER]: node => {
         generatePostButtons(node);
         setupSinglePostEventListeners();
       },
       /* triggered whenever a story is opened */
-      [IG_S_STORY_CONTAINER]: (node) => {
+      [IG_S_STORY_CONTAINER]: node => {
         generateStoryButton(node);
         setupStoryEventListeners();
       },
       /* triggered whenever a profile page is loaded */
-      [IG_S_PROFILE_CONTAINER]: (node) => {
+      [IG_S_PROFILE_CONTAINER]: node => {
         generateProfileElements(node);
         setupProfileEventListeners();
       },
@@ -540,7 +541,7 @@
     if (profilePicContainer) {
       const buttonContainer = createElementFromHtml(`<div class="${C_PROFILE_BUTTON_CONTAINER}"></div>`);
       profilePicContainer.appendChild(buttonContainer);
-     
+
       try {
         if (!elementExistsInNode(`.${C_BTN_PROFILE_PIC}`, node)) {
           const profilePictureButton = createElementFromHtml(`
@@ -553,7 +554,7 @@
       } catch (err) {
         error('Failed to generate picture button', err);
       }
-  
+
       try {
         if (!elementExistsInNode(`.${C_BTN_ANONYMOUS_STORIES}`, node)) {
           // if the profile is not private or you follow the user
@@ -572,7 +573,7 @@
     } else {
       error(`Couldn't find profile picture container (${IG_S_PROFILE_PIC_CONTAINER})`);
     }
-    
+
     try {
       if (!elementExistsInNode(`.${C_STORIES_MODAL_BACKDROP}`, node)) {
         const modal = createElementFromHtml(`
@@ -631,14 +632,15 @@
   }
 
   /**
-   * Finds the story source url from the src attribute on the node and opens it in a new tab
+   * Finds the story source url from the src attribute on the node and opens it
    * @param {HTMLElement} node DOM element node
    */
   function openStoryContent(node = document) {
     try {
       const container = qs(node, IG_S_STORY_MEDIA_CONTAINER);
-      const video = qs(container, 'video'),
-        image = qs(container, 'img');
+      const video = qs(container, 'video');
+      const image = qs(container, 'img');
+      
       if (video) {
         const source = getStoryVideoSrc(video);
         if (!source) throw new Error('Video source not available');
@@ -658,7 +660,26 @@
   }
 
   /**
-   * Gets the source url of a post from the src attribute on the node and opens it in a new tab
+   * Fetches the carousel data from the IG API and opens the url of the current index
+   * @param {string} postRelativeUrl url of the post
+   * @param {number} carouselIndex current index of the post carousel
+   */
+  async function openCarouselPostMediaSource(postRelativeUrl, carouselIndex) {
+    if (cachedApiData.post.has(postRelativeUrl)) {
+      const cachedData = cachedApiData.post.get(postRelativeUrl)[carouselIndex];
+      const url = getUrlFromVideoPostApiResponse(cachedData);
+      openUrl(url);
+      return;
+    }
+    const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
+    const carouselMediaItems = response.items[0].carousel_media;
+    const url = getUrlFromVideoPostApiResponse(carouselMediaItems[carouselIndex]);
+    openUrl(url);
+    cachedApiData.post.set(postRelativeUrl, carouselMediaItems);
+  }
+
+  /**
+   * Gets the source url of a post from the src attribute on the node and opens it
    * @param {HTMLElement} node DOM element node containing the post
    */
   async function openPostSourceFromSrcAttribute(node = qs(document, IG_S_SINGLE_POST_CONTAINER)) {
@@ -667,23 +688,11 @@
 
     try {
       const postRelativeUrl = qs(node, IG_S_POST_TIME_ANCHOR)?.getAttribute('href');
-      const sourceListItems = qsa(node, IG_S_MULTI_POST_LIST_ITEMS);
-      if (sourceListItems.length == 0 /* is single post */) {
-        await openPostMediaSource(node, postRelativeUrl);
-        return;
-      }
-
-      const postIndex = getMultiPostIndex(node);
-      if (sourceListItems.length == 2 /* is on the first or last item */) {
-        if (qs(node, IG_S_MULTI_POST_NEXT_ARROW_BTN) /* next arrow exist */) {
-          await openPostMediaSource(sourceListItems[0], postRelativeUrl, postIndex); /* opens first item */
-        } else {
-          await openPostMediaSource(sourceListItems[1], postRelativeUrl, postIndex); /* opens last item */
-        }
-      } else if (sourceListItems.length == 3 /* is on any other item */) {
-        await openPostMediaSource(sourceListItems[1], postRelativeUrl, postIndex);
-      } /* something is not right */ else {
-        errorMessage('Failed to open post source', 'Failed to open post carousel item');
+      const isPostCarousel = qsa(node, IG_S_MULTI_POST_LIST_ITEMS).length > 0;
+      if (isPostCarousel) {
+        await openCarouselPostMediaSource(postRelativeUrl, getCarouselIndex(node));
+      } else {
+        await openSinglePostMediaSource(node, postRelativeUrl);
       }
     } catch (exception) {
       errorMessage('Failed to open post source', exception);
@@ -692,13 +701,24 @@
     }
   }
 
+  /** Maps the response of the IG api for reels to a more friendly format */
+  function getUrlFromVideoPostApiResponse(apiDataItems) {
+    const getImageOrVideoUrl = ({ video_versions, image_versions2 }) => {
+      return video_versions
+        ? getUrlFromBestSource(video_versions)
+        : getUrlFromBestSource(image_versions2.candidates);
+    };
+
+    if (Array.isArray(apiDataItems)) return apiDataItems.map(getImageOrVideoUrl);
+    return getImageOrVideoUrl(apiDataItems);
+  }
+
   /**
-   * Gets the source url of a post from the src attribute on the node and opens it in a new tab
+   * Gets the source url of a post from the src attribute on the node and opens it
    * @param {HTMLElement} node DOM element node containing the post
    * @param {string} postRelativeUrl url of the post
-   * @param {number} postIndex current index of the post carousel
    */
-  async function openPostMediaSource(node, postRelativeUrl, postIndex) {
+  async function openSinglePostMediaSource(node, postRelativeUrl) {
     let image = qs(node, IG_S_POST_IMG);
     let video = qs(node, IG_S_POST_VIDEO);
     if (image) {
@@ -715,23 +735,24 @@
       if (!postRelativeUrl) throw new Error('No post relative url found');
 
       /* try to get the video url using the IG api */
+      if (cachedApiData.post.has(postRelativeUrl)) {
+        openUrl(cachedApiData.post.get(postRelativeUrl));
+        return;
+      }
       document.body.style.cursor = 'wait';
       const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
-      let postData = response?.graphql?.shortcode_media;
-      if (postIndex != undefined) postData = postData?.edge_sidecar_to_children?.edges?.[postIndex]?.node; // multi
-      if (!postData) throw new Error('No post data found');
-      if (!postData.is_video) throw new Error('Post is not a video');
-      if (!postData.video_url) throw new Error('No video url found');
-
-      openUrl(postData.video_url);
+      const url = getUrlFromVideoPostApiResponse(response.items);
+      openUrl(url);
+      cachedApiData.post.set(postRelativeUrl, url);
       return;
     }
     throw new Error('Failed to open source, no media found');
   }
 
   /**
-   *
+   * Fetches the user's profile picture from the IG API and returns it.
    * @param {string} username
+   * @param {boolean} cacheFirst Whether to check the cache before making the request
    */
   async function getProfilePicture(username, cacheFirst = true) {
     if (cacheFirst && cachedApiData.userProfilePicture.has(username)) {
@@ -767,7 +788,7 @@
       const pictureUrl = await getProfilePicture(username);
       if (!pictureUrl) throw new Error('No profile picture found on any of the external sources');
 
-      log('Profile picture found, opening in a new tab...');
+      log('Profile picture found, opening it...');
       openUrl(pictureUrl);
     } catch (err) {
       errorMessage("Couldn't get user's profile picture", err);
@@ -814,19 +835,41 @@
   }
 
   /**
-   * Finds the largest image source and returns its url
-   * @param {{ width: number; height: number; url: string; }[]} imageSources
+   * Finds the best image/video source (size and quality) and returns its url.
+   * @param {{ width: number; height: number; url: string; type: number; }[]} imageSources
    * @returns string
    */
-  function getLargestUrlFromSource(imageSources) {
-    return imageSources.reduce((largestImage, image) => {
-      return image.height > largestImage.height ? image : largestImage;
+  function getUrlFromBestSource(imageSources) {
+    return imageSources.reduce((largestSource, source) => {
+      if (source.height > largestSource.height) return source;
+      if (source.height === largestSource.height && source.type > largestSource.type) return source;
+      return largestSource;
     }, imageSources[0])?.url;
+  }
+
+  /**
+   * Maps the response of the IG api for stories to a more friendly format
+   * @param {any[]} apiDataItems
+   */
+  function mapStoriesApiResponse(apiDataItems) {
+    return apiDataItems.map(({ taken_at, video_versions, image_versions2 }) => {
+      const timestamp = taken_at * 1000;
+      const imageUrl = getUrlFromBestSource(image_versions2.candidates);
+
+      return {
+        url: video_versions ? getUrlFromBestSource(video_versions) : imageUrl,
+        thumbnailUrl: imageUrl,
+        dateTime: new Date().toISOString(),
+        relativeTime: getRelativeTime(timestamp),
+        timestamp,
+      };
+    });
   }
 
   /**
    * Fetches the current stories from a user
    * @param {string} username
+   * @param {boolean} cacheFirst Whether to check the cache before making the request
    * @returns {Promise<{ url: string; thumbnailUrl: string; dateTime: string; relativeTime: string }[]>}
    */
   async function getUserStories(username, cacheFirst = true) {
@@ -843,18 +886,7 @@
         'x-ig-app-id': IG_APP_ID,
       });
 
-      const mappedStories = result.reels[userId].items.map(({ taken_at, video_versions, image_versions2 }) => {
-        const timestamp = taken_at * 1000;
-        const imageUrl = getLargestUrlFromSource(image_versions2.candidates);
-
-        return {
-          url: video_versions ? getLargestUrlFromSource(video_versions) : imageUrl,
-          thumbnailUrl: imageUrl,
-          dateTime: new Date().toISOString(),
-          relativeTime: getRelativeTime(timestamp),
-          timestamp,
-        };
-      });
+      const mappedStories = mapStoriesApiResponse(result.reels[userId]);
       cachedApiData.userStories.set(username, mappedStories);
 
       return mappedStories;
@@ -907,6 +939,7 @@
   /**
    * Return the data from a certain user using IG's __a=1 API
    * @param {string} username username of the user
+   * @param {boolean} cacheFirst Whether to check the cache before making the request
    * @returns {Promise<{
    *   id: string;
    *   profile_pic_url_hd: string;
@@ -1248,7 +1281,7 @@
    * @param {HTMLElement} node DOM element node containing the post
    * @return {number} current index
    */
-  function getMultiPostIndex(node) {
+  function getCarouselIndex(node) {
     const indicators = qsa(node, IG_S_MULTI_POST_INDICATOR);
     for (let i = 0; i < indicators.length; i++) {
       if (indicators[i].classList.contains(IG_C_MULTI_POST_INDICATOR_ACTIVE)) {
