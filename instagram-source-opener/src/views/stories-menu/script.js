@@ -29,7 +29,9 @@
   document.querySelector('#openMenuBtn')?.addEventListener('click', openMenu);
   document.querySelector('.__RSTART__C_MODAL_CLOSE_BTN__REND__')?.addEventListener('click', closeMenu);
   document.querySelector('.__RSTART__C_MODAL_BACKDROP__REND__')?.addEventListener('click', closeMenu);
-  document.querySelector('.__RSTART__C_MODAL_WRAPPER__REND__')?.addEventListener('click', e => e.stopPropagation());
+  document.querySelector('.__RSTART__C_MODAL_WRAPPER__REND__')?.addEventListener('click', e => {
+    e.stopPropagation();
+  });
 
   openMenu();
 })();

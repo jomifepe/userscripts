@@ -65,7 +65,7 @@ module.exports = function (grunt) {
     },
     watch: {
       scripts: {
-        files: ['src/instagram-source-opener.user.js', 'src/views/**/*'],
+        files: ['src/<%= config.scriptPath %>', 'src/views/**/*'],
         tasks: ['build'],
         options: {
           atBegin: true,
