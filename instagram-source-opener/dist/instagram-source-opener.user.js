@@ -865,27 +865,22 @@
    * @returns {Promise<{ url: string; thumbnailUrl: string; dateTime: string; relativeTime: string }[]>}
    */
   async function getUserStories(username, cacheFirst = true) {
-    try {
-      if (cacheFirst && cachedApiData.userStories.has(username)) {
-        Logger.log('[CACHE HIT] User stories');
-        return cachedApiData.userStories.get(username);
-      }
-
-      Logger.log('Getting user stories...');
-      const { id: userId } = await getUserDataFromIG(username);
-      const result = await httpGETRequest(API.IG_REELS_FEED_API(userId), {
-        'User-Agent': USER_AGENT,
-        'x-ig-app-id': IG_APP_ID,
-      });
-
-      const mappedStories = mapStoriesApiResponse(result.reels[userId]);
-      cachedApiData.userStories.set(username, mappedStories);
-
-      return mappedStories;
-    } catch (error) {
-      Logger.error('Failed to get user stories', error);
-      return undefined;
+    if (cacheFirst && cachedApiData.userStories.has(username)) {
+      Logger.log('[CACHE HIT] User stories');
+      return cachedApiData.userStories.get(username);
     }
+
+    Logger.log('Getting user stories...');
+    const { id: userId } = await getUserDataFromIG(username);
+    const result = await httpGETRequest(API.IG_REELS_FEED_API(userId), {
+      'User-Agent': USER_AGENT,
+      'x-ig-app-id': IG_APP_ID,
+    });
+
+    const mappedStories = mapStoriesApiResponse(result.reels[userId].items);
+    cachedApiData.userStories.set(username, mappedStories);
+
+    return mappedStories;
   }
 
   /**
