@@ -74,19 +74,20 @@
   const C_BTN_STORY = 'iso-story-btn',
     C_POST_WITH_BUTTON = 'iso-post',
     C_BTN_POST = 'iso-post-btn',
-    C_CONTAINER_PROFILE_BUTTONS = 'iso-profile-button-container',
+    C_PROFILE_BUTTON_CONTAINER = 'iso-profile-button-container',
     C_BTN_PROFILE_PIC = 'iso-profile-picture-btn',
     C_BTN_ANONYMOUS_STORIES = 'iso-anonymous-stories-btn',
+    /* Base modal classes */
+    C_MODAL_BACKDROP = 'iso-modal-backdrop',
+    C_MODAL_WRAPPER = 'iso-modal-wrapper',
+    C_MODAL_TITLE_CONTAINER = 'iso-modal-title-container',
+    C_MODAL_TITLE = 'iso-modal-title',
+    C_MODAL_TITLE_LINK = 'iso-modal-title-link',
+    C_MODAL_CLOSE_BTN = 'iso-modal-close-btn',
+    C_MODAL_CONTENT_CONTAINER = 'iso-modal-content-container',
     /* Script settings */
-    C_MODAL_BACKDROP = 'iso-modal-container',
-    C_SETTINGS_MODAL_BACKDROP = 'iso-settings-modal-container',
     C_SETTINGS_BTN = 'iso-settings-btn',
-    C_MODAL_WRAPPER = 'iso-settings-menu',
-    C_MODAL_TITLE_CONTAINER = 'iso-settings-menu-title-container',
-    C_MODAL_TITLE = 'iso-settings-menu-title',
-    C_MODAL_TITLE_LINK = 'iso-settings-menu-title-link',
-    C_MODAL_CLOSE_BTN = 'iso-settings-menu-close-btn',
-    C_MODAL_CONTENT_CONTAINER = 'iso-settings-menu-options',
+    C_SETTINGS_MODAL_BACKDROP = 'iso-settings-modal-backdrop',
     C_SETTINGS_MENU_OPTION = 'iso-settings-menu-option',
     C_SETTINGS_MENU_OPTION_BTN = 'iso-settings-menu-option-button',
     C_SETTINGS_SECTION_COLLAPSED = 'iso-settings-section-collapsed',
@@ -98,6 +99,7 @@
     ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER = 'iso-settings-developer-options-container',
     ID_SETTINGS_SESSION_ID_INPUT = 'iso-settings-session-id-input',
     S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
+    /* Anonymous stories modal */
     C_STORIES_MODAL_BACKDROP = 'iso-stories-modal-container',
     C_STORIES_MODAL_LIST = 'iso-stories-modal-list',
     C_STORIES_MODAL_LIST_ITEM = 'iso-stories-modal-list-item',
@@ -434,7 +436,7 @@
     if (!qs(document, `.${C_SETTINGS_BTN}`)) {
       /* Create the settings button */
       const button = createElementFromHtml(`
-        <button class="${C_SETTINGS_BTN}" type="button" title="Open ${SCRIPT_NAME_SHORT} settings" />
+        <button class="${C_SETTINGS_BTN}" type="button" title="Open ${SCRIPT_NAME} settings" />
       `);
       button.addEventListener('click', () => setSettingsMenuVisible(true));
       qs(document, IG_S_TOP_BAR)?.appendChild(button);
@@ -536,7 +538,7 @@
     const profilePicContainer = qs(node, IG_S_PROFILE_PIC_CONTAINER) || qs(node, IG_S_PRIVATE_PROFILE_PIC_CONTAINER);
 
     if (profilePicContainer) {
-      const buttonContainer = createElementFromHtml(`<div class="${C_CONTAINER_PROFILE_BUTTONS}"></div>`);
+      const buttonContainer = createElementFromHtml(`<div class="${C_PROFILE_BUTTON_CONTAINER}"></div>`);
       profilePicContainer.appendChild(buttonContainer);
      
       try {
@@ -593,11 +595,11 @@
   async function openAnonymousStoriesModal() {
     try {
       if (qs(document, IG_S_PROFILE_PRIVATE_MESSAGE)) {
-        errorMessage('You cannot view stories of a private user');
+        message('You cannot view stories of a private user');
         return;
       }
       if (!qs(document, IG_S_PROFILE_HAS_STORIES_INDICATOR)) {
-        errorMessage('This user has no stories at the moment');
+        message('This user has no stories at the moment');
         return;
       }
       document.body.style.cursor = 'wait';
@@ -1388,7 +1390,7 @@
   ];
   const RTF = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
   /**
-   *
+   * Converts a timestamp into a relative human readable time (e.g. 3 hours ago)
    * @param {number} timestamp
    * @returns string
    */
@@ -1413,9 +1415,7 @@
     return { get, set, has };
   }
 
-  /**
-   * Appends the necessary style elements to DOM
-   */
+  /** Appends the necessary styles to DOM */
   function injectStyles() {
     try {
       const styles = `
@@ -1423,7 +1423,7 @@
         .${C_BTN_ANONYMOUS_STORIES},.${C_BTN_POST},.${C_BTN_PROFILE_PIC},.${C_BTN_STORY},.${C_SETTINGS_BTN},.${C_SETTINGS_MENU_OPTION_BTN},.${C_STORIES_MODAL_LIST_ITEM}{transition:all .2s ease-in-out;-webkit-transition:all .2s ease-in-out;-moz-transition:all .2s ease-in-out;-ms-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out}
         .${C_BTN_POST}{min-height:40px;min-width:40px;max-height:40px;max-width:40px;outline:0;border:none;cursor:pointer;opacity:1;margin-left:6px;background-color:transparent;background-repeat:no-repeat;background-image:var(--iso-post-btn-icon);background-size:24px 24px;background-position:center}
         .${C_BTN_POST}:hover{opacity:.6}
-        .${C_CONTAINER_PROFILE_BUTTONS}{display:flex;flex-direction:row;justify-content:center;align-items:center;position:absolute;bottom:-16px;right:0;left:0}
+        .${C_PROFILE_BUTTON_CONTAINER}{display:flex;flex-direction:row;justify-content:center;align-items:center;position:absolute;bottom:-16px;right:0;left:0}
         .${C_BTN_ANONYMOUS_STORIES},.${C_BTN_PROFILE_PIC}{outline:0;min-height:32px;min-width:32px;max-height:32px;max-width:32px;border:0;cursor:pointer;padding:0;border:1.5px solid #000;border-radius:50%;background-color:#fff;background-repeat:no-repeat;background-size:20px 20px;background-position:center}
         .${C_BTN_PROFILE_PIC}{background-image:var(--iso-post-btn-icon)}
         .${C_BTN_ANONYMOUS_STORIES}{margin-left:8px;background-image:var(--iso-anonymous-stories-btn)}
@@ -1469,7 +1469,7 @@
       document.head.appendChild(element);
       log('Injected CSS into DOM');
     } catch (err) {
-      error('Failed to inject styled to DOM', err);
+      error('Failed to inject CSS into DOM', err);
     }
   }
 })();

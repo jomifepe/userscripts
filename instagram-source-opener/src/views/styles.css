@@ -44,7 +44,7 @@
 .__RSTART__C_BTN_POST__REND__:hover {
   opacity: 0.6;
 }
-.__RSTART__C_CONTAINER_PROFILE_BUTTONS__REND__ {
+.__RSTART__C_PROFILE_BUTTON_CONTAINER__REND__ {
   display: flex;
   flex-direction: row;
   justify-content: center;
