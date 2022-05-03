@@ -23,8 +23,8 @@
 // @namespace        https://jomifepe.github.io/
 // @supportURL       https://github.com/jomifepe/userscripts/issues
 // @homepage         https://github.com/jomifepe/userscripts/tree/main/instagram-source-opener
-// @updateURL        https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
-// @downloadURL      https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/src/instagram-source-opener.user.js
+// @updateURL        https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/dist/instagram-source-opener.user.js
+// @downloadURL      https://raw.githubusercontent.com/jomifepe/userscripts/main/instagram-source-opener/dist/instagram-source-opener.user.js
 // @contributionURL  https://www.paypal.com/donate?hosted_button_id=JT2G5E5SM9C88
 // @require          https://cdnjs.cloudflare.com/ajax/libs/arrive/2.4.1/arrive.min.js
 // ==/UserScript==
@@ -51,8 +51,6 @@
     IG_S_POST_IMG = '.FFVAD',
     IG_S_POST_VIDEO = '.tWeCl',
     IG_S_MULTI_POST_LIST_ITEMS = '.vi798 .Ckrof',
-    IG_S_MULTI_POST_PREV_ARROW_BTN = '.POSa_',
-    IG_S_MULTI_POST_NEXT_ARROW_BTN = '._6CZji',
     IG_S_POST_CONTAINER = '._8Rm4L',
     IG_S_POST_BUTTONS = '.eo2As > section',
     IG_S_PROFILE_PIC_CONTAINER = '.RR-M-',
@@ -85,7 +83,7 @@
     C_MODAL_CONTENT_CONTAINER = 'iso-modal-content-container',
     /* Script settings */
     C_SETTINGS_BTN = 'iso-settings-btn',
-    C_SETTINGS_MODAL_BACKDROP = 'iso-settings-modal-backdrop',
+    C_SETTINGS_MODAL = 'iso-settings-modal',
     C_SETTINGS_MENU_OPTION = 'iso-settings-menu-option',
     C_SETTINGS_MENU_OPTION_BTN = 'iso-settings-menu-option-button',
     C_SETTINGS_SECTION_COLLAPSED = 'iso-settings-section-collapsed',
@@ -98,10 +96,9 @@
     ID_SETTINGS_SESSION_ID_INPUT = 'iso-settings-session-id-input',
     S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
     /* Anonymous stories modal */
-    C_STORIES_MODAL_BACKDROP = 'iso-stories-modal-container',
+    C_STORIES_MODAL = 'iso-stories-modal',
     C_STORIES_MODAL_LIST = 'iso-stories-modal-list',
-    C_STORIES_MODAL_LIST_ITEM = 'iso-stories-modal-list-item',
-    C_STORIES_MODAL_WRAPPER = 'iso-stories-modal-wrapper';
+    C_STORIES_MODAL_LIST_ITEM = 'iso-stories-modal-list-item';
 
   /* Storage and cookie keys */
   const STORAGE_KEY_POST_STORY_KB = 'iso_post_story_kb',
@@ -173,8 +170,9 @@
       },
     },
     profile: {
-      isVisible: () => window.location.pathname.length > 1 && qs(document, IG_S_PROFILE_CONTAINER),
+      isVisible: () => !!(window.location.pathname.length > 1 && qs(document, IG_S_PROFILE_CONTAINER)),
       onLoadActions: () => {
+        if (!checkIsLoggedIn()) return;
         const node = qs(document, IG_S_PROFILE_CONTAINER);
         if (!node) return;
         generateProfileElements(node);
@@ -277,6 +275,7 @@
         Logger.log('[Loaded preference] Open button behavior:', savedOsb);
       }
     }
+
     if (!sessionId) {
       const savedSID = await callGMFunction('getValue', STORAGE_KEY_SESSION_ID, null);
       if (!savedSID) {
@@ -293,8 +292,8 @@
    * For example, on Tampermonkey, this menu is accessible by clicking on the extension icon
    */
   function registerMenuCommands() {
-    callGMFunction('registerMenuCommand', 'Change post & story shortcut', handleMenuPostStoryKBCommand, null);
-    callGMFunction('registerMenuCommand', 'Change profile picture shortcut', handleMenuProfilePicKBCommand, null);
+    callGMFunction('registerMenuCommand', 'Change post & story shortcut', handleMenuPostStoryKBCommand);
+    callGMFunction('registerMenuCommand', 'Change profile picture shortcut', handleMenuProfilePicKBCommand);
     Logger.log('Registered menu commands');
   }
 
@@ -401,23 +400,23 @@
    */
   function setSettingsMenuVisible(visible) {
     if (visible) {
-      qs(document, `.${C_SETTINGS_MODAL_BACKDROP}`).style.display = 'flex';
+      qs(document, `.${C_SETTINGS_MODAL}`).style.display = 'flex';
       /* load values on the menu */
       const buttonBehaviorSelect = qs(document, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`);
       if (buttonBehaviorSelect) buttonBehaviorSelect.value = openSourceBehavior;
       const sessionIdInput = qs(document, `#${ID_SETTINGS_SESSION_ID_INPUT}`);
       if (sessionIdInput) sessionIdInput.value = sessionId;
     } else {
-      qs(document, `.${C_SETTINGS_MODAL_BACKDROP}`).style.display = 'none';
+      qs(document, `.${C_SETTINGS_MODAL}`).style.display = 'none';
     }
   }
 
+  /**
+   * Toggles the visibility of the settings menu
+   * @param {boolean} visible
+   */
   function setAnonymousStoriesModalVisible(visible) {
-    if (visible) {
-      qs(document, `.${C_STORIES_MODAL_BACKDROP}`).style.display = visible ? 'flex' : 'none';
-    } else {
-      qs(document, `.${C_STORIES_MODAL_BACKDROP}`).style.display = 'none';
-    }
+    qs(document, `.${C_STORIES_MODAL}`).style.display = visible ? 'flex' : 'none';
   }
 
   /**
@@ -435,33 +434,38 @@
       Logger.log('Created settings button');
     }
 
-    if (!qs(document, `.${C_SETTINGS_MODAL_BACKDROP}`)) {
+    if (!qs(document, `.${C_SETTINGS_MODAL}`)) {
       /* Create the settings menu */
-      const menu = createElementFromHtml(`
-        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL_BACKDROP}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">${SCRIPT_NAME_SHORT} Settings <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change profile picture shortcut</button><div class="${C_SETTINGS_MENU_OPTION}"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN} ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="${C_SETTINGS_SELECT_ARROW}"></span></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="${C_SETTINGS_MENU_OPTION} ${C_SETTINGS_SECTION_COLLAPSED}"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="${C_MODAL_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div></div></div></div>
+      const modal = createElementFromHtml(`
+        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">${SCRIPT_NAME_SHORT} Settings <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change profile picture shortcut</button><div class="${C_SETTINGS_MENU_OPTION}"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN} ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="${C_SETTINGS_SELECT_ARROW}"></span></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="${C_SETTINGS_MENU_OPTION} ${C_SETTINGS_SECTION_COLLAPSED}"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="${C_MODAL_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div></div></div></div>
       `);
 
-      /* close settings menu on background click */
-      menu.addEventListener('click', () => setSettingsMenuVisible(false));
-      qsael(menu, `.${C_SETTINGS_MODAL_BACKDROP} .${C_MODAL_WRAPPER}`, 'click', e => e.stopPropagation());
-      /* close settings menu on close button click */
-      qsael(menu, `.${C_SETTINGS_MODAL_BACKDROP} .${C_MODAL_CLOSE_BTN}`, 'click', () => setSettingsMenuVisible(false));
-      qsael(menu, `#${ID_SETTINGS_POST_STORY_KB_BTN}`, 'click', handleMenuPostStoryKBCommand);
-      /* save profile picture key binding */
-      qsael(menu, `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`, 'click', handleMenuProfilePicKBCommand);
-      /* save button behavior on option select */
-      qsael(menu, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`, 'change', e =>
+      /* handle modal backdrop click */
+      modal.addEventListener('click', (event) => {
+        if (!isModalBackdrop(event)) return;
+        setSettingsMenuVisible(false);
+      });
+      /* ignore clicks inside the modal content */
+      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_WRAPPER}`, 'click', e => e.stopPropagation());
+      /* handle menu close on close button click */
+      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_CLOSE_BTN}`, 'click', () => setSettingsMenuVisible(false));
+      /* handle post/story key binding button */
+      qsael(modal, `#${ID_SETTINGS_POST_STORY_KB_BTN}`, 'click', handleMenuPostStoryKBCommand);
+      /* handle profile picture key binding button */
+      qsael(modal, `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`, 'click', handleMenuProfilePicKBCommand);
+      /* handle change of button behavior option select */
+      qsael(modal, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`, 'change', e =>
         handleMenuButtonBehaviorChange(e.target.value)
       );
-      /* show developer option on click */
-      qsael(menu, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`, 'click', () => {
-        qs(menu, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
-        qs(menu, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+      /* handle click of developer settings button (toggle view) */
+      qsael(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`, 'click', () => {
+        qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+        qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
       });
-      /* save session id */
-      qsael(menu, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', e => handleSessionIdChange(e.target.value));
+      /* handle blur of the session id input */
+      qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', e => handleSessionIdChange(e.target.value));
 
-      document.body.appendChild(menu);
+      document.body.appendChild(modal);
       Logger.log('Created settings menu');
     }
   }
@@ -533,6 +537,7 @@
       const buttonContainer = createElementFromHtml(`<div class="${C_PROFILE_BUTTON_CONTAINER}"></div>`);
       profilePicContainer.appendChild(buttonContainer);
 
+      /* generate the profile picture source button */
       try {
         if (!elementExistsInNode(`.${C_BTN_PROFILE_PIC}`, node)) {
           const profilePictureButton = createElementFromHtml(`
@@ -546,6 +551,7 @@
         Logger.error('Failed to generate picture button', error);
       }
 
+      /* generate the anonymous story button */
       try {
         if (!elementExistsInNode(`.${C_BTN_ANONYMOUS_STORIES}`, node)) {
           // if the profile is not private or you follow the user
@@ -565,14 +571,20 @@
       Logger.error(`Couldn't find profile picture container (${IG_S_PROFILE_PIC_CONTAINER})`);
     }
 
+    /* generate the anonymous stories modal */
     try {
-      if (!elementExistsInNode(`.${C_STORIES_MODAL_BACKDROP}`, node)) {
+      if (!elementExistsInNode(`.${C_STORIES_MODAL}`, node)) {
         const modal = createElementFromHtml(`
-          <div class="${C_MODAL_BACKDROP} ${C_STORIES_MODAL_BACKDROP}"><div class="${C_MODAL_WRAPPER} ${C_STORIES_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">User Stories <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><div class="${C_STORIES_MODAL_LIST}"></div></div></div></div>
+          <div class="${C_MODAL_BACKDROP} ${C_STORIES_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">User Stories (Anonymous) <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><div class="${C_STORIES_MODAL_LIST}"></div></div></div></div>
         `);
-        modal.addEventListener('click', () => setAnonymousStoriesModalVisible(false));
-        qsael(modal, `.${C_STORIES_MODAL_WRAPPER}`, 'click', e => e.stopPropagation());
-        qsael(modal, `.${C_STORIES_MODAL_BACKDROP} .${C_MODAL_CLOSE_BTN}`, 'click', () =>
+
+        /* handle modal backdrop click */
+        modal.addEventListener('click', (event) => {
+          if (!isModalBackdrop(event)) return;
+          setAnonymousStoriesModalVisible(false);
+        });
+        /* handle menu close on close button click */
+        qsael(modal, `.${C_STORIES_MODAL} .${C_MODAL_CLOSE_BTN}`, 'click', () =>
           setAnonymousStoriesModalVisible(false)
         );
         document.body.appendChild(modal);
@@ -581,6 +593,10 @@
     } catch (error) {
       Logger.error('Failed to generate anonymous stories modal', error);
     }
+  }
+
+  function isModalBackdrop(event) {
+    return event.target.classList.contains(C_MODAL_BACKDROP);
   }
 
   /** Finds the user's stories and displays them in the modal */
@@ -595,25 +611,23 @@
         return;
       }
       document.body.style.cursor = 'wait';
-      const username = getProfileUsername();
-      const stories = await getUserStories(username);
+      const stories = await getUserStories(getProfileUsername());
       const listContainer = qs(document, `.${C_STORIES_MODAL_LIST}`);
-      const toAppend = stories
-        ?.map(
-          storyImage => `
+      const storyCardsHtmlArray = stories?.map(
+        storyImage => `
         <a
           class="${C_STORIES_MODAL_LIST_ITEM}"
           href="${storyImage.url}"
+          target="_blank"
         >
           <img src="${storyImage.thumbnailUrl}" />
           <time datetime="${storyImage.dateTime}">${storyImage.relativeTime}</time>
         </a>
       `
-        )
-        .join('');
-      if (!toAppend) return;
+      );
+      if (!storyCardsHtmlArray) return;
 
-      listContainer.innerHTML = toAppend;
+      listContainer.innerHTML = storyCardsHtmlArray.join('');
       setAnonymousStoriesModalVisible(true);
     } catch (error) {
       Logger.alertAndLog('Failed to get user stories');
@@ -732,7 +746,6 @@
       }
       document.body.style.cursor = 'wait';
       const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
-      Logger.log({ response });
       const url = getUrlFromVideoPostApiResponse(response.items);
       openUrl(url);
       cachedApiData.post.set(postRelativeUrl, url);
@@ -873,8 +886,10 @@
     Logger.log('Getting user stories...');
     const { id: userId } = await getUserDataFromIG(username);
     const result = await httpGETRequest(API.IG_REELS_FEED_API(userId), {
-      'User-Agent': USER_AGENT,
-      'x-ig-app-id': IG_APP_ID,
+      headers: {
+        'User-Agent': USER_AGENT,
+        'x-ig-app-id': IG_APP_ID,
+      },
     });
 
     const mappedStories = mapStoriesApiResponse(result.reels[userId].items);
@@ -897,10 +912,12 @@
     const lowResPictureUrl = user?.profile_pic_url_hd || user?.profile_pic_url;
 
     const userApiInfo =
-      user?.id && sessionId && checkIsLoggedIn()
+      user?.id && sessionId
         ? await httpGETRequest(API.IG_USER_INFO_API(user.id), {
-            'User-Agent': USER_AGENT,
-            Cookie: `sessionid=${sessionId}`,
+            headers: {
+              'User-Agent': USER_AGENT,
+              Cookie: `sessionid=${sessionId}`,
+            },
           })
         : undefined;
 
@@ -927,13 +944,7 @@
 
   /**
    * Return the data from a certain user using IG's __a=1 API
-   * @param {string} username username of the user
-   * @param {boolean} cacheFirst Whether to check the cache before making the request
-   * @returns {Promise<{
-   *   id: string;
-   *   profile_pic_url_hd: string;
-   *   profile_pic_url: string;
-   * } | null>} Object containing the user data or undefined
+   * @type {(username: string, cacheFirst: boolean) => Promise<{ id: string; profile_pic_url_hd: string; profile_pic_url: string; } | null>}
    */
   async function getUserDataFromIG(username, cacheFirst = true) {
     if (cacheFirst && cachedApiData.userInfo.has(username)) {
@@ -1046,9 +1057,7 @@
     );
   }
 
-  /**
-   * Adds event listener(s) to the current document meant to handle key presses on a profile page
-   */
+  /** Adds event listener(s) to the current document meant to handle key presses on a profile page */
   function setupProfileEventListeners() {
     setupKBEventListener(
       isProfileKeyBindingSetup,
@@ -1064,23 +1073,21 @@
   /**
    * Generic method to add an event listener for a key binding
    * @param {boolean} condition Condition that determines if the event should be added
-   * @param {() => void} loadingFn Async function used to load the key binding
+   * @param {() => Promise<void>} loadingFn Async function used to load the key binding
    * @param {() => void} keyPressHandler Handler function for the event (key binding press)
    * @param {() => void} callback Function to call after adding the event listener
    * @param {string} logMessage Message logged after adding the event listener
    */
-  function setupKBEventListener(condition, loadingFn, keyPressHandler, callback, logMessage) {
+  async function setupKBEventListener(condition, loadingFn, keyPressHandler, callback, logMessage) {
     if (condition) return;
-    loadingFn().then(() => {
-      document.addEventListener('keydown', keyPressHandler);
-      callback();
-      Logger.log(logMessage);
-    });
+
+    await loadingFn();
+    document.addEventListener('keydown', keyPressHandler);
+    callback();
+    Logger.log(logMessage);
   }
 
-  /**
-   * Removes the previously added event listener(s) meant to handle key presses on a single post page
-   */
+  /** Removes the previously added event listener(s) meant to handle key presses on a single post page */
   function removeSinglePostEventListeners() {
     removeKBEventListeners(
       isSinglePostKeyBindingSetup,
@@ -1092,9 +1099,7 @@
     );
   }
 
-  /**
-   * Removes the previously added event listener(s) meant to handle key presses on a story page
-   */
+  /** Removes the previously added event listener(s) meant to handle key presses on a story page */
   function removeStoryEventListeners() {
     removeKBEventListeners(
       isStoryKeyBindingSetup,
@@ -1106,9 +1111,7 @@
     );
   }
 
-  /**
-   * Removes the previously added event listener(s) meant to handle key presses on a profile page
-   */
+  /** Removes the previously added event listener(s) meant to handle key presses on a profile page */
   function removeProfileEventListeners() {
     removeKBEventListeners(
       isProfileKeyBindingSetup,
@@ -1193,13 +1196,14 @@
 
   /**
    * Performs an HTTP GET request using the GM_xmlhttpRequest or GM.xmlHttpRequest function
-   * @param {string} url Target url to perform the request
-   * @param {boolean} [parseToJSON = true] Default true
-   * @returns {Promise<string|any>} Response text or an exception error object
+   * @type {<T = any>(url: string, options?: { headers?: GM.Request['headers']; parseToJson?: boolean }) => Promise<T>}
    */
-  function httpGETRequest(url, headers = {}, parseToJSON = true) {
+  function httpGETRequest(url, options) {
+    const { headers, parseToJson = true } = options || {};
+
     return new Promise((resolve, reject) => {
-      const options = {
+      /** @type {GM.Request} */
+      const requestOptions = {
         method: 'GET',
         url,
         headers,
@@ -1210,7 +1214,7 @@
             return;
           }
           let data = res.responseText;
-          if (parseToJSON) {
+          if (parseToJson) {
             data = JSON.parse(res.responseText);
           }
           resolve(data);
@@ -1229,7 +1233,7 @@
         },
       };
 
-      const fnResponse = callGMFunction('xmlHttpRequest', options);
+      const fnResponse = callGMFunction('xmlHttpRequest', requestOptions);
       if (fnResponse === null) {
         Logger.error(`Failed to perform GET request to ${url}`);
         reject();
@@ -1253,9 +1257,7 @@
 
   /**
    * Calls a both formats of a given GreaseMonkey method, for compatibility.
-   * @param {"getValue" | "setValue" | "deleteValue" | "registerMenuCommand" | "openInTab" | "xmlHttpRequest"} gmFunctionName GM function to call
-   * @param {any[]} args Array of arguments passed to the GM function
-   * @returns {Promise<any>} The result of the GM function, or `null` on error
+   * @type {<T extends keyof typeof GM>(gmFunctionName: T, ...args: Parameters<typeof GM[T]>) => ReturnType<typeof GM[T]>}
    */
   async function callGMFunction(gmFunctionName, ...args) {
     for (const fnName of [`GM.${gmFunctionName}`, `GM_${gmFunctionName}`]) {
@@ -1279,17 +1281,15 @@
   function getCarouselIndex(node) {
     const indicators = qsa(node, IG_S_MULTI_POST_INDICATOR);
     for (let i = 0; i < indicators.length; i++) {
-      if (indicators[i].classList.contains(IG_C_MULTI_POST_INDICATOR_ACTIVE)) {
-        return i;
-      }
+      if (indicators[i].classList.contains(IG_C_MULTI_POST_INDICATOR_ACTIVE)) return i;
     }
     return -1;
   }
 
   /**
-   * Check if the key is valid to used as a key binding
+   * Check if the key is valid to be used as a key binding
    * @param {string} key Key binding key
-   * @returns {boolean}
+   * @returns {boolean} If it's valid or not
    */
   function isKeyBindingValid(key) {
     return /[a-zA-Z]/gm.test(key);
@@ -1345,6 +1345,11 @@
     return pageUsername;
   }
 
+  /**
+   * Creates an element from a given HTML string
+   * @param {string} htmlString HTML string to create the element from
+   * @returns {Element | null} The created `Element` or `null` on fail
+   */
   function createElementFromHtml(htmlString) {
     const div = document.createElement('div');
     div.innerHTML = htmlString.trim();
@@ -1355,7 +1360,7 @@
    * Query Selector
    * @param {HTMLElement} node
    * @param {string} selector
-   * @returns {Element | null}
+   * @returns {Element | null} An `Element` or `null` if not found
    */
   function qs(node, selector) {
     return node.querySelector(selector);
@@ -1365,7 +1370,7 @@
    * Query Selector All
    * @param {HTMLElement} node
    * @param {string} selector
-   * @returns {Element | null}
+   * @returns {NodeListOf<Element>} A list with the elements that were found
    */
   function qsa(node, selector) {
     return node.querySelectorAll(selector);
@@ -1434,6 +1439,7 @@
   /** Utility that creates an iternal object and methods to use as a cache */
   function buildCache() {
     const keyValueRecord = {};
+
     /** @type {(key: string) => string | undefined} */
     const get = key => keyValueRecord[key];
     /** @type {(key: string, value: any) => void} */
@@ -1490,7 +1496,7 @@
         .${C_SETTINGS_BTN}:hover{opacity:1}
         .${C_MODAL_BACKDROP}{position:fixed;justify-content:center;align-items:center;width:100vw;height:100vh;top:0;left:0;background-color:rgba(0,0,0,.7);display:none;z-index:1}
         .${C_MODAL_WRAPPER}{display:flex;width:320px;flex-direction:column;background-color:#fff;border-radius:6px;z-index:5;box-shadow:-1px 2px 14px 3px rgba(0,0,0,.5)}
-        .${C_STORIES_MODAL_WRAPPER}{width:512px}
+        .${C_STORIES_MODAL} .${C_MODAL_WRAPPER}{width:512px}
         .${C_MODAL_TITLE_CONTAINER}{display:flex;flex-direction:row;justify-content:space-between;font-weight:700;border-bottom:1px solid var(--iso-settings-separator-color)}
         .${C_MODAL_TITLE}{display:flex;justify-content:center;flex-direction:row;font-size:16px;padding:16px;text-align:left}
         .${C_MODAL_CLOSE_BTN}{width:24px;height:24px;border:0;padding:0;background-color:transparent;margin-top:8px;margin-right:8px;cursor:pointer}

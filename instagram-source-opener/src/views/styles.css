@@ -8,13 +8,13 @@
   --iso-settings-separator-color: rgba(219, 219, 219, 1);
 }
 
-.__RSTART__C_BTN_POST__REND__,
-.__RSTART__C_BTN_STORY__REND__,
-.__RSTART__C_BTN_PROFILE_PIC__REND__,
-.__RSTART__C_BTN_ANONYMOUS_STORIES__REND__,
-.__RSTART__C_SETTINGS_BTN__REND__,
-.__RSTART__C_SETTINGS_MENU_OPTION_BTN__REND__,
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__ {
+.__VS__C_BTN_POST__VE__,
+.__VS__C_BTN_STORY__VE__,
+.__VS__C_BTN_PROFILE_PIC__VE__,
+.__VS__C_BTN_ANONYMOUS_STORIES__VE__,
+.__VS__C_SETTINGS_BTN__VE__,
+.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__,
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__ {
   transition: all 0.2s ease-in-out;
   -webkit-transition: all 0.2s ease-in-out;
   -moz-transition: all 0.2s ease-in-out;
@@ -22,10 +22,7 @@
   -o-transition: all 0.2s ease-in-out;
 }
 
-/* .__RSTART__C_BTN_POST_OUTER_ELEMENT__REND__ {
-  margin-left: 8px;
-} */
-.__RSTART__C_BTN_POST__REND__ {
+.__VS__C_BTN_POST__VE__ {
   min-height: 40px;
   min-width: 40px;
   max-height: 40px;
@@ -41,10 +38,10 @@
   background-size: 24px 24px;
   background-position: center;
 }
-.__RSTART__C_BTN_POST__REND__:hover {
+.__VS__C_BTN_POST__VE__:hover {
   opacity: 0.6;
 }
-.__RSTART__C_PROFILE_BUTTON_CONTAINER__REND__ {
+.__VS__C_PROFILE_BUTTON_CONTAINER__VE__ {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -54,8 +51,9 @@
   right: 0;
   left: 0;
 }
-.__RSTART__C_BTN_PROFILE_PIC__REND__,
-.__RSTART__C_BTN_ANONYMOUS_STORIES__REND__ {
+
+.__VS__C_BTN_PROFILE_PIC__VE__,
+.__VS__C_BTN_ANONYMOUS_STORIES__VE__ {
   outline: none;
   min-height: 32px;
   min-width: 32px;
@@ -71,28 +69,24 @@
   background-size: 20px 20px;
   background-position: center;
 }
-.__RSTART__C_BTN_PROFILE_PIC__REND__ {
+.__VS__C_BTN_PROFILE_PIC__VE__ {
   background-image: var(--iso-post-btn-icon);
 }
-.__RSTART__C_BTN_ANONYMOUS_STORIES__REND__ {
+.__VS__C_BTN_ANONYMOUS_STORIES__VE__ {
   margin-left: 8px;
   background-image: var(--iso-anonymous-stories-btn);
 }
-.__RSTART__C_BTN_PROFILE_PIC__REND__:hover:not(:disabled),
-.__RSTART__C_BTN_ANONYMOUS_STORIES__REND__:hover:not(:disabled) {
+.__VS__C_BTN_PROFILE_PIC__VE__:hover:not(:disabled),
+.__VS__C_BTN_ANONYMOUS_STORIES__VE__:hover:not(:disabled) {
   background-color: #e8e8e8;
   background-size: 22px 22px;
 }
-/* __RSTART__IG_S_PRIVATE_PIC_IMG_CONTAINER__REND__ > img,
-__RSTART__IG_S_PRIVATE_PROFILE_PIC_IMG_CONTAINER__REND__ > img {
-  transition: 0.3s ease;
-  backface-visibility: hidden;
-} */
-__RSTART__IG_S_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROFILE_PIC__REND__,
-__RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROFILE_PIC__REND__ {
+__VS__IG_S_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__VE__,
+__VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__VE__ {
   opacity: 1;
 }
-.__RSTART__C_BTN_STORY__REND__ {
+
+.__VS__C_BTN_STORY__VE__ {
   --size: 40px;
   position: absolute;
   top: 56px;
@@ -112,10 +106,11 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   background-size: 24px 24px;
   background-position: center;
 }
-.__RSTART__C_BTN_STORY__REND__:hover {
+.__VS__C_BTN_STORY__VE__:hover {
   opacity: 0.8;
 }
-.__RSTART__C_SETTINGS_BTN__REND__ {
+
+.__VS__C_SETTINGS_BTN__VE__ {
   width: 22px;
   height: 22px;
   cursor: pointer;
@@ -129,14 +124,15 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   opacity: 0.8;
 }
 @media only screen and (max-width: 1024px) {
-  .__RSTART__C_SETTINGS_BTN__REND__ {
+  .__VS__C_SETTINGS_BTN__VE__ {
     top: 64px;
   }
 }
-.__RSTART__C_SETTINGS_BTN__REND__:hover {
+.__VS__C_SETTINGS_BTN__VE__:hover {
   opacity: 1;
 }
-.__RSTART__C_MODAL_BACKDROP__REND__ {
+
+.__VS__C_MODAL_BACKDROP__VE__ {
   position: fixed;
   justify-content: center;
   align-items: center;
@@ -148,7 +144,7 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   display: none;
   z-index: 1;
 }
-.__RSTART__C_MODAL_WRAPPER__REND__ {
+.__VS__C_MODAL_WRAPPER__VE__ {
   display: flex;
   width: 320px;
   flex-direction: column;
@@ -158,18 +154,19 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   box-shadow: -1px 2px 14px 3px rgba(0, 0, 0, 0.5);
 }
 
-.__RSTART__C_STORIES_MODAL_WRAPPER__REND__ {
+.__VS__C_STORIES_MODAL__VE__ .__VS__C_MODAL_WRAPPER__VE__ {
   width: 512px;
 }
 
-.__RSTART__C_MODAL_TITLE_CONTAINER__REND__ {
+.__VS__C_MODAL_TITLE_CONTAINER__VE__ {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   font-weight: 700;
   border-bottom: 1px solid var(--iso-settings-separator-color);
 }
-.__RSTART__C_MODAL_TITLE__REND__ {
+
+.__VS__C_MODAL_TITLE__VE__ {
   display: flex;
   justify-content: center;
   flex-direction: row;
@@ -177,7 +174,8 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   padding: 16px;
   text-align: left;
 }
-.__RSTART__C_MODAL_CLOSE_BTN__REND__ {
+
+.__VS__C_MODAL_CLOSE_BTN__VE__ {
   width: 24px;
   height: 24px;
   border: 0;
@@ -187,17 +185,20 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   margin-right: 8px;
   cursor: pointer;
 }
-.__RSTART__C_MODAL_TITLE_LINK__REND__ {
+
+.__VS__C_MODAL_TITLE_LINK__VE__ {
   margin-left: 4px;
   color: #4287f5 !important;
   text-decoration: none;
 }
-.__RSTART__C_MODAL_CONTENT_CONTAINER__REND__ {
+
+.__VS__C_MODAL_CONTENT_CONTAINER__VE__ {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
-.__RSTART__C_SETTINGS_MENU_OPTION__REND__ {
+
+.__VS__C_SETTINGS_MENU_OPTION__VE__ {
   display: flex;
   flex-direction: column;
   padding: 12px 16px;
@@ -207,7 +208,8 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   padding-left: 16px;
   text-align: left;
 }
-.__RSTART__C_SETTINGS_MENU_OPTION_BTN__REND__ {
+
+.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__ {
   display: flex;
   flex-direction: row;
   padding: 12px 16px;
@@ -218,19 +220,20 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   text-align: left;
   cursor: pointer;
 }
-.__RSTART__C_SETTINGS_MENU_OPTION_BTN__REND__:hover {
+.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__:hover {
   background-color: rgba(214, 214, 214, 0.3);
 }
-.__RSTART__C_SETTINGS_MENU_OPTION_BTN__REND__:active {
+.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__:active {
   background-color: rgba(214, 214, 214, 0.4);
 }
-[for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"],
-[for="${ID_SETTINGS_SESSION_ID_INPUT}"] {
+[for="__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__"],
+[for="__VS__ID_SETTINGS_SESSION_ID_INPUT__VE__"] {
   font-size: 12px;
   margin-bottom: 6px;
 }
-.__RSTART__C_MODAL_WRAPPER__REND__ input,
-.__RSTART__C_MODAL_WRAPPER__REND__ select {
+
+.__VS__C_MODAL_WRAPPER__VE__ input,
+.__VS__C_MODAL_WRAPPER__VE__ select {
   height: 32px;
   font-size: 14px;
   border: 1px solid gray;
@@ -240,43 +243,49 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   -webkit-appearance: none;
   appearance: none;
 }
-#__RSTART__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__REND__ {
+
+#__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__ {
   background-image: var(--iso-settings-select-arrow-icon);
   background-repeat: no-repeat;
   background-position-x: 99%;
   background-position-y: 50%;
 }
-#__RSTART__ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER__REND__ {
+
+#__VS__ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER__VE__ {
   border-top: 1px solid var(--iso-settings-separator-color);
 }
-#__RSTART__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__REND__ {
+
+#__VS__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__VE__ {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
-.__RSTART__C_SETTINGS_MENU_OPTION__REND__.__RSTART__C_SETTINGS_SECTION_COLLAPSED__REND__ {
+.__VS__C_SETTINGS_MENU_OPTION__VE__.__VS__C_SETTINGS_SECTION_COLLAPSED__VE__ {
   display: none;
 }
-#__RSTART__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__REND__.__RSTART__C_SETTINGS_SECTION_COLLAPSED__REND__
-  .__RSTART__C_SETTINGS_SELECT_ARROW__REND__ {
+
+#__VS__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__VE__.__VS__C_SETTINGS_SECTION_COLLAPSED__VE__
+  .__VS__C_SETTINGS_SELECT_ARROW__VE__ {
   transform: rotate(-90deg);
 }
-.__RSTART__C_SETTINGS_SELECT_ARROW__REND__ {
+
+.__VS__C_SETTINGS_SELECT_ARROW__VE__ {
   background-color: transparent;
   background-image: var(--iso-settings-select-arrow-icon);
   background-size: 24px 24px;
   width: 24px;
   height: 24px;
 }
-.__RSTART__C_STORIES_MODAL_LIST__REND__ {
+
+.__VS__C_STORIES_MODAL_LIST__VE__ {
   display: flex;
   flex-direction: row;
   overflow-x: auto;
   padding: 20px 0px;
 }
 
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__ {
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__ {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -285,24 +294,24 @@ __RSTART__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__REND__:hover .__RSTART__C_BTN_PROF
   opacity: 1;
   color: rgb(80, 80, 80);
 }
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__,
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__:visited,
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__:active{
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__,
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__:visited,
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__:active{
   text-decoration: none;
 }
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__:hover {
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__:hover {
   opacity: 0.7;
 }
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__:last-child {
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__:last-child {
   margin-right: 16px;
 }
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__ img {
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__ img {
   width: 144px;
   height: 256px;
   object-fit: cover;
   border-radius: 6px;
 }
-.__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__ time {
+.__VS__C_STORIES_MODAL_LIST_ITEM__VE__ time {
   color: rgb(80, 80, 80);
   margin-top: 8px;
 }

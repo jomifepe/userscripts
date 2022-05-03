@@ -4,23 +4,23 @@
   document.querySelector('.content').innerHTML = contentHtml;
 
   function openMenu() {
-    document.querySelector('.__RSTART__C_MODAL_BACKDROP__REND__').style.display = 'flex';
+    document.querySelector('.__VS__C_MODAL_BACKDROP__VE__').style.display = 'flex';
   }
   function closeMenu() {
-    document.querySelector('.__RSTART__C_MODAL_BACKDROP__REND__').style.display = 'none';
+    document.querySelector('.__VS__C_MODAL_BACKDROP__VE__').style.display = 'none';
   }
 
   document.querySelector('#openMenuBtn')?.addEventListener('click', openMenu);
-  document.querySelector('.__RSTART__C_MODAL_CLOSE_BTN__REND__')?.addEventListener('click', closeMenu);
-  document.querySelector('.__RSTART__C_MODAL_BACKDROP__REND__')?.addEventListener('click', closeMenu);
-  document.querySelector('.__RSTART__C_MODAL_WRAPPER__REND__')?.addEventListener('click', e => e.stopPropagation());
-  document.querySelector('#__RSTART__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__REND__')?.addEventListener('click', e => {
+  document.querySelector('.__VS__C_MODAL_CLOSE_BTN__VE__')?.addEventListener('click', closeMenu);
+  document.querySelector('.__VS__C_MODAL_BACKDROP__VE__')?.addEventListener('click', closeMenu);
+  document.querySelector('.__VS__C_MODAL_WRAPPER__VE__')?.addEventListener('click', e => e.stopPropagation());
+  document.querySelector('#__VS__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__VE__')?.addEventListener('click', e => {
     document
-      .querySelector('#__RSTART__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__REND__')
-      .classList.toggle('__RSTART__C_SETTINGS_SECTION_COLLAPSED__REND__');
+      .querySelector('#__VS__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__VE__')
+      .classList.toggle('__VS__C_SETTINGS_SECTION_COLLAPSED__VE__');
     document
-      .querySelector('#__RSTART__ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER__REND__')
-      .classList.toggle('__RSTART__C_SETTINGS_SECTION_COLLAPSED__REND__');
+      .querySelector('#__VS__ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER__VE__')
+      .classList.toggle('__VS__C_SETTINGS_SECTION_COLLAPSED__VE__');
   });
 
   openMenu();

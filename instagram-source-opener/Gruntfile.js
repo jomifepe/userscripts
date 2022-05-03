@@ -55,11 +55,11 @@ module.exports = function (grunt) {
         options: {
           replacements: [
             {
-              pattern: /__RSTART__/gi,
+              pattern: /__VS__/gi,
               replacement: "${",
             },
             {
-              pattern: /__REND__/gi,
+              pattern: /__VE__/gi,
               replacement: "}",
             },
           ],

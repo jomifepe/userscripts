@@ -4,13 +4,13 @@
   document.querySelector('.content').innerHTML = contentHtml;
 
   function openMenu() {
-    const list = document.querySelector('.__RSTART__C_STORIES_MODAL_LIST__REND__');
+    const list = document.querySelector('.__VS__C_STORIES_MODAL_LIST__VE__');
     list.innerHTML = `
       ${[...Array(8)]
         .map(
           () => `
         <a
-          class="__RSTART__C_STORIES_MODAL_LIST_ITEM__REND__"
+          class="__VS__C_STORIES_MODAL_LIST_ITEM__VE__"
           href="https://picsum.photos/1080/1920"
         >
           <img src="https://picsum.photos/1080/1920" />
@@ -20,16 +20,16 @@
         )
         .join('')}
     `;
-    document.querySelector('.__RSTART__C_MODAL_BACKDROP__REND__').style.display = 'flex';
+    document.querySelector('.__VS__C_MODAL_BACKDROP__VE__').style.display = 'flex';
   }
   function closeMenu() {
-    document.querySelector('.__RSTART__C_MODAL_BACKDROP__REND__').style.display = 'none';
+    document.querySelector('.__VS__C_MODAL_BACKDROP__VE__').style.display = 'none';
   }
 
   document.querySelector('#openMenuBtn')?.addEventListener('click', openMenu);
-  document.querySelector('.__RSTART__C_MODAL_CLOSE_BTN__REND__')?.addEventListener('click', closeMenu);
-  document.querySelector('.__RSTART__C_MODAL_BACKDROP__REND__')?.addEventListener('click', closeMenu);
-  document.querySelector('.__RSTART__C_MODAL_WRAPPER__REND__')?.addEventListener('click', e => {
+  document.querySelector('.__VS__C_MODAL_CLOSE_BTN__VE__')?.addEventListener('click', closeMenu);
+  document.querySelector('.__VS__C_MODAL_BACKDROP__VE__')?.addEventListener('click', closeMenu);
+  document.querySelector('.__VS__C_MODAL_WRAPPER__VE__')?.addEventListener('click', e => {
     e.stopPropagation();
   });
 
