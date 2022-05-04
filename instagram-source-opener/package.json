@@ -6,8 +6,8 @@
     "dev": "npx grunt dev",
     "dev:views": "live-server src/views",
     "build": "npx grunt build",
-    "lint": "eslint --ignore-path .gitignore . ",
-    "lint:fix": "eslint --ignore-path .gitignore . --fix"
+    "lint": "eslint src 'src/**/*.js'",
+    "lint:fix": "eslint src --fix 'src/**/*.js'"
   },
   "dependencies": {},
   "devDependencies": {
@@ -16,7 +16,6 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^6.11.0",
     "grunt": "~0.4.5",
-    "grunt-bake": "^1.9.0",
     "grunt-contrib-clean": "^2.0.1",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-cssmin": "^4.0.0",

@@ -35,6 +35,8 @@
 
   const LOGGING_ENABLED = true;
 
+  /* eslint-disable no-unused-vars */
+
   const SCRIPT_NAME = 'Instagram Source Opener',
     SCRIPT_NAME_SHORT = 'ISO',
     HOMEPAGE_URL = 'https://greasyfork.org/en/scripts/372366-instagram-source-opener',
@@ -116,25 +118,27 @@
     DEFAULT_BUTTON_BEHAVIOR = BUTTON_BEHAVIOR_NEW_TAB_FOCUS,
     BUTTON_BEHAVIOR_OPTIONS = [BUTTON_BEHAVIOR_REDIR, BUTTON_BEHAVIOR_NEW_TAB_FOCUS, BUTTON_BEHAVIOR_NEW_TAB_BG];
 
+  /* eslint-enable no-unused-vars */
+
   const PATTERN = {
     URL_PATH_PARTS: /\/([a-zA-Z0-9._]{0,})/,
     IG_VALID_USERNAME: /^([a-zA-Z0-9._]{0,30})$/,
-    COOKIE_VALUE: key => new RegExp(`(^| )${key}=([^;]+)`),
+    COOKIE_VALUE: (key) => new RegExp(`(^| )${key}=([^;]+)`),
     PAGE_SINGLE_MEDIA: /^\/(p|reel|tv)\//,
     PAGE_STORIES: /^\/stories\//,
   };
 
   const API = {
     /** @type {(postRelUrl: string) => string} */
-    IG_POST_INFO_API: postRelUrl => `https://www.instagram.com${postRelUrl}?__a=1`,
+    IG_POST_INFO_API: (postRelUrl) => `https://www.instagram.com${postRelUrl}?__a=1`,
     /** @type {(username: string) => string} */
-    IG__A1: username => `https://www.instagram.com/${username}?__a=1`,
+    IG__A1: (username) => `https://www.instagram.com/${username}?__a=1`,
     /** @type {() => string} */
     IG__A1_CURRENT_PAGE: () => `${window.location.href}?__a=1`,
     /** @type {(userId: string) => string} */
-    IG_USER_INFO_API: userId => `https://i.instagram.com/api/v1/users/${userId}/info/`,
+    IG_USER_INFO_API: (userId) => `https://i.instagram.com/api/v1/users/${userId}/info/`,
     /** @type {(userId: string) => string} */
-    IG_REELS_FEED_API: userId => `https://i.instagram.com/api/v1/feed/reels_media?reel_ids=${userId}`,
+    IG_REELS_FEED_API: (userId) => `https://i.instagram.com/api/v1/feed/reels_media?reel_ids=${userId}`,
   };
 
   const Logger = createLogger(SCRIPT_NAME_SHORT);
@@ -157,7 +161,7 @@
     feed: {
       isVisible: () => window.location.pathname === '/',
       onLoadActions: () => {
-        qsa(document, S_IG_POST_CONTAINER_WITHOUT_BUTTON).forEach(node => generatePostButtons(node));
+        qsa(document, S_IG_POST_CONTAINER_WITHOUT_BUTTON).forEach((node) => generatePostButtons(node));
       },
     },
     story: {
@@ -195,17 +199,17 @@
       /* triggered whenever a new instagram post is loaded on the feed */
       [S_IG_POST_CONTAINER_WITHOUT_BUTTON]: generatePostButtons,
       /* triggered whenever a single post is opened (on a profile) */
-      [IG_S_SINGLE_POST_CONTAINER]: node => {
+      [IG_S_SINGLE_POST_CONTAINER]: (node) => {
         generatePostButtons(node);
         setupSinglePostEventListeners();
       },
       /* triggered whenever a story is opened */
-      [IG_S_STORY_CONTAINER]: node => {
+      [IG_S_STORY_CONTAINER]: (node) => {
         generateStoryButton(node);
         setupStoryEventListeners();
       },
       /* triggered whenever a profile page is loaded */
-      [IG_S_PROFILE_CONTAINER]: node => {
+      [IG_S_PROFILE_CONTAINER]: (node) => {
         generateProfileElements(node);
         setupProfileEventListeners();
       },
@@ -237,7 +241,7 @@
     let count = 0;
     for (const [event, triggers] of Object.entries(actionTriggers)) {
       for (const [actuator, fireTrigger] of Object.entries(triggers)) {
-        document[event](actuator, node => {
+        document[event](actuator, (node) => {
           if (!node) return;
           fireTrigger(node);
           Logger.log(`Triggered ${event} for selector ${actuator}`);
@@ -267,10 +271,11 @@
    */
   async function loadPreferences() {
     if (!openSourceBehavior) {
-      const savedOsb = await callGMFunction('getValue', STORAGE_KEY_BUTTON_BEHAVIOR, DEFAULT_BUTTON_BEHAVIOR);
-      if (!savedOsb || !BUTTON_BEHAVIOR_OPTIONS.includes(savedOsb)) {
-        Logger.error('No valid saved button behavior option found');
-      } else {
+      const savedOsb = await callGMFunction('getValue', STORAGE_KEY_BUTTON_BEHAVIOR, undefined);
+      if (!savedOsb) {
+        Logger.log('Loaded default button behavior');
+        openSourceBehavior = DEFAULT_BUTTON_BEHAVIOR;
+      } else if (BUTTON_BEHAVIOR_OPTIONS.includes(savedOsb)) {
         openSourceBehavior = savedOsb;
         Logger.log('[Loaded preference] Open button behavior:', savedOsb);
       }
@@ -279,7 +284,7 @@
     if (!sessionId) {
       const savedSID = await callGMFunction('getValue', STORAGE_KEY_SESSION_ID, null);
       if (!savedSID) {
-        Logger.error('No saved session id found');
+        Logger.log('No saved session id found');
       } else {
         sessionId = savedSID;
         Logger.log(`[Loaded preference] Session id: ...${getLast4Digits(savedSID)}`);
@@ -446,7 +451,7 @@
         setSettingsMenuVisible(false);
       });
       /* ignore clicks inside the modal content */
-      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_WRAPPER}`, 'click', e => e.stopPropagation());
+      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_WRAPPER}`, 'click', (e) => e.stopPropagation());
       /* handle menu close on close button click */
       qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_CLOSE_BTN}`, 'click', () => setSettingsMenuVisible(false));
       /* handle post/story key binding button */
@@ -454,7 +459,7 @@
       /* handle profile picture key binding button */
       qsael(modal, `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`, 'click', handleMenuProfilePicKBCommand);
       /* handle change of button behavior option select */
-      qsael(modal, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`, 'change', e =>
+      qsael(modal, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`, 'change', (e) =>
         handleMenuButtonBehaviorChange(e.target.value)
       );
       /* handle click of developer settings button (toggle view) */
@@ -463,7 +468,7 @@
         qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
       });
       /* handle blur of the session id input */
-      qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', e => handleSessionIdChange(e.target.value));
+      qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', (e) => handleSessionIdChange(e.target.value));
 
       document.body.appendChild(modal);
       Logger.log('Created settings menu');
@@ -557,7 +562,7 @@
           // if the profile is not private or you follow the user
           if (!qs(document, IG_S_PROFILE_PRIVATE_MESSAGE)) {
             const storiesButton = createElementFromHtml(`
-              <button class="${C_BTN_ANONYMOUS_STORIES}" title="See user stories anonymously" />
+              <button class="${C_BTN_ANONYMOUS_STORIES}" title="View user stories anonymously" />
             `);
             storiesButton.addEventListener('click', withStopPropagation(openAnonymousStoriesModal));
             buttonContainer.appendChild(storiesButton);
@@ -614,7 +619,7 @@
       const stories = await getUserStories(getProfileUsername());
       const listContainer = qs(document, `.${C_STORIES_MODAL_LIST}`);
       const storyCardsHtmlArray = stories?.map(
-        storyImage => `
+        (storyImage) => `
         <a
           class="${C_STORIES_MODAL_LIST_ITEM}"
           href="${storyImage.url}"
@@ -824,7 +829,7 @@
     const fallbackUrl = image.getAttribute('src');
     try {
       const srcs = image.getAttribute('srcset').split(',');
-      const sources = srcs.map(src => {
+      const sources = srcs.map((src) => {
         const [url, size] = src.split(' ');
         return { url, size: parseInt(size.replace(/[^0-9.,]/g, '')) };
       });
@@ -911,19 +916,18 @@
     const user = await getUserDataFromIG(username);
     const lowResPictureUrl = user?.profile_pic_url_hd || user?.profile_pic_url;
 
-    const userApiInfo =
-      user?.id && sessionId
-        ? await httpGETRequest(API.IG_USER_INFO_API(user.id), {
-            headers: {
-              'User-Agent': USER_AGENT,
-              Cookie: `sessionid=${sessionId}`,
-            },
-          })
-        : undefined;
+    const userApiInfo = user?.id
+      ? await httpGETRequest(API.IG_USER_INFO_API(user.id), {
+          headers: {
+            'User-Agent': USER_AGENT,
+            ...(sessionId ? { Cookie: `sessionid=${sessionId}` } : {}),
+          },
+        })
+      : undefined;
 
     const highResPictureUrl =
       'user' in userApiInfo
-        ? userApiInfo.user.hd_profile_pic_url_info.url
+        ? userApiInfo.user.hd_profile_pic_url_info?.url || userApiInfo.user.profile_pic_url
         : userApiInfo.graphql.user.hd_profile_pic_url_info.url;
 
     if (!highResPictureUrl) {
@@ -1208,7 +1212,7 @@
         url,
         headers,
         timeout: 15000,
-        onload: res => {
+        onload: (res) => {
           if (res.status && res?.status !== 200) {
             reject('Status Code', res?.status, res?.statusText || '');
             return;
@@ -1219,7 +1223,7 @@
           }
           resolve(data);
         },
-        onerror: error => {
+        onerror: (error) => {
           error(`Failed to perform GET request to ${url}`, error);
           reject(error);
         },
@@ -1395,7 +1399,7 @@
    */
   function withPreventDefault(callback) {
     /** @param {Event | undefined} event */
-    return event => {
+    return (event) => {
       event?.preventDefault();
       callback(event);
     };
@@ -1407,7 +1411,7 @@
    */
   function withStopPropagation(callback) {
     /** @param {Event | undefined} event */
-    return event => {
+    return (event) => {
       event?.stopPropagation();
       callback(event);
     };
@@ -1422,6 +1426,7 @@
     { unit: 'second', ms: 1000 },
   ];
   const RTF = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
   /**
    * Converts a timestamp into a relative human readable time (e.g. 3 hours ago)
    * @param {number} timestamp
@@ -1441,11 +1446,11 @@
     const keyValueRecord = {};
 
     /** @type {(key: string) => string | undefined} */
-    const get = key => keyValueRecord[key];
+    const get = (key) => keyValueRecord[key];
     /** @type {(key: string, value: any) => void} */
     const set = (key, value) => (keyValueRecord[key] = value);
     /** @type {(key: string) => boolean} */
-    const has = key => !!get(key);
+    const has = (key) => !!get(key);
 
     return { get, set, has };
   }
