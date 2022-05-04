@@ -2,15 +2,14 @@ Adds a button to open the original source of an IG story, post or profile pictur
 
 ### Features
 
--  Visualising the full size, original image or video of:
-   -  **Posts** - On the feed, post page or quick view (single image/video or carousel)
-   -  **Stories**
-   -  <sup>(1)</sup> **Profile pictures** - Even on private and not followed pages (requires login)
-      -  This is now achieved using the script's <u>developer options</u>, see more below on the settings section
+-  View the original source of a **Posts**, **Story**, and **Profile picture**<sup>(1)</sup>
+   - Even on private and not followed pages (requires login)
+   - <sup>(1)</sup> Profile picture viewing is now achieved using the script's <u>developer options</u>, see more below on the settings section
+-  **Anonymous stories** - Ability to view user stories without them knowing
 -  Saving a post directly from the context menu (right-click)
    -  _Note: This is just convenience and it doesn't save the full size version_
 -  Posts show the full timestamp instead of a relative and more generic time
--  Ability to customise your experience (key binding, default actions, ... see more settings below)
+-  Ability to customise your experience (key bindings, default actions, etc. See more settings below)
 
 ### Key bindings
 
