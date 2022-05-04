@@ -1,0 +1,10 @@
+.coreSpriteClose {
+  width: 20px;
+  height: 20px;
+  background-color: pink;
+  background-image: url(https://www.instagram.com/static/bundles/es6/sprite_core_2x_bcd90c1d4868.png/bcd90c1d4868.png);
+  background-size: 440px 411px;
+  background-position: -380px -75px;
+  background-repeat: no-repeat;
+  filter: invert(100%) hue-rotate(180deg) contrast(90%) !important;
+}

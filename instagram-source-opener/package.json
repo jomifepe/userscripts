@@ -1,0 +1,28 @@
+{
+  "name": "instagram-source-opener",
+  "version": "1.0.0",
+  "main": "src/instagram-source-opener.user.js",
+  "scripts": {
+    "dev": "npx grunt dev",
+    "dev:views": "live-server src/views",
+    "build": "npx grunt build",
+    "lint": "eslint src 'src/**/*.js'",
+    "lint:fix": "eslint src --fix 'src/**/*.js'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/greasemonkey": "^4.0.2",
+    "eslint": "^7.8.1",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^6.11.0",
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "^2.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^4.0.0",
+    "grunt-contrib-htmlmin": "^3.1.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-includes": "^1.1.0",
+    "grunt-string-replace": "^1.3.1",
+    "live-server": "^1.2.1"
+  }
+}

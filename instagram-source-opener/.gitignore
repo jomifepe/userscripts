@@ -1,1 +1,5 @@
 test
+dist/*
+!dist/instagram-source-opener.user.js
+*.min.css
+*.min.js
