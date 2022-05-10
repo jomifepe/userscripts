@@ -3,9 +3,19 @@
   --iso-post-carousel-btn-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20width%3D%2264%22%20height%3D%2264%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M12%202C6.477%202%202%206.477%202%2012s4.477%2010%2010%2010s10-4.477%2010-10S17.523%202%2012%202zm-1%205a4%204%200%201%200%202.032%207.446l1.76%201.761a1%201%200%200%200%201.415-1.414l-1.761-1.761A4%204%200%200%200%2011%207zm0%206a2%202%200%201%200%200-4a2%202%200%200%200%200%204z%22%20fill%3D%22white%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
   --iso-story-btn-icon: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAABcklEQVRYhe2WO04DMRRFrwkroIAG2oQKBAuggzolHUVCEAWrYAGUCAE9RGyAAgoWgAIUQbABCn6BNsmhiEeyRvNx4knF3Mb2vM+9fmM/WSpRIgHAEnAF/JCPZ2DeiT0D+gl+feDUl/zDg9jFphP/neHXj/PNJmg4kjRn5x1Jrzmau5JunfWOpG1JFUkbkhYcW8WnAlHZO8BMbkB6ngYwiJfAJzBCO4C8BQxtngHwliZg4h1mkDclHUsykpB0IOlunAQTVwDYi+28ab9fpB3CwgSkkVtbHfgCTqYiAGg6B24I7I8jPkgAsFsY+bgCfMmBCrCF0zGDBQDrsX/eyPA9tH7duC2pE/pioNE1Q1LLGHOe4Vuz43JhAowxD8CaJIwxT5PmCamAjDGPIfHSFDphKaAUUISAXztWCXiQRLA5oj7Qi9uTruGNpLqkVUn3wEughqqkFTu/zvUGasAnxeMdWPSSzOhl3AZ6BRD3gEtv8hL/Dn+PJax2JC/rEwAAAABJRU5ErkJggg==");
   --iso-settings-btn-icon: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAD+UlEQVR4nO3aS4xkYxQH8F8rNDozpmcyk8hoYSEEM0IiYUkvJJN4TLcMCwsRZsXOxpL9JMaClcdGLDw34zUJKxlsxDOTiKaHYEEahWFUd1l8Lemp+m7Vvd/9bnWR+idnUzfnf87536/O97pMMMEEE+TFHhzGp/gN3UQ7hS/xOC4aaQWJmMYTWJVedJG1cfvoSqmOabwtf+EbrYO7RlVQVTyp2eL/tb+NoQh79A/7E1jElgS+WNFjLcJj+ovfXoOvV4A7jbkInzk9ucWafL0CMOYi/Or0xFKG/UbEBGCMRShKuAm+O/SL0MHdGeImY5QCMIYijFoAxkyEzRCAMRJhswRgTETYTAEonh1uy5BLKeQWoN3Dd2EJn5gIbcxlyGcocgvwfg/fa9JFOJwhn6E4goexD5dn4HtQv6ip9kWGfEaOaXwojwB/jTj3bNgtnwj/WZyNB3BMf2PMJsBUA4lvNnqLHljjGTUC3YBtCX4tXFsj7qZjDq8KSr+LmQq+U3hm3fdlzczTjfaAq7HSE+A97Crhew6e7/FdwXzmHBsV4AKsRYJ8j/uFInvRwq34POLXxS2Zc2y8CX6EvQXP2ngHXwkHpbtxo+IR0hH6yO8JeRShUhNMwVPyrdQ+zp1cJMZApMwCXyf4FOHHjFxJSBGglTF+rGeMFCkCXJox/lXyCto4WvhGvh7QxU2Zc2x0GlyMBKhrr2fOsTEBzsdSJEAOuydjno0IcB7eiJDnspPYnynX7ALsxQcR4pgtY0G4HtsqFHW8pG9H+Bpktma+WQSYFQp5Sf8526DiY8lvV61xnsSLOFjANwy1BdgnvI2qw3hhAOeBBL6utKPtSgLE1gE7pc3Nbw149mYCH6HxNoqYAHUOSYqQuiFZy5pFBLFif07kGrSvvzmBbxU/JeZSC7PC3v4F/KH8//W4eNPagW9Lcpxaj7sg7bhNhLMWZoWpqWxTPCFcWG5dtwPKzwDHcGXdhCO8WbBfmJ5SOnkZO4JzM+XaiABwb4Q8hy0JoyUXGhOAsHHJLcCg9UMKGhVgPhKgji3LP+02KkALv0SCpNqzuROMxBiIquqvCsfbubCUkSsJKcPvz4zxOxm56F86t4c5pAiwM8GnCJdk5KJ/xbk8zOHMigFmcNmA5z8IFyPfCf3iYuHMr2iau65i/EHYgUM9vx3NyI9wxRVrZp8I2+jYiJrGfYIovX5rwnVbHRStODu4oiZ3H+b1X44+JxQ5DLuE5e5G3xXF12yPKj+bxKyxD6TmhKvtLp5Wbas7I1ypd9c5ir7+eki94o/irAp5JeEaaQcn23B9wbMpPCJ+A13GOsKbb7z4JrAFr6hedFvoQYc08J+fYIIJ/t/4By9tfiJ9bFVlAAAAAElFTkSuQmCC");
-  --iso-settings-select-arrow-icon: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  --iso-settings-select-arrow-icon: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAnXwAAJ18BHYa6agAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAACgSURBVHic7dcxDoJAFEXRZ+zdlkuyNC7L0sINuQEtzE8sDBEEkeGchHaG+7pJAAAAAAAAWIfNiGftkuxHPK/LOcntR3f1ckhyn/g7/qxmoClH+Pv4MsUIi4kvY46wuPgyxgiLjS/fjLD4+DJkhGbiS58Rmosvn4zQbHzpGqH5+PJuhNXEl9cRZovfznVxkmuej7FLktOM/wEAAAAAAKzEA6yHqvmapYJUAAAAAElFTkSuQmCC");
   --iso-anonymous-stories-btn: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAEU0lEQVR4nO2ay29VRRzHPy0klkei5UIFLG0XwgbiggR5llZQd0ZMVN4EwYVL9Q8o7DWwIYEVARLFIFHjE+xSFwRi6YJHwqtACJRQjECh8rjAYuaE3zmce8/MOTP3knQ+yS/33OT3+31n5sw58zoQCAQCo5gGz/lnAp8BE4BjwE/AzYyYycAKYAHwL7ADuOyxjN6YBdwGngh7ABwCNgMl4VsCPgUOAw8TMTeBtpqV2iHfEq9I0h6iKpxW6aTtqW3RizMJGKF6pWzsHvCKj4I2+kgKrAWaHOYbB3zsMJ93+nB39yM7UtMaFGAu7isf2RuuC+vjEdjkIWfERo+5ndCEGrt99YAh4CWXBXbdAz4Amh3nlJSA9zzmL0wv/u5+ZH/UrDaWtANl/DdAGYczQ5ePwCeO81WiEdhQAx0rGoGL+L/7kV2gNo1tzDvUrvKRLXNRcFet6HPsr8TmOmim4nrhY2ojOBhyXfQA1wsfU5qANXXQfQ4fCx9T66tB/QKBwCjkAPV7sfmyA2kVfaGmk/UgNEC9CxAI1BcXh6OtqN2gKagN0UvafNAGdKAWQUNa54onrao0A1uBk6QPOWeBLcQPQPNSAnqAMxW0TmgtL0dnaWxCndiajL3/UWz7ap3OYaI1hOdzgwZge4rwCHActSPchzrITPp8jf3j9lVKnntao1drpu1DbMuhZcTWhNAA6u5OTPhNANYD5xP+Wyy0ehKx51D7DuNTtDag9gilf4+FlhFvA4+FwA9avBrjge9FzCOg00CrU/vKKew4A62DIqYMvGWgZUQD8I9I3guMNYxtBH4TscfI7p5HhP9hYExOrX4cTfTkju8wMM0yfqqOi3IsqeLbKfzuAC2WWq/quCjH8qwAk9b9EnhTX+9CdWsbhlFzhAX6fxk1jH4OfAGsBLpRvep9YJ722wH8aKl1F/WR1UL9/xYOjtL6edaieZ+rLuIvKRMzeV+kIXvR8Zw5YgyJhLZdMqIF+wbIO4kqiRzXs5xNXmZymBvOWahbif+ngX3AUdRjuBD1mdwMB1q3xfXLOXPEuMyzFu3ImaNd5DhHesM3oeYWkd+MFB8TWkWOzDWJyTAxIK4X5SyUjOtHjfNJ/ie+z59Xa7G4HqjopTFpgEPiep11cZ6P+6uK398OtNaLaycfU8wiPjOzPZVdJmIfUP1F2qJ9Iv+uAlqPgNct4yuyVyS+hnqmTWjX/lHsToOYXcL/KuZfg3QAgyJ2t2GcEa2oIUU2QndGTDfxyg+iTpKzmES8IleBpRkxyxMxg8B0Ay0rlgL3hcgT4FdgNeoxada/q4FfEn53gfkWWvN1jMzxM7AK9Ql+pLUW+D3hd5/8k6hMuohPjEzsOvbPcqQle52J3SC7txSmDdhPfHmcZmXUJ/OvFdBqBb4z0HoMfEOOuUORnZPZwIfAu6gX0GTUVtlF4E/UOv5UgfySOcBHqJVpB2q6e0NoHXSoFQgEAoFAYJTwFHhgrSVd8Ek7AAAAAElFTkSuQmCC');
   --iso-settings-separator-color: rgba(219, 219, 219, 1);
+
+  --iso-story-button-size: 40px;
+  --iso-story-button-icon-size: 24px;
+  --iso-post-button-size: 40px;
+  --iso-post-button-icon-size: 24px;
+  --iso-profile-button-size: 40px;
+  --iso-profile-button-icon-size: 22px;
+  --iso-profile-button-icon-hover-size: calc(var(--iso-profile-button-icon-size) + 2px);
+  --iso-setting-button-size: 22px;
+  --iso-setting-button-icon-size: 22px;
 }
 
 .__VS__C_BTN_POST__VE__,
@@ -23,19 +33,20 @@
 }
 
 .__VS__C_BTN_POST__VE__ {
-  min-height: 40px;
-  min-width: 40px;
-  max-height: 40px;
-  max-width: 40px;
+  min-height: var(--iso-post-button-size);
+  min-width: var(--iso-post-button-size);
+  max-height: var(--iso-post-button-size);
+  max-width: var(--iso-post-button-size);
   outline: none;
   border: none;
   cursor: pointer;
   opacity: 1;
   margin-left: 6px;
+  margin-right: -8px;
   background-color: transparent;
   background-repeat: no-repeat;
   background-image: var(--iso-post-btn-icon);
-  background-size: 24px 24px;
+  background-size: var(--iso-post-button-icon-size) var(--iso-post-button-icon-size);
   background-position: center;
 }
 .__VS__C_BTN_POST__VE__:hover {
@@ -55,10 +66,10 @@
 .__VS__C_BTN_PROFILE_PIC__VE__,
 .__VS__C_BTN_ANONYMOUS_STORIES__VE__ {
   outline: none;
-  min-height: 32px;
-  min-width: 32px;
-  max-height: 32px;
-  max-width: 32px;
+  min-height: var(--iso-profile-button-size);
+  min-width: var(--iso-profile-button-size);
+  max-height: var(--iso-profile-button-size);
+  max-width: var(--iso-profile-button-size);
   border: 0;
   cursor: pointer;
   padding: 0;
@@ -66,20 +77,20 @@
   border-radius: 50%;
   background-color: white;
   background-repeat: no-repeat;
-  background-size: 20px 20px;
+  background-size: var(--iso-profile-button-icon-size) var(--iso-profile-button-icon-size);
   background-position: center;
 }
 .__VS__C_BTN_PROFILE_PIC__VE__ {
   background-image: var(--iso-post-btn-icon);
 }
 .__VS__C_BTN_ANONYMOUS_STORIES__VE__ {
-  margin-left: 8px;
+  margin-left: 6px;
   background-image: var(--iso-anonymous-stories-btn);
 }
 .__VS__C_BTN_PROFILE_PIC__VE__:hover:not(:disabled),
 .__VS__C_BTN_ANONYMOUS_STORIES__VE__:hover:not(:disabled) {
   background-color: #e8e8e8;
-  background-size: 22px 22px;
+  background-size: var(--iso-profile-button-icon-hover-size) var(--iso-profile-button-icon-hover-size);
 }
 __VS__IG_S_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__VE__,
 __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__VE__ {
@@ -87,14 +98,13 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
 }
 
 .__VS__C_BTN_STORY__VE__ {
-  --size: 40px;
   position: absolute;
   top: 56px;
   right: 16px;
-  min-width: var(--size);
-  min-height: var(--size);
-  max-height: var(--size);
-  max-height: var(--size);
+  min-width: var(--iso-story-button-size);
+  min-height: var(--iso-story-button-size);
+  max-height: var(--iso-story-button-size);
+  max-height: var(--iso-story-button-size);
   padding: 16px;
   border: none;
   cursor: pointer;
@@ -103,7 +113,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   background-color: transparent;
   background-image: var(--iso-story-btn-icon);
   background-repeat: no-repeat;
-  background-size: 24px 24px;
+  background-size: var(--iso-story-button-icon-size) var(--iso-story-button-icon-size);
   background-position: center;
 }
 .__VS__C_BTN_STORY__VE__:hover {
@@ -111,8 +121,8 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
 }
 
 .__VS__C_SETTINGS_BTN__VE__ {
-  width: 22px;
-  height: 22px;
+  width: var(--iso-setting-button-size);
+  height: var(--iso-setting-button-size);
   cursor: pointer;
   top: 16px;
   border: none;
@@ -120,7 +130,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   position: fixed;
   background-color: transparent;
   background-image: var(--iso-settings-btn-icon);
-  background-size: 22px 22px;
+  background-size: var(--iso-setting-button-icon-size) var(--iso-setting-button-icon-size);
   opacity: 0.8;
 }
 @media only screen and (max-width: 1024px) {
@@ -155,7 +165,13 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
 }
 
 .__VS__C_STORIES_MODAL__VE__ .__VS__C_MODAL_WRAPPER__VE__ {
-  width: 512px;
+  width: auto;
+  max-width: calc(100vw - 124px);
+}
+@media only screen and (max-width: 769px) {
+  .__VS__C_STORIES_MODAL__VE__ .__VS__C_MODAL_WRAPPER__VE__ {
+    max-width: calc(100vw - 48px);
+  }
 }
 
 .__VS__C_MODAL_TITLE_CONTAINER__VE__ {
@@ -246,6 +262,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
 
 #__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__ {
   background-image: var(--iso-settings-select-arrow-icon);
+  background-size: 24px 24px;
   background-repeat: no-repeat;
   background-position-x: 99%;
   background-position-y: 50%;
@@ -306,8 +323,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   margin-right: 16px;
 }
 .__VS__C_STORIES_MODAL_LIST_ITEM__VE__ img {
-  width: 144px;
-  height: 256px;
+  height: max(256px, calc(100vh / 2));
   object-fit: cover;
   border-radius: 6px;
 }

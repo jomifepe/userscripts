@@ -1,12 +1,13 @@
+// eslint-disable-next-line no-undef
 module.exports = function (grunt) {
   grunt.initConfig({
     config: {
-      scriptPath: "instagram-source-opener.user.js"
+      scriptPath: 'instagram-source-opener.user.js'
     },
-    pkg: grunt.file.readJSON("package.json"),
+    pkg: grunt.file.readJSON('package.json'),
     clean: {
-      all: ["dist"],
-      temp: ["dist/*.min.html", "dist/*.min.css"]
+      all: ['dist'],
+      temp: ['dist/*.min.html', 'dist/*.min.css']
     },
     htmlmin: {
       dist: {
@@ -15,8 +16,8 @@ module.exports = function (grunt) {
           collapseWhitespace: true,
         },
         files: {
-          "dist/settings-menu.min.html": "src/views/settings-menu/content.html",
-          "dist/stories-menu.min.html": "src/views/stories-menu/content.html",
+          'dist/settings-menu.min.html': 'src/views/settings-menu/content.html',
+          'dist/stories-menu.min.html': 'src/views/stories-menu/content.html',
         },
       },
     },
@@ -28,7 +29,7 @@ module.exports = function (grunt) {
       },
       target: {
         files: {
-          "dist/styles.min.css": ["src/views/styles.css"],
+          'dist/styles.min.css': ['src/views/styles.css'],
         },
       },
     },
@@ -36,31 +37,31 @@ module.exports = function (grunt) {
       main: {
         expand: true,
         flatten: true,
-        src: "src/<%= config.scriptPath %>",
-        dest: "dist/",
+        src: 'src/<%= config.scriptPath %>',
+        dest: 'dist/',
       },
     },
     includes: {
       files: {
         flatten: true,
-        src: ["dist/<%= config.scriptPath %>"],
-        dest: "dist/",
+        src: ['dist/<%= config.scriptPath %>'],
+        dest: 'dist/',
       },
     },
-    "string-replace": {
+    'string-replace': {
       dist: {
         files: {
-          "dist/": "dist/<%= config.scriptPath %>",
+          'dist/': 'dist/<%= config.scriptPath %>',
         },
         options: {
           replacements: [
             {
               pattern: /__VS__/gi,
-              replacement: "${",
+              replacement: '${',
             },
             {
               pattern: /__VE__/gi,
-              replacement: "}",
+              replacement: '}',
             },
           ],
         },
@@ -68,7 +69,7 @@ module.exports = function (grunt) {
     },
     watch: {
       scripts: {
-        files: ['src/<%= config.scriptPath %>', 'src/views/**/*'],
+        files: ['Gruntfile.js', 'src/**/*'],
         tasks: ['build'],
         options: {
           atBegin: true,
@@ -78,22 +79,22 @@ module.exports = function (grunt) {
     },
   });
 
-  grunt.loadNpmTasks("grunt-contrib-htmlmin");
-  grunt.loadNpmTasks("grunt-contrib-cssmin");
-  grunt.loadNpmTasks("grunt-string-replace");
-  grunt.loadNpmTasks("grunt-includes");
-  grunt.loadNpmTasks("grunt-contrib-copy");
-  grunt.loadNpmTasks("grunt-contrib-clean");
+  grunt.loadNpmTasks('grunt-contrib-htmlmin');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-string-replace');
+  grunt.loadNpmTasks('grunt-includes');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask("dev", ["watch"]);
-  grunt.registerTask("build", [
-    "clean:all",
-    "htmlmin",
-    "cssmin",
-    "copy",
-    "includes",
-    "string-replace",
-    "clean:temp",
+  grunt.registerTask('dev', ['watch']);
+  grunt.registerTask('build', [
+    'clean:all',
+    'htmlmin',
+    'cssmin',
+    'copy',
+    'includes',
+    'string-replace',
+    'clean:temp',
   ]);
 };
