@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.2.0
+// @version          1.3.0
 // @description      Open the original source of an IG post, story or profile picture
 // @author           jomifepe
 // @license          MIT
