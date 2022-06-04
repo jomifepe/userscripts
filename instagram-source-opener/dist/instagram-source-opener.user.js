@@ -55,7 +55,7 @@
     IG_S_MULTI_POST_LIST_ITEMS = `.vi798 .Ckrof,${IG_S_SINGLE_POST_CONTAINER} ul`,
     IG_S_POST_CONTAINER = '._8Rm4L',
     IG_S_POST_BUTTONS = `.eo2As > section,${IG_S_SINGLE_POST_CONTAINER} section._aat1 `,
-    IG_S_PROFILE_PIC_CONTAINER = `.RR-M-,${IG_S_PROFILE_CONTAINER} header ._aarg`,
+    IG_S_PROFILE_PIC_CONTAINER = `.RR-M-,${IG_S_PROFILE_CONTAINER} header > div > div`,
     IG_S_PRIVATE_PROFILE_PIC_CONTAINER = '._4LQNo',
     IG_S_PRIVATE_PIC_IMG_CONTAINER = '._2dbep',
     IG_S_PRIVATE_PROFILE_PIC_IMG_CONTAINER = '.IalUJ',
@@ -66,7 +66,7 @@
     IG_S_MULTI_POST_INDICATOR = '.Yi5aA',
     IG_C_MULTI_POST_INDICATOR_ACTIVE = 'XCodT',
     IG_S_PROFILE_PRIVATE_MESSAGE = '.rkEop',
-    IG_S_PROFILE_HAS_STORIES_INDICATOR = '.h5uC0';
+    IG_S_PROFILE_HAS_STORIES_INDICATOR = 'header [aria-disabled=false] canvas';
 
   /* Custom classes and selectors */
   const C_BTN_STORY = 'iso-story-btn',
@@ -424,7 +424,7 @@
    */
   function setAnonymousStoriesModalVisible(visible) {
     const value = visible ? 'flex' : 'none';
-    qs(document, `.${C_SETTINGS_MODAL}`).style.setProperty('display', value, 'important');
+    qs(document, `.${C_STORIES_MODAL}`).style.setProperty('display', value, 'important');
   }
 
   /**
@@ -561,7 +561,8 @@
 
       /* generate the anonymous story button */
       try {
-        if (!elementExistsInNode(`.${C_BTN_ANONYMOUS_STORIES}`, node)) {
+        const hasStories = !!(qs(document, IG_S_PROFILE_HAS_STORIES_INDICATOR));
+        if (!elementExistsInNode(`.${C_BTN_ANONYMOUS_STORIES}`, node) && hasStories) {
           // if the profile is not private or you follow the user
           if (!qs(document, IG_S_PROFILE_PRIVATE_MESSAGE)) {
             const storiesButton = createElementFromHtml(`
