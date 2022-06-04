@@ -132,7 +132,8 @@
     /** @type {(postRelUrl: string) => string} */
     IG_POST_INFO_API: (postRelUrl) => `https://www.instagram.com${postRelUrl}?__a=1`,
     /** @type {(username: string) => string} */
-    IG__A1: (username) => `https://www.instagram.com/${username}?__a=1`,
+    IG_WEB_PROFILE_INFO_API: (username) =>
+      `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
     /** @type {() => string} */
     IG__A1_CURRENT_PAGE: () => `${window.location.href}?__a=1`,
     /** @type {(userId: string) => string} */
@@ -772,19 +773,14 @@
       return cachedApiData.userProfilePicture.get(username);
     }
 
-    let pictureUrl = null;
-    for (const [sourceName, getProfilePicture] of Object.entries(profilePictureSources)) {
-      Logger.log(`Getting user's profile picture from ${sourceName}`);
-      const url = await getProfilePicture(username);
-      if (!url) {
-        Logger.error(`Couldn't get profile picture url from ${sourceName}`);
-        continue;
-      }
-      pictureUrl = url;
-      cachedApiData.userProfilePicture.set(username, url);
-      break;
+    Logger.log("Getting user's profile picture from user info API");
+    const url = await getProfilePictureFromUserInfoApi(username);
+    if (!url) {
+      Logger.error("Couldn't get profile picture url from user info API");
+      return null;
     }
-    return pictureUrl;
+    cachedApiData.userProfilePicture.set(username, url);
+    return url;
   }
 
   /**
@@ -958,7 +954,11 @@
       return cachedApiData.userInfo.get(username);
     }
 
-    const userInfo = (await httpGETRequest(API.IG__A1(username)))?.graphql?.user;
+    const userInfo = (
+      await httpGETRequest(API.IG_WEB_PROFILE_INFO_API(username), {
+        headers: { 'User-Agent': USER_AGENT },
+      })
+    )?.data?.user;
     cachedApiData.userInfo.set(username, userInfo);
     return userInfo;
   }
