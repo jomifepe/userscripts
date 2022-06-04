@@ -2,12 +2,12 @@
 module.exports = function (grunt) {
   grunt.initConfig({
     config: {
-      scriptPath: 'instagram-source-opener.user.js'
+      scriptPath: 'instagram-source-opener.user.js',
     },
     pkg: grunt.file.readJSON('package.json'),
     clean: {
       all: ['dist'],
-      temp: ['dist/*.min.html', 'dist/*.min.css']
+      temp: ['dist/*.html', 'dist/*.css'],
     },
     htmlmin: {
       dist: {
@@ -25,11 +25,11 @@ module.exports = function (grunt) {
       options: {
         mergeIntoShorthands: false,
         roundingPrecision: -1,
-        format: 'keep-breaks'
+        format: 'keep-breaks',
       },
       target: {
         files: {
-          'dist/styles.min.css': ['src/views/styles.css'],
+          'dist/styles.min.css': ['dist/styles.css'],
         },
       },
     },
@@ -77,6 +77,13 @@ module.exports = function (grunt) {
         },
       },
     },
+    css_important: {
+      options: {},
+      files: {
+        src: ['src/views/styles.css'],
+        dest: 'dist/styles.css'
+      },
+    },
   });
 
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
@@ -86,11 +93,13 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-css-important');
 
   grunt.registerTask('dev', ['watch']);
   grunt.registerTask('build', [
     'clean:all',
     'htmlmin',
+    'css_important',
     'cssmin',
     'copy',
     'includes',

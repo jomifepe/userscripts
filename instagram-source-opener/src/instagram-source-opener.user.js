@@ -33,7 +33,7 @@
 (function () {
   'use strict';
 
-  const LOGGING_ENABLED = false;
+  const LOGGING_ENABLED = true;
 
   /* eslint-disable no-unused-vars */
 
@@ -46,23 +46,23 @@
     IG_APP_ID = '936619743392459';
 
   /* Instagram classes and selectors */
-  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG',
-    IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2',
-    IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX',
-    IG_S_STORY_MEDIA_CONTAINER = '.qbCDp',
-    IG_S_POST_IMG = '.FFVAD',
-    IG_S_POST_VIDEO = '.tWeCl',
-    IG_S_MULTI_POST_LIST_ITEMS = '.vi798 .Ckrof',
+  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG,._a3gq ._ac0e',
+    IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2,article[role="presentation"]',
+    IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX,main._a993',
+    IG_S_STORY_MEDIA_CONTAINER = '.qbCDp,._a3gq ._ac0a',
+    IG_S_POST_IMG = `.FFVAD,${IG_S_SINGLE_POST_CONTAINER} ._aagv img`,
+    IG_S_POST_VIDEO = `.tWeCl,${IG_S_SINGLE_POST_CONTAINER} ._ab1c video`,
+    IG_S_MULTI_POST_LIST_ITEMS = `.vi798 .Ckrof,${IG_S_SINGLE_POST_CONTAINER} ul`,
     IG_S_POST_CONTAINER = '._8Rm4L',
-    IG_S_POST_BUTTONS = '.eo2As > section',
-    IG_S_PROFILE_PIC_CONTAINER = '.RR-M-',
+    IG_S_POST_BUTTONS = `.eo2As > section,${IG_S_SINGLE_POST_CONTAINER} section._aat1 `,
+    IG_S_PROFILE_PIC_CONTAINER = `.RR-M-,${IG_S_PROFILE_CONTAINER} header ._aarg`,
     IG_S_PRIVATE_PROFILE_PIC_CONTAINER = '._4LQNo',
     IG_S_PRIVATE_PIC_IMG_CONTAINER = '._2dbep',
     IG_S_PRIVATE_PROFILE_PIC_IMG_CONTAINER = '.IalUJ',
     IG_S_PROFILE_USERNAME_TITLE = '.fKFbl,h2',
     IG_S_POST_BLOCKER = '._9AhH0',
-    IG_S_TOP_BAR = '.Hz2lF,._lz6s',
-    IG_S_POST_TIME_ANCHOR = '.c-Yi7',
+    IG_S_TOP_BAR = '.Hz2lF,._lz6s,section nav',
+    IG_S_POST_TIME_ANCHOR = `.c-Yi7,${IG_S_SINGLE_POST_CONTAINER} ._aat9 a`,
     IG_S_MULTI_POST_INDICATOR = '.Yi5aA',
     IG_C_MULTI_POST_INDICATOR_ACTIVE = 'XCodT',
     IG_S_PROFILE_PRIVATE_MESSAGE = '.rkEop',
@@ -174,12 +174,12 @@
       },
     },
     profile: {
-      isVisible: () => !!(window.location.pathname.length > 1 && qs(document, IG_S_PROFILE_CONTAINER)),
+      isVisible: () => !!(countPathnameSegments() === 1 && qs(document, IG_S_PROFILE_PIC_CONTAINER)),
       onLoadActions: () => {
         if (!checkIsLoggedIn()) return;
         const node = qs(document, IG_S_PROFILE_CONTAINER);
         if (!node) return;
-        generateProfileElements(node);
+        generateProfileElements();
         setupProfileEventListeners();
       },
     },
@@ -405,14 +405,15 @@
    */
   function setSettingsMenuVisible(visible) {
     if (visible) {
-      qs(document, `.${C_SETTINGS_MODAL}`).style.display = 'flex';
+      qs(document, `.${C_SETTINGS_MODAL}`).style.setProperty('display', 'flex', 'important');
+
       /* load values on the menu */
       const buttonBehaviorSelect = qs(document, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`);
       if (buttonBehaviorSelect) buttonBehaviorSelect.value = openSourceBehavior;
       const sessionIdInput = qs(document, `#${ID_SETTINGS_SESSION_ID_INPUT}`);
       if (sessionIdInput) sessionIdInput.value = sessionId;
     } else {
-      qs(document, `.${C_SETTINGS_MODAL}`).style.display = 'none';
+      qs(document, `.${C_SETTINGS_MODAL}`).style.setProperty('display', 'none', 'important');
     }
   }
 
@@ -421,7 +422,8 @@
    * @param {boolean} visible
    */
   function setAnonymousStoriesModalVisible(visible) {
-    qs(document, `.${C_STORIES_MODAL}`).style.display = visible ? 'flex' : 'none';
+    const value = visible ? 'flex' : 'none';
+    qs(document, `.${C_SETTINGS_MODAL}`).style.setProperty('display', value, 'important');
   }
 
   /**
@@ -1333,6 +1335,17 @@
   function getCookie(name) {
     const matches = document.cookie.match(PATTERN.COOKIE_VALUE(name));
     return matches?.[2];
+  }
+
+  /**
+   * Counts the segments in a relative url
+   * @param {string} pathname Path to count the segments (defaults to `window.location.pathname`)
+   * @returns {number}
+   */
+  function countPathnameSegments(pathname) {
+    // remove leading and trailing slashes
+    const cleanPathname = (pathname || window.location.pathname).replace(/^\/|\/$/g, '');
+    return cleanPathname.split('/').length;
   }
 
   /**
