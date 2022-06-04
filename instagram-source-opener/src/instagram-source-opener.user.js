@@ -48,14 +48,15 @@
   /* Instagram classes and selectors */
   const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG,._a3gq ._ac0e',
     IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2,article[role="presentation"]',
+    IG_S_POST_IMAGE_CONTAINER = `${IG_S_SINGLE_POST_CONTAINER} > div:first-child > div:first-child`,
     IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX,main._a993',
     IG_S_STORY_MEDIA_CONTAINER = '.qbCDp,._a3gq ._ac0a',
     IG_S_POST_IMG = `.FFVAD,${IG_S_SINGLE_POST_CONTAINER} ._aagv img`,
     IG_S_POST_VIDEO = `.tWeCl,${IG_S_SINGLE_POST_CONTAINER} ._ab1c video`,
-    IG_S_MULTI_POST_LIST_ITEMS = `.vi798 .Ckrof,${IG_S_SINGLE_POST_CONTAINER} ul`,
+    IG_S_MULTI_POST_LIST_ITEMS = `.vi798 .Ckrof,${IG_S_POST_IMAGE_CONTAINER} ul`,
     IG_S_POST_CONTAINER = '._8Rm4L',
-    IG_S_POST_BUTTONS = `.eo2As > section,${IG_S_SINGLE_POST_CONTAINER} section._aat1 `,
-    IG_S_PROFILE_PIC_CONTAINER = `.RR-M-,${IG_S_PROFILE_CONTAINER} header > div > div`,
+    IG_S_POST_BUTTONS = `.eo2As > section,${IG_S_SINGLE_POST_CONTAINER} section`,
+    IG_S_PROFILE_PIC_CONTAINER = `.RR-M-,${IG_S_PROFILE_CONTAINER} header > div:first-child > div:first-child`,
     IG_S_PRIVATE_PROFILE_PIC_CONTAINER = '._4LQNo',
     IG_S_PRIVATE_PIC_IMG_CONTAINER = '._2dbep',
     IG_S_PRIVATE_PROFILE_PIC_IMG_CONTAINER = '.IalUJ',
@@ -96,7 +97,7 @@
     ID_SETTINGS_DEVELOPER_OPTIONS_BTN = 'iso-settings-developer-options-btn',
     ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER = 'iso-settings-developer-options-container',
     ID_SETTINGS_SESSION_ID_INPUT = 'iso-settings-session-id-input',
-    S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
+    S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_SINGLE_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
     /* Anonymous stories modal */
     C_STORIES_MODAL = 'iso-stories-modal',
     C_STORIES_MODAL_LIST = 'iso-stories-modal-list',
@@ -162,7 +163,7 @@
     feed: {
       isVisible: () => window.location.pathname === '/',
       onLoadActions: () => {
-        qsa(document, S_IG_POST_CONTAINER_WITHOUT_BUTTON).forEach((node) => generatePostButtons(node));
+        qsa(document, S_IG_POST_CONTAINER_WITHOUT_BUTTON).forEach(generatePostButtons);
       },
     },
     story: {
@@ -198,19 +199,25 @@
   const actionTriggers = {
     arrive: {
       /* triggered whenever a new instagram post is loaded on the feed */
-      [S_IG_POST_CONTAINER_WITHOUT_BUTTON]: generatePostButtons,
+      [S_IG_POST_CONTAINER_WITHOUT_BUTTON]: (node) => {
+        if (!pages.post.isVisible() && !pages.feed.isVisible()) return;
+        generatePostButtons(node);
+      },
       /* triggered whenever a single post is opened (on a profile) */
       [IG_S_SINGLE_POST_CONTAINER]: (node) => {
+        if (!pages.post.isVisible() && !pages.feed.isVisible()) return;
         generatePostButtons(node);
         setupSinglePostEventListeners();
       },
       /* triggered whenever a story is opened */
       [IG_S_STORY_CONTAINER]: (node) => {
+        if (!pages.story.isVisible()) return;
         generateStoryButton(node);
         setupStoryEventListeners();
       },
       /* triggered whenever a profile page is loaded */
       [IG_S_PROFILE_CONTAINER]: (node) => {
+        if (!pages.profile.isVisible()) return;
         generateProfileElements(node);
         setupProfileEventListeners();
       },
@@ -225,10 +232,6 @@
       /* triggered whenever a profile page is left */
       [IG_S_PROFILE_CONTAINER]: removeProfileEventListeners,
     },
-  };
-
-  const profilePictureSources = {
-    'user info API': getProfilePictureFromUserInfoApi,
   };
 
   registerMenuCommands(); /* register GM menu commands */
