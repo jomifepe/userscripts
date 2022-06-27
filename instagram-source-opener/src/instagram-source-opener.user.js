@@ -48,12 +48,12 @@
   /* Instagram classes and selectors */
   const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG,._a3gq ._ac0e',
     IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2,article[role="presentation"]',
-    IG_S_POST_IMAGE_CONTAINER = `${IG_S_SINGLE_POST_CONTAINER} > div:first-child > div:first-child`,
+    IG_S_POST_IMAGE_CONTAINER = `${IG_S_SINGLE_POST_CONTAINER} > div:first-child > div:nth-child(2)`,
     IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX,main._a993',
     IG_S_STORY_MEDIA_CONTAINER = '.qbCDp,._a3gq ._ac0a',
     IG_S_POST_IMG = `.FFVAD,${IG_S_SINGLE_POST_CONTAINER} ._aagv img`,
     IG_S_POST_VIDEO = `.tWeCl,${IG_S_SINGLE_POST_CONTAINER} ._ab1c video`,
-    IG_S_MULTI_POST_LIST_ITEMS = `.vi798 .Ckrof,${IG_S_POST_IMAGE_CONTAINER} ul`,
+    IG_S_POST_CAROUSEL_NEXT_BUTTON = `.vi798 .Ckrof,${IG_S_POST_IMAGE_CONTAINER} [aria-label="Next"]`,
     IG_S_POST_CONTAINER = '._8Rm4L',
     IG_S_POST_BUTTONS = `.eo2As > section,${IG_S_SINGLE_POST_CONTAINER} section`,
     IG_S_PROFILE_PIC_CONTAINER = `.RR-M-,${IG_S_PROFILE_CONTAINER} header > div:first-child > div:first-child`,
@@ -63,9 +63,9 @@
     IG_S_PROFILE_USERNAME_TITLE = '.fKFbl,h2',
     IG_S_POST_BLOCKER = '._9AhH0',
     IG_S_TOP_BAR = '.Hz2lF,._lz6s,section nav',
-    IG_S_POST_TIME_ANCHOR = `.c-Yi7,${IG_S_SINGLE_POST_CONTAINER} ._aat9 a`,
-    IG_S_MULTI_POST_INDICATOR = '.Yi5aA',
-    IG_C_MULTI_POST_INDICATOR_ACTIVE = 'XCodT',
+    IG_S_POST_TIME_ELEMENT = `.c-Yi7,${IG_S_SINGLE_POST_CONTAINER} time._aaqe`,
+    IG_S_MULTI_POST_INDICATOR = '.Yi5aA,._aamk._acvz._acnc._acne > *',
+    IG_C_MULTI_POST_INDICATOR_ACTIVE = '_acnf',
     IG_S_PROFILE_PRIVATE_MESSAGE = '.rkEop',
     IG_S_PROFILE_HAS_STORIES_INDICATOR = 'header [aria-disabled=false] canvas';
 
@@ -131,12 +131,14 @@
 
   const API = {
     /** @type {(postRelUrl: string) => string} */
-    IG_POST_INFO_API: (postRelUrl) => `https://www.instagram.com${postRelUrl}?__a=1`,
+    IG_POST_INFO_API: (postRelUrl) => `https://www.instagram.com${postRelUrl}?__a=1&__d=1`,
+    /** @type {(mediaId: string) => string} */
+    IG_MEDIA_INFO_API: (mediaId) => `https://i.instagram.com/api/v1/media/${mediaId}/info/`,
     /** @type {(username: string) => string} */
     IG_WEB_PROFILE_INFO_API: (username) =>
       `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
     /** @type {() => string} */
-    IG__A1_CURRENT_PAGE: () => `${window.location.href}?__a=1`,
+    IG__A1_CURRENT_PAGE: () => `${window.location.href}?__a=1&__d=1`,
     /** @type {(userId: string) => string} */
     IG_USER_INFO_API: (userId) => `https://i.instagram.com/api/v1/users/${userId}/info/`,
     /** @type {(userId: string) => string} */
@@ -526,7 +528,7 @@
       postButtonsContainer.appendChild(sourceButton);
       node.classList.add(C_POST_WITH_BUTTON);
 
-      const timeElement = qs(node, `${IG_S_POST_TIME_ANCHOR} time`);
+      const timeElement = qs(node, IG_S_POST_TIME_ELEMENT);
       if (timeElement) {
         const fullDateTime = timeElement.getAttribute('datetime');
         const localeDateTime = fullDateTime && new Date(fullDateTime)?.toLocaleString();
@@ -564,7 +566,7 @@
 
       /* generate the anonymous story button */
       try {
-        const hasStories = !!(qs(document, IG_S_PROFILE_HAS_STORIES_INDICATOR));
+        const hasStories = !!qs(document, IG_S_PROFILE_HAS_STORIES_INDICATOR);
         if (!elementExistsInNode(`.${C_BTN_ANONYMOUS_STORIES}`, node) && hasStories) {
           // if the profile is not private or you follow the user
           if (!qs(document, IG_S_PROFILE_PRIVATE_MESSAGE)) {
@@ -706,9 +708,8 @@
     if (node == null) return;
 
     try {
-      const postRelativeUrl = qs(node, IG_S_POST_TIME_ANCHOR)?.getAttribute('href');
-      const isPostCarousel = qsa(node, IG_S_MULTI_POST_LIST_ITEMS).length > 0;
-      if (isPostCarousel) {
+      const postRelativeUrl = qs(node, IG_S_POST_TIME_ELEMENT)?.closest('a[role="link"]').getAttribute('href');
+      if (checkPostIsCarousel(node)) {
         await openCarouselPostMediaSource(postRelativeUrl, getCarouselIndex(node));
       } else {
         await openSinglePostMediaSource(node, postRelativeUrl);
@@ -736,26 +737,32 @@
    * @param {string} postRelativeUrl url of the post
    */
   async function openSinglePostMediaSource(node, postRelativeUrl) {
-    let image = qs(node, IG_S_POST_IMG);
-    let video = qs(node, IG_S_POST_VIDEO);
-    if (image) {
-      openUrl(image.getAttribute('src'));
+    const imageElement = qs(node, IG_S_POST_IMG);
+    const videoElement = qs(node, IG_S_POST_VIDEO);
+
+    if (imageElement) {
+      openUrl(imageElement.getAttribute('src'));
       return;
     }
-    if (video) {
+
+    if (videoElement) {
       /* video url is available on the element */
-      const videoSrc = video.getAttribute('src');
+      const videoSrc = videoElement.getAttribute('src');
       if (!videoSrc?.startsWith('blob')) {
         openUrl(videoSrc);
         return;
       }
-      if (!postRelativeUrl) throw new Error('No post relative url found');
+
+      if (!postRelativeUrl) {
+        throw new Error('No post relative url found');
+      }
 
       /* try to get the video url using the IG api */
       if (cachedApiData.post.has(postRelativeUrl)) {
         openUrl(cachedApiData.post.get(postRelativeUrl));
         return;
       }
+
       document.body.style.cursor = 'wait';
       const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
       const url = getUrlFromVideoPostApiResponse(response.items);
@@ -763,6 +770,7 @@
       cachedApiData.post.set(postRelativeUrl, url);
       return;
     }
+
     throw new Error('Failed to open source, no media found');
   }
 
@@ -1291,7 +1299,7 @@
   function getCarouselIndex(node) {
     const indicators = qsa(node, IG_S_MULTI_POST_INDICATOR);
     for (let i = 0; i < indicators.length; i++) {
-      if (indicators[i].classList.contains(IG_C_MULTI_POST_INDICATOR_ACTIVE)) return i;
+      if (indicators[i].classList.length > 1) return i;
     }
     return -1;
   }
@@ -1329,6 +1337,14 @@
    */
   function checkIsLoggedIn() {
     return Boolean(getCookie(COOKIE_IG_USER_ID));
+  }
+
+  /**
+   * Checks wether an Instagram post is has multiple images (carousel)
+   * @param {HTMLElement} node DOM element node containing the post
+   */
+  function checkPostIsCarousel(node) {
+    return qsa(node, IG_S_POST_CAROUSEL_NEXT_BUTTON).length > 0;
   }
 
   /**
