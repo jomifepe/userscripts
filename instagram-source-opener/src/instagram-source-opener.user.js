@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.3.0
+// @version          1.3.1
 // @description      Open the original source of an IG post, story or profile picture
 // @author           jomifepe
 // @license          MIT
@@ -48,24 +48,20 @@
   /* Instagram classes and selectors */
   const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG,._a3gq ._ac0e',
     IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2,article[role="presentation"]',
-    IG_S_POST_IMAGE_CONTAINER = `${IG_S_SINGLE_POST_CONTAINER} > div:first-child > div:nth-child(2)`,
+    IG_S_POST_IMAGE_CONTAINER = `${IG_S_SINGLE_POST_CONTAINER} > div:first-child`,
     IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX,main._a993',
     IG_S_STORY_MEDIA_CONTAINER = '.qbCDp,._a3gq ._ac0a',
     IG_S_POST_IMG = `.FFVAD,${IG_S_SINGLE_POST_CONTAINER} ._aagv img`,
     IG_S_POST_VIDEO = `.tWeCl,${IG_S_SINGLE_POST_CONTAINER} ._ab1c video`,
-    IG_S_POST_CAROUSEL_NEXT_BUTTON = `.vi798 .Ckrof,${IG_S_POST_IMAGE_CONTAINER} [aria-label="Next"]`,
-    IG_S_POST_CONTAINER = '._8Rm4L',
     IG_S_POST_BUTTONS = `.eo2As > section,${IG_S_SINGLE_POST_CONTAINER} section`,
     IG_S_PROFILE_PIC_CONTAINER = `.RR-M-,${IG_S_PROFILE_CONTAINER} header > div:first-child > div:first-child`,
     IG_S_PRIVATE_PROFILE_PIC_CONTAINER = '._4LQNo',
-    IG_S_PRIVATE_PIC_IMG_CONTAINER = '._2dbep',
-    IG_S_PRIVATE_PROFILE_PIC_IMG_CONTAINER = '.IalUJ',
     IG_S_PROFILE_USERNAME_TITLE = '.fKFbl,h2',
     IG_S_POST_BLOCKER = '._9AhH0',
     IG_S_TOP_BAR = '.Hz2lF,._lz6s,section nav',
     IG_S_POST_TIME_ELEMENT = `.c-Yi7,${IG_S_SINGLE_POST_CONTAINER} time._aaqe`,
-    IG_S_MULTI_POST_INDICATOR = '.Yi5aA,._aamk._acvz._acnc._acne > *',
-    IG_C_MULTI_POST_INDICATOR_ACTIVE = '_acnf',
+    IG_S_MULTI_VERTICAL_POST_INDICATOR = '.Yi5aA,._aamk._acvz._acnc._acne > *',
+    IG_S_MULTI_HORIZONTAL_POST_INDICATOR = '.Yi5aA,._aamj._acvz._acnc._acng > *',
     IG_S_PROFILE_PRIVATE_MESSAGE = '.rkEop',
     IG_S_PROFILE_HAS_STORIES_INDICATOR = 'header [aria-disabled=false] canvas';
 
@@ -1299,7 +1295,10 @@
    * @return {number} current index
    */
   function getCarouselIndex(node) {
-    const indicators = qsa(node, IG_S_MULTI_POST_INDICATOR);
+    const indicators = qsa(
+      node,
+      pages.post.isVisible() ? IG_S_MULTI_HORIZONTAL_POST_INDICATOR : IG_S_MULTI_VERTICAL_POST_INDICATOR
+    );
     for (let i = 0; i < indicators.length; i++) {
       if (indicators[i].classList.length > 1) return i;
     }
@@ -1343,10 +1342,10 @@
 
   /**
    * Checks wether an Instagram post is has multiple images (carousel)
-   * @param {HTMLElement} node DOM element node containing the post
+   * @param {HTMLElement} postContainerNode DOM element node containing the post
    */
-  function checkPostIsCarousel(node) {
-    return qsa(node, IG_S_POST_CAROUSEL_NEXT_BUTTON).length > 0;
+  function checkPostIsCarousel(postContainerNode) {
+    return qsa(postContainerNode, '[aria-label="Go Back"],[aria-label="Next"]').length > 0;
   }
 
   /**
