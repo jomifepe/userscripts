@@ -127,6 +127,8 @@
     COOKIE_VALUE: (key) => new RegExp(`(^| )${key}=([^;]+)`),
     PAGE_SINGLE_MEDIA: /^\/(p|reel|tv)\//,
     PAGE_STORIES: /^\/stories\//,
+    /** matches: `/user`, `/user/tagged`, `/user/reels`, or `/user/channel` */
+    PAGE_PROFILE: /^\/(([^/]*)\/$|([^/]*)\/(tagged|reels|channel))/,
   };
 
   const API = {
@@ -178,7 +180,7 @@
       },
     },
     profile: {
-      isVisible: () => !!(countPathnameSegments() === 1 && qs(document, IG_S_PROFILE_PIC_CONTAINER)),
+      isVisible: () => PATTERN.PAGE_PROFILE.test(window.location.pathname),
       onLoadActions: () => {
         if (!checkIsLoggedIn()) return;
         const node = qs(document, IG_S_PROFILE_CONTAINER);
@@ -1355,17 +1357,6 @@
   function getCookie(name) {
     const matches = document.cookie.match(PATTERN.COOKIE_VALUE(name));
     return matches?.[2];
-  }
-
-  /**
-   * Counts the segments in a relative url
-   * @param {string} pathname Path to count the segments (defaults to `window.location.pathname`)
-   * @returns {number}
-   */
-  function countPathnameSegments(pathname) {
-    // remove leading and trailing slashes
-    const cleanPathname = (pathname || window.location.pathname).replace(/^\/|\/$/g, '');
-    return cleanPathname.split('/').length;
   }
 
   /**
