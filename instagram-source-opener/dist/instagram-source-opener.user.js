@@ -115,8 +115,6 @@
     DEFAULT_BUTTON_BEHAVIOR = BUTTON_BEHAVIOR_NEW_TAB_FOCUS,
     BUTTON_BEHAVIOR_OPTIONS = [BUTTON_BEHAVIOR_REDIR, BUTTON_BEHAVIOR_NEW_TAB_FOCUS, BUTTON_BEHAVIOR_NEW_TAB_BG];
 
-  /* eslint-enable no-unused-vars */
-
   const PATTERN = {
     URL_PATH_PARTS: /\/([a-zA-Z0-9._]{0,})/,
     IG_VALID_USERNAME: /^([a-zA-Z0-9._]{0,30})$/,
@@ -721,8 +719,8 @@
 
   /** Maps the response of the IG api for reels to a more friendly format */
   function getUrlFromVideoPostApiResponse(apiDataItems) {
-    const getImageOrVideoUrl = ({ video_versions, image_versions2 }) => {
-      return video_versions ? getUrlFromBestSource(video_versions) : getUrlFromBestSource(image_versions2.candidates);
+    const getImageOrVideoUrl = ({ video_versions, image_versions2, original_height, original_width }) => {
+      return getUrlFromBestSource(video_versions || image_versions2.candidates, original_width, original_height);
     };
 
     if (Array.isArray(apiDataItems)) return apiDataItems.map(getImageOrVideoUrl);
@@ -855,14 +853,25 @@
   /**
    * Finds the best image/video source (size and quality) and returns its url.
    * @param {{ width: number; height: number; url: string; type: number; }[]} imageSources
+   * @param {number | undefined} originalWidth
+   * @param {number | undefined} originalHeight
    * @returns string
    */
-  function getUrlFromBestSource(imageSources) {
-    return imageSources.reduce((largestSource, source) => {
-      if (source.height > largestSource.height) return source;
-      if (source.height === largestSource.height && source.type > largestSource.type) return source;
-      return largestSource;
-    }, imageSources[0])?.url;
+  function getUrlFromBestSource(imageSources, originalWidth, originalHeight) {
+    let largestSource = imageSources[0];
+
+    for (const source of imageSources) {
+      const { width, height, type } = source;
+      if (width === originalWidth && height === originalHeight) {
+        largestSource = source;
+        break;
+      }
+      if (height > largestSource.height || (height === largestSource.height && type > largestSource.type)) {
+        largestSource = source;
+      }
+    }
+
+    return largestSource?.url;
   }
 
   /**
@@ -870,12 +879,12 @@
    * @param {any[]} apiDataItems
    */
   function mapStoriesApiResponse(apiDataItems) {
-    return apiDataItems.map(({ taken_at, video_versions, image_versions2 }) => {
+    return apiDataItems.map(({ taken_at, video_versions, image_versions2, original_width, original_height }) => {
       const timestamp = taken_at * 1000;
-      const imageUrl = getUrlFromBestSource(image_versions2.candidates);
+      const imageUrl = getUrlFromBestSource(image_versions2.candidates, original_width, original_height);
 
       return {
-        url: video_versions ? getUrlFromBestSource(video_versions) : imageUrl,
+        url: video_versions ? getUrlFromBestSource(video_versions, original_width, original_height) : imageUrl,
         thumbnailUrl: imageUrl,
         dateTime: new Date().toISOString(),
         relativeTime: getRelativeTime(timestamp),
