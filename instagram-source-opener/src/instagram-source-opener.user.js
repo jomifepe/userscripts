@@ -126,13 +126,10 @@
   };
 
   const API = {
-    /** @type {(postRelUrl: string) => string} */
-    IG_POST_INFO_API: (postRelUrl) => `https://www.instagram.com${postRelUrl}?__a=1&__d=1`,
+    /** @type {(postOrUsernamePath: string) => string} */
+    IG_INFO_API: (postOrUsernamePath) => `https://www.instagram.com${postOrUsernamePath}?__a=1&__d=1`,
     /** @type {(mediaId: string) => string} */
     IG_MEDIA_INFO_API: (mediaId) => `https://i.instagram.com/api/v1/media/${mediaId}/info/`,
-    /** @type {(username: string) => string} */
-    IG_WEB_PROFILE_INFO_API: (username) =>
-      `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
     /** @type {() => string} */
     IG__A1_CURRENT_PAGE: () => `${window.location.href}?__a=1&__d=1`,
     /** @type {(userId: string) => string} */
@@ -688,7 +685,7 @@
     }
 
     document.body.style.cursor = 'wait';
-    const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
+    const response = await httpGETRequest(API.IG_INFO_API(postRelativeUrl));
     const carouselMediaItems = response.items[0].carousel_media;
     const url = getUrlFromVideoPostApiResponse(carouselMediaItems[carouselIndex]);
     openUrl(url);
@@ -760,7 +757,7 @@
       }
 
       document.body.style.cursor = 'wait';
-      const response = await httpGETRequest(API.IG_POST_INFO_API(postRelativeUrl));
+      const response = await httpGETRequest(API.IG_INFO_API(postRelativeUrl));
       const url = getUrlFromVideoPostApiResponse(response.items);
       openUrl(url);
       cachedApiData.post.set(postRelativeUrl, url);
@@ -974,10 +971,10 @@
     }
 
     const userInfo = (
-      await httpGETRequest(API.IG_WEB_PROFILE_INFO_API(username), {
+      await httpGETRequest(API.IG_INFO_API(`/${username}`), {
         headers: { 'User-Agent': USER_AGENT },
       })
-    )?.data?.user;
+    )?.graphql.user;
     cachedApiData.userInfo.set(username, userInfo);
     return userInfo;
   }
