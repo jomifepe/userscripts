@@ -98,7 +98,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
 }
 
 .__VS__C_BTN_STORY__VE__ {
-  position: absolute;
+  position: fixed;
   top: 56px;
   right: 16px;
   min-width: var(--iso-story-button-size);
@@ -132,6 +132,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   background-image: var(--iso-settings-btn-icon);
   background-size: var(--iso-setting-button-icon-size) var(--iso-setting-button-icon-size);
   opacity: 0.8;
+  z-index: 1000;
 }
 @media only screen and (max-width: 1024px) {
   .__VS__C_SETTINGS_BTN__VE__ {
