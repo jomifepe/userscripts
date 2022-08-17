@@ -58,7 +58,7 @@
     IG_S_PRIVATE_PROFILE_PIC_CONTAINER = '._4LQNo',
     IG_S_PROFILE_USERNAME_TITLE = '.fKFbl,h2',
     IG_S_POST_BLOCKER = '._9AhH0',
-    IG_S_TOP_BAR = '.Hz2lF,._lz6s,nav',
+    IG_S_TOP_BAR = '.Hz2lF,._lz6s,nav._acbh._acbi',
     IG_S_POST_TIME_ELEMENT = `.c-Yi7,${IG_S_SINGLE_POST_CONTAINER} time._aaqe`,
     IG_S_MULTI_VERTICAL_POST_INDICATOR = '.Yi5aA,._aamk._acvz._acnc._acne > *',
     IG_S_MULTI_HORIZONTAL_POST_INDICATOR = '.Yi5aA,._aamj._acvz._acnc._acng > *',
@@ -1350,7 +1350,7 @@
    * @param {HTMLElement} postContainerNode DOM element node containing the post
    */
   function checkPostIsCarousel(postContainerNode) {
-    return qsa(postContainerNode, '[aria-label="Go Back"],[aria-label="Next"]').length > 0;
+    return qsa(postContainerNode, '[aria-label="Go back"],[aria-label="Next"]').length > 0;
   }
 
   /**
