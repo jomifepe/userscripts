@@ -480,7 +480,7 @@
    */
   function generateStoryButton(node = document.body) {
     /* exits if the story button already exists */
-    if (elementExistsInNode(`.${C_BTN_STORY}`, document)) return;
+    if (!node || elementExistsInNode(`.${C_BTN_STORY}`, document)) return;
 
     try {
       const openButton = createElementFromHtml(`
