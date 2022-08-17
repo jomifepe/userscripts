@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.3.1
+// @version          1.3.2
 // @description      Open the original source of an IG post, story or profile picture
 // @author           jomifepe
 // @license          MIT
@@ -46,11 +46,11 @@
     IG_APP_ID = '936619743392459';
 
   /* Instagram classes and selectors */
-  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG,._a3gq ._ac0e',
+  const IG_S_STORY_CONTAINER = '.yS4wN,.vUg3G,.yUdUG,._a997._ac6a._ac0e',
     IG_S_SINGLE_POST_CONTAINER = '.JyscU,.PdwC2,article[role="presentation"]',
     IG_S_POST_IMAGE_CONTAINER = `${IG_S_SINGLE_POST_CONTAINER} > div:first-child`,
     IG_S_PROFILE_CONTAINER = '.v9tJq,.XjzKX,main._a993',
-    IG_S_STORY_MEDIA_CONTAINER = '.qbCDp,._a3gq ._ac0a',
+    IG_S_STORY_MEDIA_CONTAINER = '.qbCDp,._ab8w._ab94._ab97._ab9f._ab9k._ab9p._abcm',
     IG_S_POST_IMG = `.FFVAD,${IG_S_SINGLE_POST_CONTAINER} ._aagv img`,
     IG_S_POST_VIDEO = `.tWeCl,${IG_S_SINGLE_POST_CONTAINER} ._ab1c video`,
     IG_S_POST_BUTTONS = `.eo2As > section,${IG_S_SINGLE_POST_CONTAINER} section`,
@@ -58,7 +58,7 @@
     IG_S_PRIVATE_PROFILE_PIC_CONTAINER = '._4LQNo',
     IG_S_PROFILE_USERNAME_TITLE = '.fKFbl,h2',
     IG_S_POST_BLOCKER = '._9AhH0',
-    IG_S_TOP_BAR = '.Hz2lF,._lz6s,section nav',
+    IG_S_TOP_BAR = '.Hz2lF,._lz6s,nav._acbh._acbi',
     IG_S_POST_TIME_ELEMENT = `.c-Yi7,${IG_S_SINGLE_POST_CONTAINER} time._aaqe`,
     IG_S_MULTI_VERTICAL_POST_INDICATOR = '.Yi5aA,._aamk._acvz._acnc._acne > *',
     IG_S_MULTI_HORIZONTAL_POST_INDICATOR = '.Yi5aA,._aamj._acvz._acnc._acng > *',
@@ -164,9 +164,7 @@
     story: {
       isVisible: () => PATTERN.PAGE_STORIES.test(window.location.pathname),
       onLoadActions: () => {
-        const node = qs(document, IG_S_STORY_CONTAINER);
-        if (!node) return;
-        generateStoryButton(node);
+        generateStoryButton();
         setupStoryEventListeners();
       },
     },
@@ -480,7 +478,7 @@
    * Appends new elements to DOM containing the story source opening button
    * @param {HTMLElement} node DOM element node
    */
-  function generateStoryButton(node) {
+  function generateStoryButton(node = document.body) {
     /* exits if the story button already exists */
     if (!node || elementExistsInNode(`.${C_BTN_STORY}`, document)) return;
 
@@ -649,9 +647,10 @@
    */
   function openStoryContent(node = document) {
     try {
-      const container = qs(node, IG_S_STORY_MEDIA_CONTAINER);
-      const video = qs(container, 'video');
-      const image = qs(container, 'img');
+      const storiesContainer = qs(node, IG_S_STORY_MEDIA_CONTAINER);
+      const activeStoryContainer = qs(storiesContainer, '[style*="scale(1)"]');
+      const video = qs(activeStoryContainer, 'video');
+      const image = qs(activeStoryContainer, 'img');
 
       if (video) {
         const source = getStoryVideoSrc(video);
@@ -1351,7 +1350,7 @@
    * @param {HTMLElement} postContainerNode DOM element node containing the post
    */
   function checkPostIsCarousel(postContainerNode) {
-    return qsa(postContainerNode, '[aria-label="Go Back"],[aria-label="Next"]').length > 0;
+    return qsa(postContainerNode, '[aria-label="Go back"],[aria-label="Next"]').length > 0;
   }
 
   /**
