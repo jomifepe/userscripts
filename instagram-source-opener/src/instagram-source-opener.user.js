@@ -33,7 +33,7 @@
 (function () {
   'use strict';
 
-  const LOGGING_ENABLED = true;
+  const LOGGING_ENABLED = false;
 
   /* eslint-disable no-unused-vars */
 
