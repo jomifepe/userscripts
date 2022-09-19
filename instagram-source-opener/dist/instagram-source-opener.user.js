@@ -377,10 +377,10 @@
     try {
       const enabled = /** @type boolean */ (event.target.checked);
       await callGMFunction('setValue', STORAGE_KEY_DEBUGGING_ENABLED, enabled);
-      Logger.log(`${enabled ? 'Enabled' : 'Disabled'} debugging`);
+      Logger.force.log(`${enabled ? 'Enabled' : 'Disabled'} debugging`);
       LOGGING_ENABLED = enabled;
     } catch (error) {
-      Logger.error('Failed to debugging enabled in storage');
+      Logger.force.error('Failed to store debugging enabled in storage');
     }
   }
 
@@ -1532,20 +1532,30 @@
    */
   function createLogger(loggingTag) {
     const baseAlert = (...args) => alert(`${SCRIPT_NAME}:\n\n${args.join(' ')}`);
-    const baseLog = (type, ...args) => {
-      if (!LOGGING_ENABLED) return;
+    const baseLog = (type, shouldLog, ...args) => {
+      if (!shouldLog) return;
       console[type]?.(`[${loggingTag}]`, ...args);
     };
 
     return {
-      log: (...args) => baseLog('log', ...args),
-      warn: (...args) => baseLog('warn', ...args),
-      error: (...args) => baseLog('error', ...args),
+      log: (...args) => baseLog('log', LOGGING_ENABLED, ...args),
+      warn: (...args) => baseLog('warn', LOGGING_ENABLED, ...args),
+      error: (...args) => baseLog('error', LOGGING_ENABLED, ...args),
       alert: (...args) => baseAlert(...args),
       alertAndLog: (...args) => {
-        baseLog('log', ...args);
+        baseLog('log', LOGGING_ENABLED, ...args);
         baseAlert(...args);
       },
+      force: {
+        log: (...args) => baseLog('log', true, ...args),
+        warn: (...args) => baseLog('warn', true, ...args),
+        error: (...args) => baseLog('error', true, ...args),
+        alert: (...args) => baseAlert(...args),
+        alertAndLog: (...args) => {
+          baseLog('log', true, ...args);
+          baseAlert(...args);
+        },
+      }
     };
   }
 
