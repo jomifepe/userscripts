@@ -218,12 +218,16 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
 .__VS__C_SETTINGS_MENU_OPTION__VE__ {
   display: flex;
   flex-direction: column;
-  padding: 12px 16px;
+  padding: 16px;
   border: none;
   background-color: transparent;
   font-size: 14px;
   padding-left: 16px;
   text-align: left;
+}
+.__VS__C_SETTINGS_MENU_OPTION__VE__ > *:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .__VS__C_SETTINGS_MENU_OPTION_BTN__VE__ {
@@ -249,7 +253,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   margin-bottom: 6px;
 }
 
-.__VS__C_MODAL_WRAPPER__VE__ input,
+.__VS__C_MODAL_WRAPPER__VE__ input[type="text"],
 .__VS__C_MODAL_WRAPPER__VE__ select {
   height: 32px;
   font-size: 14px;
@@ -331,4 +335,17 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
 .__VS__C_STORIES_MODAL_LIST_ITEM__VE__ time {
   color: rgb(80, 80, 80);
   margin-top: 8px;
+}
+
+.__VS__C_FLEX_ROW_CENTER__VE__ {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.__VS__ID_SETTINGS_DEBUGGING_CONTAINER__VE__ {
+  padding: 16px 0;
+}
+#__VS__ID_SETTINGS_DEBUGGING_INPUT__VE__ {
+  margin-right: 8px;
 }
