@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.3.2
+// @version          1.4.2
 // @description      Open the original source of an IG post, story or profile picture
 // @author           jomifepe
 // @license          MIT
@@ -30,10 +30,8 @@
 // ==/UserScript==
 
 /* jshint esversion: 10 */
-(function () {
+(async function () {
   'use strict';
-
-  const LOGGING_ENABLED = false;
 
   /* eslint-disable no-unused-vars */
 
@@ -93,7 +91,10 @@
     ID_SETTINGS_DEVELOPER_OPTIONS_BTN = 'iso-settings-developer-options-btn',
     ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER = 'iso-settings-developer-options-container',
     ID_SETTINGS_SESSION_ID_INPUT = 'iso-settings-session-id-input',
+    ID_SETTINGS_DEBUGGING_CONTAINER = 'iso-settings-debugging-container',
+    ID_SETTINGS_DEBUGGING_INPUT = 'iso-settings-debugging-checkbox',
     S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_SINGLE_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
+    C_FLEX_ROW_CENTER = 'iso-flex-row-center',
     /* Anonymous stories modal */
     C_STORIES_MODAL = 'iso-stories-modal',
     C_STORIES_MODAL_LIST = 'iso-stories-modal-list',
@@ -104,6 +105,7 @@
     STORAGE_KEY_PROFILE_PICTURE_KB = 'iso_profile_picture_kb',
     STORAGE_KEY_BUTTON_BEHAVIOR = 'iso_button_behavior',
     STORAGE_KEY_SESSION_ID = 'iso_session_id',
+    STORAGE_KEY_DEBUGGING_ENABLED = 'iso_debugging_enabled',
     COOKIE_IG_USER_ID = 'ds_user_id',
     /* Default letters for key bindings */
     DEFAULT_KB_POST_STORY = 'O',
@@ -147,6 +149,8 @@
     userProfilePicture: buildCache(),
     post: buildCache(),
   };
+
+  let LOGGING_ENABLED = /** @type boolean */ (await callGMFunction('getValue', STORAGE_KEY_DEBUGGING_ENABLED, false));
 
   let isStoryKeyBindingSetup, isSinglePostKeyBindingSetup, isProfileKeyBindingSetup;
   let openPostStoryKeyBinding = DEFAULT_KB_POST_STORY;
@@ -331,9 +335,10 @@
 
   /**
    * Handle the click on the settings menu option to change the profile picture opening key binding
-   * @param {string} option Button behavior option to use, has to be one of BUTTON_BEHAVIOR_OPTIONS
+   * @param {InputEvent} event Input change event
    */
-  async function handleMenuButtonBehaviorChange(option) {
+  async function handleMenuButtonBehaviorChange(event) {
+    const option = /** @type string */ event.target.value;
     if (!BUTTON_BEHAVIOR_OPTIONS.includes(option)) {
       Logger.error('Invalid option for source button behavior');
       return;
@@ -346,9 +351,10 @@
 
   /**
    * Handle a new sessionid entered on the developer options section of the settings menu
-   * @param {string} value sessionid
+   * @param {InputEvent} event Input change event
    */
-  async function handleSessionIdChange(value) {
+  async function handleSessionIdChange(event) {
+    const value = /** @type string */ (event.target.value);
     const newSessionId = value?.trim();
     if (value === null || typeof myVar !== 'undefined' || newSessionId === sessionId) return; // empty values are accepted
     if (newSessionId.length === 0 && sessionId) {
@@ -358,9 +364,24 @@
       return;
     }
     const result = await callGMFunction('setValue', STORAGE_KEY_SESSION_ID, newSessionId);
-    if (result === null) Logger.error('Failed to save session id on storage');
+    if (result === null) Logger.error('Failed to save session id in storage');
     sessionId = newSessionId;
     Logger.log(`Saved current session id: ...${getLast4Digits(newSessionId)}`);
+  }
+
+  /**
+   * Handle 'debugging enabled' checkbox change events
+   * @param {InputEvent} event Input change event
+   */
+  async function handleDebuggingSettingChange(event) {
+    try {
+      const enabled = /** @type boolean */ (event.target.checked);
+      await callGMFunction('setValue', STORAGE_KEY_DEBUGGING_ENABLED, enabled);
+      Logger.force.log(`${enabled ? 'Enabled' : 'Disabled'} debugging`);
+      LOGGING_ENABLED = enabled;
+    } catch (error) {
+      Logger.force.error('Failed to store debugging enabled in storage');
+    }
   }
 
   /**
@@ -409,6 +430,8 @@
       if (buttonBehaviorSelect) buttonBehaviorSelect.value = openSourceBehavior;
       const sessionIdInput = qs(document, `#${ID_SETTINGS_SESSION_ID_INPUT}`);
       if (sessionIdInput) sessionIdInput.value = sessionId;
+      const debuggingEnabledInput = qs(document, `#${ID_SETTINGS_DEBUGGING_INPUT}`);
+      if (debuggingEnabledInput) debuggingEnabledInput.checked = LOGGING_ENABLED;
     } else {
       qs(document, `.${C_SETTINGS_MODAL}`).style.setProperty('display', 'none', 'important');
     }
@@ -441,7 +464,7 @@
     if (!qs(document, `.${C_SETTINGS_MODAL}`)) {
       /* Create the settings menu */
       const modal = createElementFromHtml(`
-        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">${SCRIPT_NAME_SHORT} Settings <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change profile picture shortcut</button><div class="${C_SETTINGS_MENU_OPTION}"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN} ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="${C_SETTINGS_SELECT_ARROW}"></span></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="${C_SETTINGS_MENU_OPTION} ${C_SETTINGS_SECTION_COLLAPSED}"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="${C_MODAL_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div></div></div></div>
+        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">${SCRIPT_NAME_SHORT} Settings <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change profile picture shortcut</button><div class="${C_SETTINGS_MENU_OPTION}"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN} ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="${C_SETTINGS_SELECT_ARROW}"></span></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="${C_SETTINGS_MENU_OPTION} ${C_SETTINGS_SECTION_COLLAPSED}"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="${C_MODAL_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"><div class="${ID_SETTINGS_DEBUGGING_CONTAINER} ${C_FLEX_ROW_CENTER}"><input id="${ID_SETTINGS_DEBUGGING_INPUT}" type="checkbox"> <label for="${ID_SETTINGS_DEBUGGING_INPUT}">Debugging Enabled</label></div></div></div></div></div>
       `);
 
       /* handle modal backdrop click */
@@ -450,24 +473,44 @@
         setSettingsMenuVisible(false);
       });
       /* ignore clicks inside the modal content */
-      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_WRAPPER}`, 'click', (e) => e.stopPropagation());
+      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_WRAPPER}`, 'click', withStopPropagation);
       /* handle menu close on close button click */
-      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_CLOSE_BTN}`, 'click', () => setSettingsMenuVisible(false));
+      qsael(
+        modal,
+        `.${C_SETTINGS_MODAL} .${C_MODAL_CLOSE_BTN}`,
+        'click',
+        withPreventDefault(() => setSettingsMenuVisible(false))
+      );
       /* handle post/story key binding button */
-      qsael(modal, `#${ID_SETTINGS_POST_STORY_KB_BTN}`, 'click', handleMenuPostStoryKBCommand);
+      qsael(modal, `#${ID_SETTINGS_POST_STORY_KB_BTN}`, 'click', withPreventDefault(handleMenuPostStoryKBCommand));
       /* handle profile picture key binding button */
-      qsael(modal, `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`, 'click', handleMenuProfilePicKBCommand);
+      qsael(
+        modal,
+        `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`,
+        'click',
+        withPreventDefault(handleMenuProfilePicKBCommand)
+      );
       /* handle change of button behavior option select */
-      qsael(modal, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`, 'change', (e) =>
-        handleMenuButtonBehaviorChange(e.target.value)
+      qsael(
+        modal,
+        `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`,
+        'change',
+        withPreventDefault(handleMenuButtonBehaviorChange)
       );
       /* handle click of developer settings button (toggle view) */
-      qsael(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`, 'click', () => {
-        qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
-        qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
-      });
+      qsael(
+        modal,
+        `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`,
+        'click',
+        withPreventDefault(() => {
+          qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+          qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+        })
+      );
       /* handle blur of the session id input */
-      qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', (e) => handleSessionIdChange(e.target.value));
+      qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', withPreventDefault(handleSessionIdChange));
+      /* handle change of the debugging enabled checkbox */
+      qsael(modal, `#${ID_SETTINGS_DEBUGGING_INPUT}`, 'change', handleDebuggingSettingChange);
 
       document.body.appendChild(modal);
       Logger.log('Created settings menu');
@@ -1417,7 +1460,7 @@
    */
   function qsael(node, selector, type, listener) {
     const element = qs(node, selector);
-    element.addEventListener(type, withPreventDefault(listener));
+    element.addEventListener(type, listener);
     return element;
   }
 
@@ -1489,20 +1532,30 @@
    */
   function createLogger(loggingTag) {
     const baseAlert = (...args) => alert(`${SCRIPT_NAME}:\n\n${args.join(' ')}`);
-    const baseLog = (type, ...args) => {
-      if (!LOGGING_ENABLED) return;
+    const baseLog = (type, shouldLog, ...args) => {
+      if (!shouldLog) return;
       console[type]?.(`[${loggingTag}]`, ...args);
     };
 
     return {
-      log: (...args) => baseLog('log', ...args),
-      warn: (...args) => baseLog('warn', ...args),
-      error: (...args) => baseLog('error', ...args),
+      log: (...args) => baseLog('log', LOGGING_ENABLED, ...args),
+      warn: (...args) => baseLog('warn', LOGGING_ENABLED, ...args),
+      error: (...args) => baseLog('error', LOGGING_ENABLED, ...args),
       alert: (...args) => baseAlert(...args),
       alertAndLog: (...args) => {
-        baseLog('log', ...args);
+        baseLog('log', LOGGING_ENABLED, ...args);
         baseAlert(...args);
       },
+      force: {
+        log: (...args) => baseLog('log', true, ...args),
+        warn: (...args) => baseLog('warn', true, ...args),
+        error: (...args) => baseLog('error', true, ...args),
+        alert: (...args) => baseAlert(...args),
+        alertAndLog: (...args) => {
+          baseLog('log', true, ...args);
+          baseAlert(...args);
+        },
+      }
     };
   }
 
@@ -1538,12 +1591,13 @@
         .${C_MODAL_CLOSE_BTN}{width:24px!important;height:24px!important;border:0!important;padding:0!important;background-color:transparent!important;margin-top:8px!important;margin-right:8px!important;cursor:pointer!important}
         .${C_MODAL_TITLE_LINK}{margin-left:4px!important;color:#4287f5!important;text-decoration:none!important}
         .${C_MODAL_CONTENT_CONTAINER}{display:flex!important;flex-direction:column!important;flex:1!important}
-        .${C_SETTINGS_MENU_OPTION}{display:flex!important;flex-direction:column!important;padding:12px 16px!important;border:none!important;background-color:transparent!important;font-size:14px!important;padding-left:16px!important;text-align:left!important}
+        .${C_SETTINGS_MENU_OPTION}{display:flex!important;flex-direction:column!important;padding:16px!important;border:none!important;background-color:transparent!important;font-size:14px!important;padding-left:16px!important;text-align:left!important}
+        .${C_SETTINGS_MENU_OPTION}>:last-child{padding-bottom:0!important;margin-bottom:0!important}
         .${C_SETTINGS_MENU_OPTION_BTN}{display:flex!important;flex-direction:row!important;padding:12px 16px!important;border:none!important;background-color:transparent!important;font-size:14px!important;padding-left:16px!important;text-align:left!important;cursor:pointer!important}
         .${C_SETTINGS_MENU_OPTION_BTN}:hover{background-color:rgba(214,214,214,.3)!important}
         .${C_SETTINGS_MENU_OPTION_BTN}:active{background-color:rgba(214,214,214,.4)!important}
         [for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"],[for="${ID_SETTINGS_SESSION_ID_INPUT}"]{font-size:12px!important;margin-bottom:6px!important}
-        .${C_MODAL_WRAPPER} input,.${C_MODAL_WRAPPER} select{height:32px!important;font-size:14px!important;border:1px solid gray!important;border-radius:4px!important;padding:0 6px!important;-moz-appearance:none!important;-webkit-appearance:none!important;appearance:none!important}
+        .${C_MODAL_WRAPPER} input[type=text],.${C_MODAL_WRAPPER} select{height:32px!important;font-size:14px!important;border:1px solid gray!important;border-radius:4px!important;padding:0 6px!important;-moz-appearance:none!important;-webkit-appearance:none!important;appearance:none!important}
         #${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}{background-image:var(--iso-settings-select-arrow-icon)!important;background-size:24px 24px!important;background-repeat:no-repeat!important;background-position-x:99%!important;background-position-y:50%!important}
         #${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}{border-top:1px solid var(--iso-settings-separator-color)!important}
         #${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}{display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important}
@@ -1557,6 +1611,9 @@
         .${C_STORIES_MODAL_LIST_ITEM}:last-child{margin-right:16px!important}
         .${C_STORIES_MODAL_LIST_ITEM} img{height:max(256px,calc(100vh / 2))!important;object-fit:cover!important;border-radius:6px!important}
         .${C_STORIES_MODAL_LIST_ITEM} time{color:#505050!important;margin-top:8px!important}
+        .${C_FLEX_ROW_CENTER}{display:flex!important;flex-direction:row!important;align-items:center!important}
+        .${ID_SETTINGS_DEBUGGING_CONTAINER}{padding:16px 0!important}
+        #${ID_SETTINGS_DEBUGGING_INPUT}{margin-right:8px!important}
       `;
       const element = document.createElement('style');
       element.textContent = styles;

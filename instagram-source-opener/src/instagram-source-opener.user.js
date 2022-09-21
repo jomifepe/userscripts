@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name             Instagram Source Opener
-// @version          1.3.2
+// @version          1.4.2
 // @description      Open the original source of an IG post, story or profile picture
 // @author           jomifepe
 // @license          MIT
@@ -30,10 +30,8 @@
 // ==/UserScript==
 
 /* jshint esversion: 10 */
-(function () {
+(async function () {
   'use strict';
-
-  const LOGGING_ENABLED = false;
 
   /* eslint-disable no-unused-vars */
 
@@ -93,7 +91,10 @@
     ID_SETTINGS_DEVELOPER_OPTIONS_BTN = 'iso-settings-developer-options-btn',
     ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER = 'iso-settings-developer-options-container',
     ID_SETTINGS_SESSION_ID_INPUT = 'iso-settings-session-id-input',
+    ID_SETTINGS_DEBUGGING_CONTAINER = 'iso-settings-debugging-container',
+    ID_SETTINGS_DEBUGGING_INPUT = 'iso-settings-debugging-checkbox',
     S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_SINGLE_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
+    C_FLEX_ROW_CENTER = 'iso-flex-row-center',
     /* Anonymous stories modal */
     C_STORIES_MODAL = 'iso-stories-modal',
     C_STORIES_MODAL_LIST = 'iso-stories-modal-list',
@@ -104,6 +105,7 @@
     STORAGE_KEY_PROFILE_PICTURE_KB = 'iso_profile_picture_kb',
     STORAGE_KEY_BUTTON_BEHAVIOR = 'iso_button_behavior',
     STORAGE_KEY_SESSION_ID = 'iso_session_id',
+    STORAGE_KEY_DEBUGGING_ENABLED = 'iso_debugging_enabled',
     COOKIE_IG_USER_ID = 'ds_user_id',
     /* Default letters for key bindings */
     DEFAULT_KB_POST_STORY = 'O',
@@ -147,6 +149,8 @@
     userProfilePicture: buildCache(),
     post: buildCache(),
   };
+
+  let LOGGING_ENABLED = /** @type boolean */ (await callGMFunction('getValue', STORAGE_KEY_DEBUGGING_ENABLED, false));
 
   let isStoryKeyBindingSetup, isSinglePostKeyBindingSetup, isProfileKeyBindingSetup;
   let openPostStoryKeyBinding = DEFAULT_KB_POST_STORY;
@@ -331,9 +335,10 @@
 
   /**
    * Handle the click on the settings menu option to change the profile picture opening key binding
-   * @param {string} option Button behavior option to use, has to be one of BUTTON_BEHAVIOR_OPTIONS
+   * @param {InputEvent} event Input change event
    */
-  async function handleMenuButtonBehaviorChange(option) {
+  async function handleMenuButtonBehaviorChange(event) {
+    const option = /** @type string */ event.target.value;
     if (!BUTTON_BEHAVIOR_OPTIONS.includes(option)) {
       Logger.error('Invalid option for source button behavior');
       return;
@@ -346,9 +351,10 @@
 
   /**
    * Handle a new sessionid entered on the developer options section of the settings menu
-   * @param {string} value sessionid
+   * @param {InputEvent} event Input change event
    */
-  async function handleSessionIdChange(value) {
+  async function handleSessionIdChange(event) {
+    const value = /** @type string */ (event.target.value);
     const newSessionId = value?.trim();
     if (value === null || typeof myVar !== 'undefined' || newSessionId === sessionId) return; // empty values are accepted
     if (newSessionId.length === 0 && sessionId) {
@@ -358,9 +364,24 @@
       return;
     }
     const result = await callGMFunction('setValue', STORAGE_KEY_SESSION_ID, newSessionId);
-    if (result === null) Logger.error('Failed to save session id on storage');
+    if (result === null) Logger.error('Failed to save session id in storage');
     sessionId = newSessionId;
     Logger.log(`Saved current session id: ...${getLast4Digits(newSessionId)}`);
+  }
+
+  /**
+   * Handle 'debugging enabled' checkbox change events
+   * @param {InputEvent} event Input change event
+   */
+  async function handleDebuggingSettingChange(event) {
+    try {
+      const enabled = /** @type boolean */ (event.target.checked);
+      await callGMFunction('setValue', STORAGE_KEY_DEBUGGING_ENABLED, enabled);
+      Logger.force.log(`${enabled ? 'Enabled' : 'Disabled'} debugging`);
+      LOGGING_ENABLED = enabled;
+    } catch (error) {
+      Logger.force.error('Failed to store debugging enabled in storage');
+    }
   }
 
   /**
@@ -409,6 +430,8 @@
       if (buttonBehaviorSelect) buttonBehaviorSelect.value = openSourceBehavior;
       const sessionIdInput = qs(document, `#${ID_SETTINGS_SESSION_ID_INPUT}`);
       if (sessionIdInput) sessionIdInput.value = sessionId;
+      const debuggingEnabledInput = qs(document, `#${ID_SETTINGS_DEBUGGING_INPUT}`);
+      if (debuggingEnabledInput) debuggingEnabledInput.checked = LOGGING_ENABLED;
     } else {
       qs(document, `.${C_SETTINGS_MODAL}`).style.setProperty('display', 'none', 'important');
     }
@@ -450,24 +473,44 @@
         setSettingsMenuVisible(false);
       });
       /* ignore clicks inside the modal content */
-      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_WRAPPER}`, 'click', (e) => e.stopPropagation());
+      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_WRAPPER}`, 'click', withStopPropagation);
       /* handle menu close on close button click */
-      qsael(modal, `.${C_SETTINGS_MODAL} .${C_MODAL_CLOSE_BTN}`, 'click', () => setSettingsMenuVisible(false));
+      qsael(
+        modal,
+        `.${C_SETTINGS_MODAL} .${C_MODAL_CLOSE_BTN}`,
+        'click',
+        withPreventDefault(() => setSettingsMenuVisible(false))
+      );
       /* handle post/story key binding button */
-      qsael(modal, `#${ID_SETTINGS_POST_STORY_KB_BTN}`, 'click', handleMenuPostStoryKBCommand);
+      qsael(modal, `#${ID_SETTINGS_POST_STORY_KB_BTN}`, 'click', withPreventDefault(handleMenuPostStoryKBCommand));
       /* handle profile picture key binding button */
-      qsael(modal, `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`, 'click', handleMenuProfilePicKBCommand);
+      qsael(
+        modal,
+        `#${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}`,
+        'click',
+        withPreventDefault(handleMenuProfilePicKBCommand)
+      );
       /* handle change of button behavior option select */
-      qsael(modal, `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`, 'change', (e) =>
-        handleMenuButtonBehaviorChange(e.target.value)
+      qsael(
+        modal,
+        `#${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}`,
+        'change',
+        withPreventDefault(handleMenuButtonBehaviorChange)
       );
       /* handle click of developer settings button (toggle view) */
-      qsael(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`, 'click', () => {
-        qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
-        qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
-      });
+      qsael(
+        modal,
+        `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`,
+        'click',
+        withPreventDefault(() => {
+          qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+          qs(modal, `#${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}`)?.classList.toggle(C_SETTINGS_SECTION_COLLAPSED);
+        })
+      );
       /* handle blur of the session id input */
-      qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', (e) => handleSessionIdChange(e.target.value));
+      qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', withPreventDefault(handleSessionIdChange));
+      /* handle change of the debugging enabled checkbox */
+      qsael(modal, `#${ID_SETTINGS_DEBUGGING_INPUT}`, 'change', handleDebuggingSettingChange);
 
       document.body.appendChild(modal);
       Logger.log('Created settings menu');
@@ -1417,7 +1460,7 @@
    */
   function qsael(node, selector, type, listener) {
     const element = qs(node, selector);
-    element.addEventListener(type, withPreventDefault(listener));
+    element.addEventListener(type, listener);
     return element;
   }
 
@@ -1489,20 +1532,30 @@
    */
   function createLogger(loggingTag) {
     const baseAlert = (...args) => alert(`${SCRIPT_NAME}:\n\n${args.join(' ')}`);
-    const baseLog = (type, ...args) => {
-      if (!LOGGING_ENABLED) return;
+    const baseLog = (type, shouldLog, ...args) => {
+      if (!shouldLog) return;
       console[type]?.(`[${loggingTag}]`, ...args);
     };
 
     return {
-      log: (...args) => baseLog('log', ...args),
-      warn: (...args) => baseLog('warn', ...args),
-      error: (...args) => baseLog('error', ...args),
+      log: (...args) => baseLog('log', LOGGING_ENABLED, ...args),
+      warn: (...args) => baseLog('warn', LOGGING_ENABLED, ...args),
+      error: (...args) => baseLog('error', LOGGING_ENABLED, ...args),
       alert: (...args) => baseAlert(...args),
       alertAndLog: (...args) => {
-        baseLog('log', ...args);
+        baseLog('log', LOGGING_ENABLED, ...args);
         baseAlert(...args);
       },
+      force: {
+        log: (...args) => baseLog('log', true, ...args),
+        warn: (...args) => baseLog('warn', true, ...args),
+        error: (...args) => baseLog('error', true, ...args),
+        alert: (...args) => baseAlert(...args),
+        alertAndLog: (...args) => {
+          baseLog('log', true, ...args);
+          baseAlert(...args);
+        },
+      }
     };
   }
 
