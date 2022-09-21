@@ -73,9 +73,6 @@
     /* Base modal classes */
     C_MODAL_BACKDROP = 'iso-modal-backdrop',
     C_MODAL_WRAPPER = 'iso-modal-wrapper',
-    C_MODAL_TITLE_CONTAINER = 'iso-modal-title-container',
-    C_MODAL_TITLE = 'iso-modal-title',
-    C_MODAL_TITLE_LINK = 'iso-modal-title-link',
     C_MODAL_CLOSE_BTN = 'iso-modal-close-btn',
     /* Script settings */
     C_SETTINGS_BTN = 'iso-settings-btn',
@@ -471,7 +468,7 @@
     if (!qs(document, `.${C_SETTINGS_MODAL}`)) {
       /* Create the settings menu */
       const modal = createElementFromHtml(`
-        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">${SCRIPT_NAME_SHORT} Settings <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="iso-modal-content-container"><div class="iso-settings-content-section"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="iso-settings-menu-option-button">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="iso-settings-menu-option-button">Change profile picture shortcut</button><div class="iso-flex-column iso-settings-option-container"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="iso-settings-menu-option-button ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="iso-settings-select-arrow"></span></div></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="iso-settings-content-section ${C_SETTINGS_SECTION_COLLAPSED}"><div class="iso-flex-column iso-settings-option-container"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="${C_MODAL_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div><div class="iso-flex-row-center iso-settings-option-container"><input id="${ID_SETTINGS_DEBUGGING_INPUT}" type="checkbox"> <label for="${ID_SETTINGS_DEBUGGING_INPUT}">Debugging enabled</label></div><button id="${ID_SETTINGS_COPY_DEBUG_LOGS}" class="iso-settings-menu-option-button">Copy debugging logs</button></div></div></div></div>
+        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="iso-modal-title-container"><div class="iso-modal-title">${SCRIPT_NAME_SHORT} Settings <a class="iso-modal-title-link" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="iso-modal-content-container"><div class="iso-settings-content-section"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="iso-settings-menu-option-button">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="iso-settings-menu-option-button">Change profile picture shortcut</button><div class="iso-flex-column iso-settings-option-container"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="iso-settings-menu-option-button ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="iso-settings-select-arrow"></span></div></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="iso-settings-content-section ${C_SETTINGS_SECTION_COLLAPSED}"><div class="iso-flex-column iso-settings-option-container"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="iso-modal-title-link" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div><div class="iso-flex-row-center iso-settings-option-container"><input id="${ID_SETTINGS_DEBUGGING_INPUT}" type="checkbox"> <label for="${ID_SETTINGS_DEBUGGING_INPUT}">Debugging enabled</label></div><button id="${ID_SETTINGS_COPY_DEBUG_LOGS}" class="iso-settings-menu-option-button">Copy debugging logs</button></div></div></div></div>
       `);
 
       /* handle modal backdrop click */
@@ -631,7 +628,7 @@
     try {
       if (!elementExistsInNode(`.${C_STORIES_MODAL}`, node)) {
         const modal = createElementFromHtml(`
-          <div class="${C_MODAL_BACKDROP} ${C_STORIES_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">User Stories (Anonymous) <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><div class="${C_STORIES_MODAL_LIST}"></div></div></div></div>
+          <div class="${C_MODAL_BACKDROP} ${C_STORIES_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="iso-modal-title-container"><div class="iso-modal-title">User Stories (Anonymous) <a class="iso-modal-title-link" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="iso-modal-content-container"><div class="${C_STORIES_MODAL_LIST}"></div></div></div></div>
         `);
 
         /* handle modal backdrop click */
@@ -686,7 +683,9 @@
       listContainer.innerHTML = storyCardsHtmlArray.join('');
       setAnonymousStoriesModalVisible(true);
     } catch (error) {
-      Logger.alertAndLog('Failed to get user stories');
+      const message = 'Failed to get user stories';
+      Logger.error(message, error);
+      Logger.alert(message);
     } finally {
       document.body.style.cursor = 'default';
     }
@@ -1601,10 +1600,10 @@
         @media only screen and (max-width:769px){
         .${C_STORIES_MODAL} .${C_MODAL_WRAPPER}{max-width:calc(100vw - 48px)!important}
         }
-        .${C_MODAL_TITLE_CONTAINER}{display:flex!important;flex-direction:row!important;justify-content:space-between!important;font-weight:700!important;border-bottom:1px solid var(--iso-settings-separator-color)!important}
-        .${C_MODAL_TITLE}{display:flex!important;justify-content:center!important;flex-direction:row!important;font-size:16px!important;padding:16px!important;text-align:left!important}
+        .iso-modal-title-container{display:flex!important;flex-direction:row!important;justify-content:space-between!important;font-weight:700!important;border-bottom:1px solid var(--iso-settings-separator-color)!important}
+        .iso-modal-title{display:flex!important;justify-content:center!important;flex-direction:row!important;font-size:16px!important;padding:16px!important;text-align:left!important}
         .${C_MODAL_CLOSE_BTN}{width:24px!important;height:24px!important;border:0!important;padding:0!important;background-color:transparent!important;margin-top:8px!important;margin-right:8px!important;cursor:pointer!important}
-        .${C_MODAL_TITLE_LINK}{margin-left:4px!important;color:#4287f5!important;text-decoration:none!important}
+        .iso-modal-title-link{margin-left:4px!important;color:#4287f5!important;text-decoration:none!important}
         .iso-modal-content-container{display:flex!important;flex-direction:column!important;flex:1!important;border:none!important;background-color:transparent!important;font-size:14px!important;text-align:left!important;padding:8px 0!important}
         .iso-settings-content-section{display:flex!important;flex-direction:column!important;flex:1!important;padding:0 16px 0 16px!important}
         .iso-settings-menu-option-button{display:flex!important;flex-direction:row!important;padding:12px 16px!important;margin:0 -16px 0 -16px!important;border:none!important;background-color:transparent!important;font-size:14px!important;padding-left:16px!important;text-align:left!important;cursor:pointer!important}

@@ -73,9 +73,6 @@
     /* Base modal classes */
     C_MODAL_BACKDROP = 'iso-modal-backdrop',
     C_MODAL_WRAPPER = 'iso-modal-wrapper',
-    C_MODAL_TITLE_CONTAINER = 'iso-modal-title-container',
-    C_MODAL_TITLE = 'iso-modal-title',
-    C_MODAL_TITLE_LINK = 'iso-modal-title-link',
     C_MODAL_CLOSE_BTN = 'iso-modal-close-btn',
     /* Script settings */
     C_SETTINGS_BTN = 'iso-settings-btn',
@@ -686,7 +683,9 @@
       listContainer.innerHTML = storyCardsHtmlArray.join('');
       setAnonymousStoriesModalVisible(true);
     } catch (error) {
-      Logger.alertAndLog('Failed to get user stories');
+      const message = 'Failed to get user stories';
+      Logger.error(message, error);
+      Logger.alert(message);
     } finally {
       document.body.style.cursor = 'default';
     }

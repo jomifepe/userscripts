@@ -190,7 +190,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   }
 }
 
-.__VS__C_MODAL_TITLE_CONTAINER__VE__ {
+.iso-modal-title-container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -198,7 +198,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   border-bottom: 1px solid var(--iso-settings-separator-color);
 }
 
-.__VS__C_MODAL_TITLE__VE__ {
+.iso-modal-title {
   display: flex;
   justify-content: center;
   flex-direction: row;
@@ -218,7 +218,7 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   cursor: pointer;
 }
 
-.__VS__C_MODAL_TITLE_LINK__VE__ {
+.iso-modal-title-link {
   margin-left: 4px;
   color: #4287f5 !important;
   text-decoration: none;
