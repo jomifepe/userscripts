@@ -716,7 +716,9 @@
       }
       throw new Error('Story media source not available');
     } catch (exception) {
-      Logger.alertAndLog('Failed to open story source', exception);
+      const message = 'Failed to open story source';
+      Logger.error(message, exception);
+      Logger.alert(message);
     }
   }
 
@@ -756,8 +758,10 @@
       } else {
         await openSinglePostMediaSource(node, postRelativeUrl);
       }
-    } catch (exception) {
-      Logger.alertAndLog('Failed to open post source', exception);
+    } catch (error) {
+      const message = 'Failed to open post source';
+      Logger.error(message, error);
+      Logger.alert(message);
     } finally {
       document.body.style.cursor = 'default';
     }
@@ -853,7 +857,9 @@
       Logger.log('Profile picture found, opening it...');
       openUrl(pictureUrl);
     } catch (error) {
-      Logger.alertAndLog("Couldn't get user's profile picture", error);
+      const message = "Couldn't get user's profile picture";
+      Logger.error(message, error);
+      Logger.alert(message);
     } finally {
       document.body.style.cursor = 'default';
     }
