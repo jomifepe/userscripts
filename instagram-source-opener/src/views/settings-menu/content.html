@@ -1,42 +1,49 @@
 <div class="__VS__C_MODAL_BACKDROP__VE__ __VS__C_SETTINGS_MODAL__VE__">
   <div class="__VS__C_MODAL_WRAPPER__VE__">
-    <div class="__VS__C_MODAL_TITLE_CONTAINER__VE__">
-      <div class="__VS__C_MODAL_TITLE__VE__">
-        ${SCRIPT_NAME_SHORT} Settings <a class="__VS__C_MODAL_TITLE_LINK__VE__" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a>
+    <div class="iso-modal-title-container">
+      <div class="iso-modal-title">
+        ${SCRIPT_NAME_SHORT} Settings <a class="iso-modal-title-link" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a>
       </div>
       <button class="__VS__C_MODAL_CLOSE_BTN__VE__" title="Close">
         <div class="coreSpriteClose"></div>
       </button>
     </div>
-    <div class="__VS__C_MODAL_CONTENT_CONTAINER__VE__">
-      <button id="__VS__ID_SETTINGS_POST_STORY_KB_BTN__VE__" class="__VS__C_SETTINGS_MENU_OPTION_BTN__VE__">
-        Change post/story shortcut
-      </button>
-      <button id="__VS__ID_SETTINGS_PROFILE_PICTURE_KB_BTN__VE__" class="__VS__C_SETTINGS_MENU_OPTION_BTN__VE__">
-        Change profile picture shortcut
-      </button>
-      <div class="__VS__C_SETTINGS_MENU_OPTION__VE__">
-        <label for="__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__">Open source click behavior:</label>
-        <select id="__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__">
-          <option value="__VS__BUTTON_BEHAVIOR_REDIR__VE__">Redirect</option>
-          <option value="__VS__BUTTON_BEHAVIOR_NEW_TAB_FOCUS__VE__">New tab and focus</option>
-          <option value="__VS__BUTTON_BEHAVIOR_NEW_TAB_BG__VE__">New tab in the background</option>
-        </select>
+    <div class="iso-modal-content-container">
+      <div class="iso-settings-content-section">
+        <button id="__VS__ID_SETTINGS_POST_STORY_KB_BTN__VE__" class="iso-settings-menu-option-button">
+          Change post/story shortcut
+        </button>
+        <button id="__VS__ID_SETTINGS_PROFILE_PICTURE_KB_BTN__VE__" class="iso-settings-menu-option-button">
+          Change profile picture shortcut
+        </button>
+        <div class="iso-flex-column iso-settings-option-container">
+          <label for="__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__">Open source click behavior:</label>
+          <select id="__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__">
+            <option value="__VS__BUTTON_BEHAVIOR_REDIR__VE__">Redirect</option>
+            <option value="__VS__BUTTON_BEHAVIOR_NEW_TAB_FOCUS__VE__">New tab and focus</option>
+            <option value="__VS__BUTTON_BEHAVIOR_NEW_TAB_BG__VE__">New tab in the background</option>
+          </select>
+        </div>
+        <div id="__VS__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__VE__" class="iso-settings-menu-option-button __VS__C_SETTINGS_SECTION_COLLAPSED__VE__">
+          Developer options <span class="iso-settings-select-arrow">
+        </div>
       </div>
-      <div id="__VS__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__VE__" class="__VS__C_SETTINGS_MENU_OPTION_BTN__VE__ __VS__C_SETTINGS_SECTION_COLLAPSED__VE__">
-        Developer options <span class="__VS__C_SETTINGS_SELECT_ARROW__VE__">
-      </div>
-      <div id="__VS__ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER__VE__" class="__VS__C_SETTINGS_MENU_OPTION__VE__ __VS__C_SETTINGS_SECTION_COLLAPSED__VE__">
-        <label for="__VS__ID_SETTINGS_SESSION_ID_INPUT__VE__">
-          Session ID <a class="__VS__C_MODAL_TITLE_LINK__VE__" href="__VS__SESSION_ID_INFO_URL__VE__" target="_blank" title="What's this?">(?)</a>
-        </label>
-        <input id="__VS__ID_SETTINGS_SESSION_ID_INPUT__VE__" type="text" placeholder="Your current session id">
-        <div class="__VS__ID_SETTINGS_DEBUGGING_CONTAINER__VE__ __VS__C_FLEX_ROW_CENTER__VE__">
+      <div id="__VS__ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER__VE__" class="iso-settings-content-section __VS__C_SETTINGS_SECTION_COLLAPSED__VE__">
+        <div class="iso-flex-column iso-settings-option-container">
+          <label for="__VS__ID_SETTINGS_SESSION_ID_INPUT__VE__">
+            Session ID <a class="iso-modal-title-link" href="__VS__SESSION_ID_INFO_URL__VE__" target="_blank" title="What's this?">(?)</a>
+          </label>
+          <input id="__VS__ID_SETTINGS_SESSION_ID_INPUT__VE__" type="text" placeholder="Your current session id">
+        </div>
+        <div class="iso-flex-row-center iso-settings-option-container">
           <input id="__VS__ID_SETTINGS_DEBUGGING_INPUT__VE__" type="checkbox">
           <label for="__VS__ID_SETTINGS_DEBUGGING_INPUT__VE__">
-            Debugging Enabled
+            Debugging enabled
           </label>
         </div>
+        <button id="__VS__ID_SETTINGS_COPY_DEBUG_LOGS__VE__" class="iso-settings-menu-option-button">
+          Copy debugging logs
+        </button>
       </div>
     </div>
   </div>
