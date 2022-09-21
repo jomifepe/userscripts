@@ -77,24 +77,19 @@
     C_MODAL_TITLE = 'iso-modal-title',
     C_MODAL_TITLE_LINK = 'iso-modal-title-link',
     C_MODAL_CLOSE_BTN = 'iso-modal-close-btn',
-    C_MODAL_CONTENT_CONTAINER = 'iso-modal-content-container',
     /* Script settings */
     C_SETTINGS_BTN = 'iso-settings-btn',
     C_SETTINGS_MODAL = 'iso-settings-modal',
-    C_SETTINGS_MENU_OPTION = 'iso-settings-menu-option',
-    C_SETTINGS_MENU_OPTION_BTN = 'iso-settings-menu-option-button',
     C_SETTINGS_SECTION_COLLAPSED = 'iso-settings-section-collapsed',
-    C_SETTINGS_SELECT_ARROW = 'iso-settings-select-arrow',
     ID_SETTINGS_POST_STORY_KB_BTN = 'iso-settings-post-story-kb-btn',
     ID_SETTINGS_PROFILE_PICTURE_KB_BTN = 'iso-settings-profile-picture-kb-btn',
     ID_SETTINGS_BUTTON_BEHAVIOR_SELECT = 'iso-settings-button-behavior-select',
     ID_SETTINGS_DEVELOPER_OPTIONS_BTN = 'iso-settings-developer-options-btn',
     ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER = 'iso-settings-developer-options-container',
     ID_SETTINGS_SESSION_ID_INPUT = 'iso-settings-session-id-input',
-    ID_SETTINGS_DEBUGGING_CONTAINER = 'iso-settings-debugging-container',
     ID_SETTINGS_DEBUGGING_INPUT = 'iso-settings-debugging-checkbox',
+    ID_SETTINGS_COPY_DEBUG_LOGS = 'iso-settings-copy-debug-logs',
     S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_SINGLE_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
-    C_FLEX_ROW_CENTER = 'iso-flex-row-center',
     /* Anonymous stories modal */
     C_STORIES_MODAL = 'iso-stories-modal',
     C_STORIES_MODAL_LIST = 'iso-stories-modal-list',
@@ -380,7 +375,19 @@
       Logger.force.log(`${enabled ? 'Enabled' : 'Disabled'} debugging`);
       LOGGING_ENABLED = enabled;
     } catch (error) {
-      Logger.force.error('Failed to store debugging enabled in storage');
+      Logger.force.error('Failed to store debugging enabled in storage', error);
+    }
+  }
+
+  /** Handle 'copy debug logs' button click */
+  async function handleCopyDebugLogs() {
+    try {
+      await navigator.clipboard.writeText(Logger.logs.join('\n'));
+      Logger.alert('Coppied to clipboard');
+    } catch (error) {
+      const message = 'Failed to copy debug logs to clipboard';
+      Logger.error(message, error);
+      Logger.alert(message);
     }
   }
 
@@ -511,6 +518,7 @@
       qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', withPreventDefault(handleSessionIdChange));
       /* handle change of the debugging enabled checkbox */
       qsael(modal, `#${ID_SETTINGS_DEBUGGING_INPUT}`, 'change', handleDebuggingSettingChange);
+      qsael(modal, `#${ID_SETTINGS_COPY_DEBUG_LOGS}`, 'click', handleCopyDebugLogs);
 
       document.body.appendChild(modal);
       Logger.log('Created settings menu');
@@ -1531,13 +1539,17 @@
    * @param {string} loggingTag
    */
   function createLogger(loggingTag) {
+    const logs = [];
+
     const baseAlert = (...args) => alert(`${SCRIPT_NAME}:\n\n${args.join(' ')}`);
     const baseLog = (type, shouldLog, ...args) => {
+      logs.push(`[${type.toUpperCase()}] ${args}`);
       if (!shouldLog) return;
       console[type]?.(`[${loggingTag}]`, ...args);
     };
 
     return {
+      logs,
       log: (...args) => baseLog('log', LOGGING_ENABLED, ...args),
       warn: (...args) => baseLog('warn', LOGGING_ENABLED, ...args),
       error: (...args) => baseLog('error', LOGGING_ENABLED, ...args),

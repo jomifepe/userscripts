@@ -77,24 +77,19 @@
     C_MODAL_TITLE = 'iso-modal-title',
     C_MODAL_TITLE_LINK = 'iso-modal-title-link',
     C_MODAL_CLOSE_BTN = 'iso-modal-close-btn',
-    C_MODAL_CONTENT_CONTAINER = 'iso-modal-content-container',
     /* Script settings */
     C_SETTINGS_BTN = 'iso-settings-btn',
     C_SETTINGS_MODAL = 'iso-settings-modal',
-    C_SETTINGS_MENU_OPTION = 'iso-settings-menu-option',
-    C_SETTINGS_MENU_OPTION_BTN = 'iso-settings-menu-option-button',
     C_SETTINGS_SECTION_COLLAPSED = 'iso-settings-section-collapsed',
-    C_SETTINGS_SELECT_ARROW = 'iso-settings-select-arrow',
     ID_SETTINGS_POST_STORY_KB_BTN = 'iso-settings-post-story-kb-btn',
     ID_SETTINGS_PROFILE_PICTURE_KB_BTN = 'iso-settings-profile-picture-kb-btn',
     ID_SETTINGS_BUTTON_BEHAVIOR_SELECT = 'iso-settings-button-behavior-select',
     ID_SETTINGS_DEVELOPER_OPTIONS_BTN = 'iso-settings-developer-options-btn',
     ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER = 'iso-settings-developer-options-container',
     ID_SETTINGS_SESSION_ID_INPUT = 'iso-settings-session-id-input',
-    ID_SETTINGS_DEBUGGING_CONTAINER = 'iso-settings-debugging-container',
     ID_SETTINGS_DEBUGGING_INPUT = 'iso-settings-debugging-checkbox',
+    ID_SETTINGS_COPY_DEBUG_LOGS = 'iso-settings-copy-debug-logs',
     S_IG_POST_CONTAINER_WITHOUT_BUTTON = `${IG_S_SINGLE_POST_CONTAINER}:not(.${C_POST_WITH_BUTTON})`,
-    C_FLEX_ROW_CENTER = 'iso-flex-row-center',
     /* Anonymous stories modal */
     C_STORIES_MODAL = 'iso-stories-modal',
     C_STORIES_MODAL_LIST = 'iso-stories-modal-list',
@@ -380,7 +375,19 @@
       Logger.force.log(`${enabled ? 'Enabled' : 'Disabled'} debugging`);
       LOGGING_ENABLED = enabled;
     } catch (error) {
-      Logger.force.error('Failed to store debugging enabled in storage');
+      Logger.force.error('Failed to store debugging enabled in storage', error);
+    }
+  }
+
+  /** Handle 'copy debug logs' button click */
+  async function handleCopyDebugLogs() {
+    try {
+      await navigator.clipboard.writeText(Logger.logs.join('\n'));
+      Logger.alert('Coppied to clipboard');
+    } catch (error) {
+      const message = 'Failed to copy debug logs to clipboard';
+      Logger.error(message, error);
+      Logger.alert(message);
     }
   }
 
@@ -464,7 +471,7 @@
     if (!qs(document, `.${C_SETTINGS_MODAL}`)) {
       /* Create the settings menu */
       const modal = createElementFromHtml(`
-        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">${SCRIPT_NAME_SHORT} Settings <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="${C_MODAL_CONTENT_CONTAINER}"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN}">Change profile picture shortcut</button><div class="${C_SETTINGS_MENU_OPTION}"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="${C_SETTINGS_MENU_OPTION_BTN} ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="${C_SETTINGS_SELECT_ARROW}"></span></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="${C_SETTINGS_MENU_OPTION} ${C_SETTINGS_SECTION_COLLAPSED}"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="${C_MODAL_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"><div class="${ID_SETTINGS_DEBUGGING_CONTAINER} ${C_FLEX_ROW_CENTER}"><input id="${ID_SETTINGS_DEBUGGING_INPUT}" type="checkbox"> <label for="${ID_SETTINGS_DEBUGGING_INPUT}">Debugging Enabled</label></div></div></div></div></div>
+        <div class="${C_MODAL_BACKDROP} ${C_SETTINGS_MODAL}"><div class="${C_MODAL_WRAPPER}"><div class="${C_MODAL_TITLE_CONTAINER}"><div class="${C_MODAL_TITLE}">${SCRIPT_NAME_SHORT} Settings <a class="${C_MODAL_TITLE_LINK}" href="${HOMEPAGE_URL}" target="_blank" title="What's this?">(?)</a></div><button class="${C_MODAL_CLOSE_BTN}" title="Close"><div class="coreSpriteClose"></div></button></div><div class="iso-modal-content-container"><div class="iso-settings-content-section"><button id="${ID_SETTINGS_POST_STORY_KB_BTN}" class="iso-settings-menu-option-button">Change post/story shortcut</button> <button id="${ID_SETTINGS_PROFILE_PICTURE_KB_BTN}" class="iso-settings-menu-option-button">Change profile picture shortcut</button><div class="iso-flex-column iso-settings-option-container"><label for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}">Open source click behavior:</label> <select id="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"><option value="${BUTTON_BEHAVIOR_REDIR}">Redirect</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_FOCUS}">New tab and focus</option><option value="${BUTTON_BEHAVIOR_NEW_TAB_BG}">New tab in the background</option></select></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}" class="iso-settings-menu-option-button ${C_SETTINGS_SECTION_COLLAPSED}">Developer options <span class="iso-settings-select-arrow"></span></div></div><div id="${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}" class="iso-settings-content-section ${C_SETTINGS_SECTION_COLLAPSED}"><div class="iso-flex-column iso-settings-option-container"><label for="${ID_SETTINGS_SESSION_ID_INPUT}">Session ID <a class="${C_MODAL_TITLE_LINK}" href="${SESSION_ID_INFO_URL}" target="_blank" title="What's this?">(?)</a></label> <input id="${ID_SETTINGS_SESSION_ID_INPUT}" type="text" placeholder="Your current session id"></div><div class="iso-flex-row-center iso-settings-option-container"><input id="${ID_SETTINGS_DEBUGGING_INPUT}" type="checkbox"> <label for="${ID_SETTINGS_DEBUGGING_INPUT}">Debugging enabled</label></div><button id="${ID_SETTINGS_COPY_DEBUG_LOGS}" class="iso-settings-menu-option-button">Copy debugging logs</button></div></div></div></div>
       `);
 
       /* handle modal backdrop click */
@@ -511,6 +518,7 @@
       qsael(modal, `#${ID_SETTINGS_SESSION_ID_INPUT}`, 'blur', withPreventDefault(handleSessionIdChange));
       /* handle change of the debugging enabled checkbox */
       qsael(modal, `#${ID_SETTINGS_DEBUGGING_INPUT}`, 'change', handleDebuggingSettingChange);
+      qsael(modal, `#${ID_SETTINGS_COPY_DEBUG_LOGS}`, 'click', handleCopyDebugLogs);
 
       document.body.appendChild(modal);
       Logger.log('Created settings menu');
@@ -1531,13 +1539,17 @@
    * @param {string} loggingTag
    */
   function createLogger(loggingTag) {
+    const logs = [];
+
     const baseAlert = (...args) => alert(`${SCRIPT_NAME}:\n\n${args.join(' ')}`);
     const baseLog = (type, shouldLog, ...args) => {
+      logs.push(`[${type.toUpperCase()}] ${args}`);
       if (!shouldLog) return;
       console[type]?.(`[${loggingTag}]`, ...args);
     };
 
     return {
+      logs,
       log: (...args) => baseLog('log', LOGGING_ENABLED, ...args),
       warn: (...args) => baseLog('warn', LOGGING_ENABLED, ...args),
       error: (...args) => baseLog('error', LOGGING_ENABLED, ...args),
@@ -1564,7 +1576,10 @@
     try {
       const styles = `
         :root{--iso-post-btn-icon:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAEkklEQVR4nO3b24tVdRQH8M+ZGcemwkgJqocoy6QLXTBLp5hKMEQposIeulD0L0gRURB0Af+GLj4ERj1E0EtoZJlMF7OUJIqaSi2zcSwsRUfH08PPgcM+v33mnH07R5wv/BjY7P1dl/3ba62zfmuYxdmNWoWy5mHBaZlHcfj0366iDAecj+UN62bB8IHIvb/jR3yFLdiK/0rQqXTUMIINOIJ6xnUUG7EafVUakBU1rMUPshudtnbjcfRXZk2HWIJPFG94cn2D4Ypsagv9eAVTOjPkH4zhZ+zHiQ6ePYX1mFOBfS1xETaZWeFxvIGncK14AJyDxXgUr+FAG7yjuKQUy9rAIuyZQcEP8RAGM/APYA02zyBjDFfnsCMTLsNvLZTaiRUFyhvG9hbyDqjQCRcLuTqmyAk8rZxI3Yd1mEyRPaaCz6Ef21IU+BN3l60AbpMeH0aVHBifTxG8DwvLFJzAVfglRZf1ZQldIr79/hIie9W4UkifsRS5vGhhNeyICDuBZUUL6wDLxF/K1wqOQ/dHhNTxQpFCMmKduG6PFSWgJpSfSQFfiBc0VaNfPEXuVtAPqFUR8rpi83xeDIvruLoI8g0R4k+LIC4YsYpxY17SQRyKEN+bl7gErNGs5xGcl4d0dYT0b9lq+7IxIF4greqEJBk07ojc876QenoNJ/FB5PpdnZAkHXB95J7NnRBWjC2Ra0vzEI5p3lI35SEsGddo1ndPVrIhoaxMVn7n5FazPAwKn0KyNJ7bLkHjJ3Cu5jb5IRzLp2OpmMRE4loNF7RL0OiAmNeOZ1CqahyOXJvX7sONDoilul6M/knEyvOT7T7c6ICYsW17souYH7l2KAtRn/C9J6NqrsqqZAxqDtyTOjjya9wBp7A3cs/l2fUrHYs1GzsuOKItJAuhXyP33NqZTpUi1gn6thOCpAO+jNxzTyeEFSN2ZDaah3BEcwwY15sHlHNxUMF9izlCXk2SPpiHtCQ8rFnPfxUQtN+NEH+Wl7QEfKRZz9eLIL4zQlzH7UWQF4SVStYx1nTcpQeOp4V4tFO8KVoYHokIqOPZIoVkxDPiuj1QpJA+fB4Rclz4RLqFFZp//taFSZXCcYP4KcyEUIFVjRvFM9QUbilL6KsRgXXhoLJKJyyVPlLzcpmCB/FxiuAJ1XwOw+Jvfjo9l16kXYjvUxQ4JgTGMrLDAF7UepjqD2F0p3QsFAYi0hTZJd5Sz4qVWo/INK59KnRC2k6YXtuEIaks23KucAK1dQYZsbVf6BCXjvlCL34mhQ7ibTyJ68Tr8yFhCOMJvCXMEc7Eu13Y9l11wqAwKJk2vJS2xoUhyb1CyyqWz9PWJJ4TdtYiYdt31QmEOmG0AyOyru2a83zPOKFPKJvbDVidrB24T3p/r2ecMI0RvCM9Z7ezJvCmcMLbTmOz55xAqAlGhAptkzBkGes2T+EnvIeXhNZblnqiJ52QRA2XCql0gVBcDRXIf0Y4oWzMOsGsE9DaCZWVzd1GKyd85wz5h6y8aOWEK7qoV6WIOeGwMAxy1mCRsO2njV/bXXW6gz7hlPusevOzaAf/A63z45sbiSeUAAAAAElFTkSuQmCC')!important;--iso-post-carousel-btn-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20width%3D%2264%22%20height%3D%2264%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M12%202C6.477%202%202%206.477%202%2012s4.477%2010%2010%2010s10-4.477%2010-10S17.523%202%2012%202zm-1%205a4%204%200%201%200%202.032%207.446l1.76%201.761a1%201%200%200%200%201.415-1.414l-1.761-1.761A4%204%200%200%200%2011%207zm0%206a2%202%200%201%200%200-4a2%202%200%200%200%200%204z%22%20fill%3D%22white%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")!important;--iso-story-btn-icon:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAABcklEQVRYhe2WO04DMRRFrwkroIAG2oQKBAuggzolHUVCEAWrYAGUCAE9RGyAAgoWgAIUQbABCn6BNsmhiEeyRvNx4knF3Mb2vM+9fmM/WSpRIgHAEnAF/JCPZ2DeiT0D+gl+feDUl/zDg9jFphP/neHXj/PNJmg4kjRn5x1Jrzmau5JunfWOpG1JFUkbkhYcW8WnAlHZO8BMbkB6ngYwiJfAJzBCO4C8BQxtngHwliZg4h1mkDclHUsykpB0IOlunAQTVwDYi+28ab9fpB3CwgSkkVtbHfgCTqYiAGg6B24I7I8jPkgAsFsY+bgCfMmBCrCF0zGDBQDrsX/eyPA9tH7duC2pE/pioNE1Q1LLGHOe4Vuz43JhAowxD8CaJIwxT5PmCamAjDGPIfHSFDphKaAUUISAXztWCXiQRLA5oj7Qi9uTruGNpLqkVUn3wEughqqkFTu/zvUGasAnxeMdWPSSzOhl3AZ6BRD3gEtv8hL/Dn+PJax2JC/rEwAAAABJRU5ErkJggg==")!important;--iso-settings-btn-icon:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAD+UlEQVR4nO3aS4xkYxQH8F8rNDozpmcyk8hoYSEEM0IiYUkvJJN4TLcMCwsRZsXOxpL9JMaClcdGLDw34zUJKxlsxDOTiKaHYEEahWFUd1l8Lemp+m7Vvd/9bnWR+idnUzfnf87536/O97pMMMEEE+TFHhzGp/gN3UQ7hS/xOC4aaQWJmMYTWJVedJG1cfvoSqmOabwtf+EbrYO7RlVQVTyp2eL/tb+NoQh79A/7E1jElgS+WNFjLcJj+ovfXoOvV4A7jbkInzk9ucWafL0CMOYi/Or0xFKG/UbEBGCMRShKuAm+O/SL0MHdGeImY5QCMIYijFoAxkyEzRCAMRJhswRgTETYTAEonh1uy5BLKeQWoN3Dd2EJn5gIbcxlyGcocgvwfg/fa9JFOJwhn6E4goexD5dn4HtQv6ip9kWGfEaOaXwojwB/jTj3bNgtnwj/WZyNB3BMf2PMJsBUA4lvNnqLHljjGTUC3YBtCX4tXFsj7qZjDq8KSr+LmQq+U3hm3fdlzczTjfaAq7HSE+A97Crhew6e7/FdwXzmHBsV4AKsRYJ8j/uFInvRwq34POLXxS2Zc2y8CX6EvQXP2ngHXwkHpbtxo+IR0hH6yO8JeRShUhNMwVPyrdQ+zp1cJMZApMwCXyf4FOHHjFxJSBGglTF+rGeMFCkCXJox/lXyCto4WvhGvh7QxU2Zc2x0GlyMBKhrr2fOsTEBzsdSJEAOuydjno0IcB7eiJDnspPYnynX7ALsxQcR4pgtY0G4HtsqFHW8pG9H+Bpktma+WQSYFQp5Sf8526DiY8lvV61xnsSLOFjANwy1BdgnvI2qw3hhAOeBBL6utKPtSgLE1gE7pc3Nbw149mYCH6HxNoqYAHUOSYqQuiFZy5pFBLFif07kGrSvvzmBbxU/JeZSC7PC3v4F/KH8//W4eNPagW9Lcpxaj7sg7bhNhLMWZoWpqWxTPCFcWG5dtwPKzwDHcGXdhCO8WbBfmJ5SOnkZO4JzM+XaiABwb4Q8hy0JoyUXGhOAsHHJLcCg9UMKGhVgPhKgji3LP+02KkALv0SCpNqzuROMxBiIquqvCsfbubCUkSsJKcPvz4zxOxm56F86t4c5pAiwM8GnCJdk5KJ/xbk8zOHMigFmcNmA5z8IFyPfCf3iYuHMr2iau65i/EHYgUM9vx3NyI9wxRVrZp8I2+jYiJrGfYIovX5rwnVbHRStODu4oiZ3H+b1X44+JxQ5DLuE5e5G3xXF12yPKj+bxKyxD6TmhKvtLp5Wbas7I1ypd9c5ir7+eki94o/irAp5JeEaaQcn23B9wbMpPCJ+A13GOsKbb7z4JrAFr6hedFvoQYc08J+fYIIJ/t/4By9tfiJ9bFVlAAAAAElFTkSuQmCC")!important;--iso-settings-select-arrow-icon:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAnXwAAJ18BHYa6agAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAACgSURBVHic7dcxDoJAFEXRZ+zdlkuyNC7L0sINuQEtzE8sDBEEkeGchHaG+7pJAAAAAAAAWIfNiGftkuxHPK/LOcntR3f1ckhyn/g7/qxmoClH+Pv4MsUIi4kvY46wuPgyxgiLjS/fjLD4+DJkhGbiS58Rmosvn4zQbHzpGqH5+PJuhNXEl9cRZovfznVxkmuej7FLktOM/wEAAAAAAKzEA6yHqvmapYJUAAAAAElFTkSuQmCC")!important;--iso-anonymous-stories-btn:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAEU0lEQVR4nO2ay29VRRzHPy0klkei5UIFLG0XwgbiggR5llZQd0ZMVN4EwYVL9Q8o7DWwIYEVARLFIFHjE+xSFwRi6YJHwqtACJRQjECh8rjAYuaE3zmce8/MOTP3knQ+yS/33OT3+31n5sw58zoQCAQCo5gGz/lnAp8BE4BjwE/AzYyYycAKYAHwL7ADuOyxjN6YBdwGngh7ABwCNgMl4VsCPgUOAw8TMTeBtpqV2iHfEq9I0h6iKpxW6aTtqW3RizMJGKF6pWzsHvCKj4I2+kgKrAWaHOYbB3zsMJ93+nB39yM7UtMaFGAu7isf2RuuC+vjEdjkIWfERo+5ndCEGrt99YAh4CWXBXbdAz4Amh3nlJSA9zzmL0wv/u5+ZH/UrDaWtANl/DdAGYczQ5ePwCeO81WiEdhQAx0rGoGL+L/7kV2gNo1tzDvUrvKRLXNRcFet6HPsr8TmOmim4nrhY2ojOBhyXfQA1wsfU5qANXXQfQ4fCx9T66tB/QKBwCjkAPV7sfmyA2kVfaGmk/UgNEC9CxAI1BcXh6OtqN2gKagN0UvafNAGdKAWQUNa54onrao0A1uBk6QPOWeBLcQPQPNSAnqAMxW0TmgtL0dnaWxCndiajL3/UWz7ap3OYaI1hOdzgwZge4rwCHActSPchzrITPp8jf3j9lVKnntao1drpu1DbMuhZcTWhNAA6u5OTPhNANYD5xP+Wyy0ehKx51D7DuNTtDag9gilf4+FlhFvA4+FwA9avBrjge9FzCOg00CrU/vKKew4A62DIqYMvGWgZUQD8I9I3guMNYxtBH4TscfI7p5HhP9hYExOrX4cTfTkju8wMM0yfqqOi3IsqeLbKfzuAC2WWq/quCjH8qwAk9b9EnhTX+9CdWsbhlFzhAX6fxk1jH4OfAGsBLpRvep9YJ722wH8aKl1F/WR1UL9/xYOjtL6edaieZ+rLuIvKRMzeV+kIXvR8Zw5YgyJhLZdMqIF+wbIO4kqiRzXs5xNXmZymBvOWahbif+ngX3AUdRjuBD1mdwMB1q3xfXLOXPEuMyzFu3ImaNd5DhHesM3oeYWkd+MFB8TWkWOzDWJyTAxIK4X5SyUjOtHjfNJ/ie+z59Xa7G4HqjopTFpgEPiep11cZ6P+6uK398OtNaLaycfU8wiPjOzPZVdJmIfUP1F2qJ9Iv+uAlqPgNct4yuyVyS+hnqmTWjX/lHsToOYXcL/KuZfg3QAgyJ2t2GcEa2oIUU2QndGTDfxyg+iTpKzmES8IleBpRkxyxMxg8B0Ay0rlgL3hcgT4FdgNeoxada/q4FfEn53gfkWWvN1jMzxM7AK9Ql+pLUW+D3hd5/8k6hMuohPjEzsOvbPcqQle52J3SC7txSmDdhPfHmcZmXUJ/OvFdBqBb4z0HoMfEOOuUORnZPZwIfAu6gX0GTUVtlF4E/UOv5UgfySOcBHqJVpB2q6e0NoHXSoFQgEAoFAYJTwFHhgrSVd8Ek7AAAAAElFTkSuQmCC')!important;--iso-settings-separator-color:rgba(219, 219, 219, 1)!important;--iso-story-button-size:40px!important;--iso-story-button-icon-size:24px!important;--iso-post-button-size:40px!important;--iso-post-button-icon-size:24px!important;--iso-profile-button-size:40px!important;--iso-profile-button-icon-size:22px!important;--iso-profile-button-icon-hover-size:calc(var(--iso-profile-button-icon-size) + 2px)!important;--iso-setting-button-size:22px!important;--iso-setting-button-icon-size:22px!important}
-        .${C_BTN_ANONYMOUS_STORIES},.${C_BTN_POST},.${C_BTN_PROFILE_PIC},.${C_BTN_STORY},.${C_SETTINGS_BTN},.${C_SETTINGS_MENU_OPTION_BTN},.${C_STORIES_MODAL_LIST_ITEM}{transition:all .2s ease-in-out!important;-webkit-transition:all .2s ease-in-out!important;-moz-transition:all .2s ease-in-out!important;-ms-transition:all .2s ease-in-out!important;-o-transition:all .2s ease-in-out!important}
+        .iso-flex-column{display:flex!important;flex-direction:column!important}
+        .iso-flex-row-center{display:flex!important;flex-direction:row!important;align-items:center!important}
+        .iso-settings-option-container{padding:10px 0 10px 0!important}
+        .${C_BTN_ANONYMOUS_STORIES},.${C_BTN_POST},.${C_BTN_PROFILE_PIC},.${C_BTN_STORY},.${C_SETTINGS_BTN},.${C_STORIES_MODAL_LIST_ITEM},.iso-settings-menu-option-button{transition:all .2s ease-in-out!important;-webkit-transition:all .2s ease-in-out!important;-moz-transition:all .2s ease-in-out!important;-ms-transition:all .2s ease-in-out!important;-o-transition:all .2s ease-in-out!important}
         .${C_BTN_POST}{min-height:var(--iso-post-button-size)!important;min-width:var(--iso-post-button-size)!important;max-height:var(--iso-post-button-size)!important;max-width:var(--iso-post-button-size)!important;outline:0!important;border:none!important;cursor:pointer!important;opacity:1!important;margin-left:6px!important;margin-right:-8px!important;background-color:transparent!important;background-repeat:no-repeat!important;background-image:var(--iso-post-btn-icon)!important;background-size:var(--iso-post-button-icon-size) var(--iso-post-button-icon-size)!important;background-position:center!important}
         .${C_BTN_POST}:hover{opacity:.6!important}
         .${C_PROFILE_BUTTON_CONTAINER}{display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:center!important;position:absolute!important;bottom:-16px!important;right:0!important;left:0!important}
@@ -1590,20 +1605,19 @@
         .${C_MODAL_TITLE}{display:flex!important;justify-content:center!important;flex-direction:row!important;font-size:16px!important;padding:16px!important;text-align:left!important}
         .${C_MODAL_CLOSE_BTN}{width:24px!important;height:24px!important;border:0!important;padding:0!important;background-color:transparent!important;margin-top:8px!important;margin-right:8px!important;cursor:pointer!important}
         .${C_MODAL_TITLE_LINK}{margin-left:4px!important;color:#4287f5!important;text-decoration:none!important}
-        .${C_MODAL_CONTENT_CONTAINER}{display:flex!important;flex-direction:column!important;flex:1!important}
-        .${C_SETTINGS_MENU_OPTION}{display:flex!important;flex-direction:column!important;padding:16px!important;border:none!important;background-color:transparent!important;font-size:14px!important;padding-left:16px!important;text-align:left!important}
-        .${C_SETTINGS_MENU_OPTION}>:last-child{padding-bottom:0!important;margin-bottom:0!important}
-        .${C_SETTINGS_MENU_OPTION_BTN}{display:flex!important;flex-direction:row!important;padding:12px 16px!important;border:none!important;background-color:transparent!important;font-size:14px!important;padding-left:16px!important;text-align:left!important;cursor:pointer!important}
-        .${C_SETTINGS_MENU_OPTION_BTN}:hover{background-color:rgba(214,214,214,.3)!important}
-        .${C_SETTINGS_MENU_OPTION_BTN}:active{background-color:rgba(214,214,214,.4)!important}
+        .iso-modal-content-container{display:flex!important;flex-direction:column!important;flex:1!important;border:none!important;background-color:transparent!important;font-size:14px!important;text-align:left!important;padding:8px 0!important}
+        .iso-settings-content-section{display:flex!important;flex-direction:column!important;flex:1!important;padding:0 16px 0 16px!important}
+        .iso-settings-menu-option-button{display:flex!important;flex-direction:row!important;padding:12px 16px!important;margin:0 -16px 0 -16px!important;border:none!important;background-color:transparent!important;font-size:14px!important;padding-left:16px!important;text-align:left!important;cursor:pointer!important}
+        .iso-settings-menu-option-button:hover{background-color:rgba(214,214,214,.3)!important}
+        .iso-settings-menu-option-button:active{background-color:rgba(214,214,214,.4)!important}
         [for="${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}"],[for="${ID_SETTINGS_SESSION_ID_INPUT}"]{font-size:12px!important;margin-bottom:6px!important}
         .${C_MODAL_WRAPPER} input[type=text],.${C_MODAL_WRAPPER} select{height:32px!important;font-size:14px!important;border:1px solid gray!important;border-radius:4px!important;padding:0 6px!important;-moz-appearance:none!important;-webkit-appearance:none!important;appearance:none!important}
         #${ID_SETTINGS_BUTTON_BEHAVIOR_SELECT}{background-image:var(--iso-settings-select-arrow-icon)!important;background-size:24px 24px!important;background-repeat:no-repeat!important;background-position-x:99%!important;background-position-y:50%!important}
         #${ID_SETTINGS_DEVELOPER_OPTIONS_CONTAINER}{border-top:1px solid var(--iso-settings-separator-color)!important}
         #${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}{display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important}
-        .${C_SETTINGS_MENU_OPTION}.${C_SETTINGS_SECTION_COLLAPSED}{display:none!important}
-        #${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}.${C_SETTINGS_SECTION_COLLAPSED} .${C_SETTINGS_SELECT_ARROW}{transform:rotate(-90deg)!important}
-        .${C_SETTINGS_SELECT_ARROW}{background-color:transparent!important;background-image:var(--iso-settings-select-arrow-icon)!important;background-size:24px 24px!important;width:24px!important;height:24px!important}
+        .${C_SETTINGS_SECTION_COLLAPSED}{display:none!important}
+        #${ID_SETTINGS_DEVELOPER_OPTIONS_BTN}.${C_SETTINGS_SECTION_COLLAPSED} .iso-settings-select-arrow{transform:rotate(-90deg)!important}
+        .iso-settings-select-arrow{background-color:transparent!important;background-image:var(--iso-settings-select-arrow-icon)!important;background-size:24px 24px!important;width:24px!important;height:24px!important}
         .${C_STORIES_MODAL_LIST}{display:flex!important;flex-direction:row!important;overflow-x:auto!important;padding:20px 0!important}
         .${C_STORIES_MODAL_LIST_ITEM}{display:flex!important;flex-direction:column!important;align-items:center!important;margin-left:16px!important;border-radius:6px!important;opacity:1!important;color:#505050!important}
         .${C_STORIES_MODAL_LIST_ITEM},.${C_STORIES_MODAL_LIST_ITEM}:active,.${C_STORIES_MODAL_LIST_ITEM}:visited{text-decoration:none!important}
@@ -1611,8 +1625,6 @@
         .${C_STORIES_MODAL_LIST_ITEM}:last-child{margin-right:16px!important}
         .${C_STORIES_MODAL_LIST_ITEM} img{height:max(256px,calc(100vh / 2))!important;object-fit:cover!important;border-radius:6px!important}
         .${C_STORIES_MODAL_LIST_ITEM} time{color:#505050!important;margin-top:8px!important}
-        .${C_FLEX_ROW_CENTER}{display:flex!important;flex-direction:row!important;align-items:center!important}
-        .${ID_SETTINGS_DEBUGGING_CONTAINER}{padding:16px 0!important}
         #${ID_SETTINGS_DEBUGGING_INPUT}{margin-right:8px!important}
       `;
       const element = document.createElement('style');

@@ -18,12 +18,27 @@
   --iso-setting-button-icon-size: 22px;
 }
 
+.iso-flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.iso-flex-row-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.iso-settings-option-container {
+  padding: 10px 0 10px 0;
+}
+
 .__VS__C_BTN_POST__VE__,
 .__VS__C_BTN_STORY__VE__,
 .__VS__C_BTN_PROFILE_PIC__VE__,
 .__VS__C_BTN_ANONYMOUS_STORIES__VE__,
 .__VS__C_SETTINGS_BTN__VE__,
-.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__,
+.iso-settings-menu-option-button,
 .__VS__C_STORIES_MODAL_LIST_ITEM__VE__ {
   transition: all 0.2s ease-in-out;
   -webkit-transition: all 0.2s ease-in-out;
@@ -209,31 +224,30 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   text-decoration: none;
 }
 
-.__VS__C_MODAL_CONTENT_CONTAINER__VE__ {
+.iso-modal-content-container {
   display: flex;
   flex-direction: column;
   flex: 1;
-}
-
-.__VS__C_SETTINGS_MENU_OPTION__VE__ {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
   border: none;
   background-color: transparent;
   font-size: 14px;
-  padding-left: 16px;
   text-align: left;
-}
-.__VS__C_SETTINGS_MENU_OPTION__VE__ > *:last-child {
-  padding-bottom: 0;
-  margin-bottom: 0;
+  padding: 8px 0
 }
 
-.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__ {
+.iso-settings-content-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0 16px 0 16px;
+}
+
+
+.iso-settings-menu-option-button {
   display: flex;
   flex-direction: row;
   padding: 12px 16px;
+  margin: 0 -16px 0 -16px;
   border: none;
   background-color: transparent;
   font-size: 14px;
@@ -241,10 +255,10 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   text-align: left;
   cursor: pointer;
 }
-.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__:hover {
+.iso-settings-menu-option-button:hover {
   background-color: rgba(214, 214, 214, 0.3);
 }
-.__VS__C_SETTINGS_MENU_OPTION_BTN__VE__:active {
+.iso-settings-menu-option-button:active {
   background-color: rgba(214, 214, 214, 0.4);
 }
 [for="__VS__ID_SETTINGS_BUTTON_BEHAVIOR_SELECT__VE__"],
@@ -283,16 +297,17 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   justify-content: space-between;
   align-items: center;
 }
-.__VS__C_SETTINGS_MENU_OPTION__VE__.__VS__C_SETTINGS_SECTION_COLLAPSED__VE__ {
+
+.__VS__C_SETTINGS_SECTION_COLLAPSED__VE__ {
   display: none;
 }
 
 #__VS__ID_SETTINGS_DEVELOPER_OPTIONS_BTN__VE__.__VS__C_SETTINGS_SECTION_COLLAPSED__VE__
-  .__VS__C_SETTINGS_SELECT_ARROW__VE__ {
+  .iso-settings-select-arrow {
   transform: rotate(-90deg);
 }
 
-.__VS__C_SETTINGS_SELECT_ARROW__VE__ {
+.iso-settings-select-arrow {
   background-color: transparent;
   background-image: var(--iso-settings-select-arrow-icon);
   background-size: 24px 24px;
@@ -337,15 +352,6 @@ __VS__IG_S_PRIVATE_PROFILE_PIC_CONTAINER__VE__:hover .__VS__C_BTN_PROFILE_PIC__V
   margin-top: 8px;
 }
 
-.__VS__C_FLEX_ROW_CENTER__VE__ {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.__VS__ID_SETTINGS_DEBUGGING_CONTAINER__VE__ {
-  padding: 16px 0;
-}
 #__VS__ID_SETTINGS_DEBUGGING_INPUT__VE__ {
   margin-right: 8px;
 }
